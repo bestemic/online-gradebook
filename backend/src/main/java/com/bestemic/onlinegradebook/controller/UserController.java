@@ -1,16 +1,14 @@
 package com.bestemic.onlinegradebook.controller;
 
+import com.bestemic.onlinegradebook.constants.SecurityConstants;
+import com.bestemic.onlinegradebook.dto.UserLoginDto;
 import com.bestemic.onlinegradebook.model.User;
 import com.bestemic.onlinegradebook.repository.UserRepository;
 import com.bestemic.onlinegradebook.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
 import java.util.Optional;
@@ -29,10 +27,19 @@ public class UserController {
         this.passwordEncoder = passwordEncoder;
     }
 
-    @RequestMapping("/login")
-    public User getUserDetailsAfterLogin(Authentication authentication) {
-        Optional<User> user = userRepository.findByEmail(authentication.getName());
-        return user.orElse(null);
+    @PostMapping("/login")
+    public ResponseEntity<String> loginUser(@RequestBody UserLoginDto userLoginDto) {
+        String jwt = userService.generateToken(userLoginDto);
+
+        return ResponseEntity.ok()
+                .header(SecurityConstants.JWT_HEADER, jwt)
+                .body("Login Successful");
+    }
+
+    @GetMapping
+    public User getUser(){
+        Optional<User> byId = userRepository.findById(1L);
+        return byId.get();
     }
 
     @PostMapping

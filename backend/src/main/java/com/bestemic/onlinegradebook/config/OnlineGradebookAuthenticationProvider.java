@@ -3,6 +3,7 @@ package com.bestemic.onlinegradebook.config;
 
 import com.bestemic.onlinegradebook.model.Role;
 import com.bestemic.onlinegradebook.model.User;
+import com.bestemic.onlinegradebook.repository.UserRepository;
 import com.bestemic.onlinegradebook.service.UserService;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -23,9 +24,9 @@ public class OnlineGradebookAuthenticationProvider implements AuthenticationProv
 
     private final PasswordEncoder passwordEncoder;
 
-    private final UserService userService;
+    private final UserRepository userService;
 
-    public OnlineGradebookAuthenticationProvider(PasswordEncoder passwordEncoder, UserService userService) {
+    public OnlineGradebookAuthenticationProvider(PasswordEncoder passwordEncoder, UserRepository userService) {
         this.passwordEncoder = passwordEncoder;
         this.userService = userService;
     }
@@ -35,7 +36,7 @@ public class OnlineGradebookAuthenticationProvider implements AuthenticationProv
         String username = authentication.getName();
         String password = authentication.getCredentials().toString();
 
-        User user = userService.getUserByEmail(username);
+        User user = userService.findByEmail(username).orElse(null);
 
         if (user != null) {
             if (passwordEncoder.matches(password, user.getPassword())) {
