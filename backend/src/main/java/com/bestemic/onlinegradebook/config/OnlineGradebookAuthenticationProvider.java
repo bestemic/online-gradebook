@@ -1,15 +1,14 @@
 package com.bestemic.onlinegradebook.config;
 
 
+import com.bestemic.onlinegradebook.exception.InvalidEmailException;
+import com.bestemic.onlinegradebook.exception.InvalidPasswordException;
 import com.bestemic.onlinegradebook.model.Role;
 import com.bestemic.onlinegradebook.model.User;
 import com.bestemic.onlinegradebook.repository.UserRepository;
-import com.bestemic.onlinegradebook.service.UserService;
 import org.springframework.security.authentication.AuthenticationProvider;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -23,29 +22,24 @@ import java.util.Set;
 public class OnlineGradebookAuthenticationProvider implements AuthenticationProvider {
 
     private final PasswordEncoder passwordEncoder;
+    private final UserRepository userRepository;
 
-    private final UserRepository userService;
-
-    public OnlineGradebookAuthenticationProvider(PasswordEncoder passwordEncoder, UserRepository userService) {
+    public OnlineGradebookAuthenticationProvider(PasswordEncoder passwordEncoder, UserRepository userRepository) {
         this.passwordEncoder = passwordEncoder;
-        this.userService = userService;
+        this.userRepository = userRepository;
     }
 
     @Override
-    public Authentication authenticate(Authentication authentication) throws AuthenticationException {
+    public Authentication authenticate(Authentication authentication) {
         String username = authentication.getName();
         String password = authentication.getCredentials().toString();
 
-        User user = userService.findByEmail(username).orElse(null);
+        User user = userRepository.findByEmail(username).orElseThrow(() -> new InvalidEmailException("Invalid email"));
 
-        if (user != null) {
-            if (passwordEncoder.matches(password, user.getPassword())) {
-                return new UsernamePasswordAuthenticationToken(username, password, getGrantedAuthorities(user.getRoles()));
-            } else {
-                throw new BadCredentialsException("Invalid password");
-            }
+        if (passwordEncoder.matches(password, user.getPassword())) {
+            return new UsernamePasswordAuthenticationToken(username, password, getGrantedAuthorities(user.getRoles()));
         } else {
-            throw new BadCredentialsException("No user found with provided email");
+            throw new InvalidPasswordException("Invalid password");
         }
     }
 

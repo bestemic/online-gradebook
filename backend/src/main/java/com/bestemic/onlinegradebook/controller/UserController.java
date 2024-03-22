@@ -1,89 +1,54 @@
 package com.bestemic.onlinegradebook.controller;
 
-import com.bestemic.onlinegradebook.constants.SecurityConstants;
+import com.bestemic.onlinegradebook.dto.ErrorResponseDto;
+import com.bestemic.onlinegradebook.dto.TokenDto;
 import com.bestemic.onlinegradebook.dto.UserLoginDto;
-import com.bestemic.onlinegradebook.model.User;
-import com.bestemic.onlinegradebook.repository.UserRepository;
+import com.bestemic.onlinegradebook.dto.ValidationErrorDto;
 import com.bestemic.onlinegradebook.service.UserService;
-import org.springframework.http.HttpStatus;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.Date;
-import java.util.Optional;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping(path = "/api/v1/users")
+@Tag(name = "Users API", description = "Endpoints for managing users")
 public class UserController {
 
     private final UserService userService;
-    private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
 
-    public UserController(UserService userService, UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public UserController(UserService userService) {
         this.userService = userService;
-        this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
     }
 
+    @Operation(summary = "User login", description = "Endpoint for user authentication and JWT token generation.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful login operation",
+                    content = @Content(mediaType = "text/plain", schema = @Schema(implementation = TokenDto.class))
+            ),
+            @ApiResponse(responseCode = "400", description = "Validation failed",
+                    content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = ValidationErrorDto.class)))
+            ),
+            @ApiResponse(responseCode = "401", description = "Invalid email",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponseDto.class))
+            ),
+            @ApiResponse(responseCode = "401", description = "Invalid password",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponseDto.class))
+            )
+    })
     @PostMapping("/login")
-    public ResponseEntity<String> loginUser(@RequestBody UserLoginDto userLoginDto) {
-        String jwt = userService.generateToken(userLoginDto);
-
-        return ResponseEntity.ok()
-                .header(SecurityConstants.JWT_HEADER, jwt)
-                .body("Login Successful");
+    public ResponseEntity<TokenDto> loginUser(@Valid @RequestBody UserLoginDto userLoginDto) {
+        String jwt = userService.authenticateAndGenerateToken(userLoginDto);
+        return ResponseEntity.ok().body(new TokenDto(jwt));
     }
-
-    @GetMapping
-    public User getUser(){
-        Optional<User> byId = userRepository.findById(1L);
-        return byId.get();
-    }
-
-    @PostMapping
-    public ResponseEntity<String> registerUser(@RequestBody User user) {
-        User savedCustomer = null;
-        ResponseEntity response = null;
-        try {
-            String hashPwd = passwordEncoder.encode(user.getPassword());
-            user.setPassword(hashPwd);
-            user.setCreateDt(String.valueOf(new Date(System.currentTimeMillis())));
-            savedCustomer = userRepository.save(user);
-            if (savedCustomer.getId() > 0) {
-                response = ResponseEntity
-                        .status(HttpStatus.CREATED)
-                        .body("Given user details are successfully registered");
-            }
-        } catch (Exception ex) {
-            response = ResponseEntity
-                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("An exception occured due to " + ex.getMessage());
-        }
-        return response;
-    }
-
-//    @PostMapping("/signup")
-//    public ResponseEntity<?> registerUser(@RequestBody SignUpDto signUpDto) {
-//        // checking for username exists in a database
-//        if (userRepository.existsByUserName(signUpDto.getUsername())) {
-//            return new ResponseEntity<>("Username is already exist!", HttpStatus.BAD_REQUEST);
-//        }
-//        // checking for email exists in a database
-//        if (userRepository.existsByEmail(signUpDto.getEmail())) {
-//            return new ResponseEntity<>("Email is already exist!", HttpStatus.BAD_REQUEST);
-//        }
-//        // creating user object
-//        User user = new User();
-//        user.setName(signUpDto.getName());
-//        user.setUserName(signUpDto.getUsername());
-//        user.setEmail(signUpDto.getEmail());
-//        user.setPassword(passwordEncoder.encode(signUpDto.getPassword()));
-//        Role roles = roleRepository.findByName("ROLE_ADMIN").get();
-//        user.setRoles(Collections.singleton(roles));
-//        userRepository.save(user);
-//        return new ResponseEntity<>("User is registered successfully!", HttpStatus.OK);
-//    }
 
 }

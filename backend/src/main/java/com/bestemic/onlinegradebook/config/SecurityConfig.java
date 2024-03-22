@@ -1,10 +1,12 @@
 package com.bestemic.onlinegradebook.config;
 
 import com.bestemic.onlinegradebook.config.filter.JWTTokenValidatorFilter;
+import com.bestemic.onlinegradebook.handler.CustomAccessDeniedHandler;
+import com.bestemic.onlinegradebook.handler.CustomAuthenticationEntryPoint;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -14,6 +16,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.servlet.HandlerExceptionResolver;
 
 import java.util.Collections;
 import java.util.List;
@@ -21,14 +24,34 @@ import java.util.List;
 @Configuration
 public class SecurityConfig {
 
-//    @Bean
-//    public CommandLineRunner demo(RoleRepository roleRepo) {
-//        return (args) -> {
-//            Role role=new Role();
-//            role.setName("ROLE_ADMIN");
-//            roleRepo.save(role);
-//        };
-//    }
+    private static final String[] WHITE_LIST_URL = {
+            "/api/v1/users/login",
+            "/swagger-resources",
+            "/swagger-resources/**",
+            "/swagger-ui/**",
+            "/v3/api-docs/**"
+    };
+
+    private final HandlerExceptionResolver exceptionResolver;
+
+    public SecurityConfig(@Qualifier("handlerExceptionResolver") HandlerExceptionResolver exceptionResolver) {
+        this.exceptionResolver = exceptionResolver;
+    }
+
+    @Bean
+    public JWTTokenValidatorFilter jwtTokenValidatorFilter() {
+        return new JWTTokenValidatorFilter(exceptionResolver);
+    }
+
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
+        return authenticationConfiguration.getAuthenticationManager();
+    }
+
+    @Bean
+    PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
 
     @Bean
     SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
@@ -43,29 +66,15 @@ public class SecurityConfig {
                     config.setMaxAge(3600L);
                     return config;
                 })).csrf(AbstractHttpConfigurer::disable)
-                .addFilterBefore(new JWTTokenValidatorFilter(), UsernamePasswordAuthenticationFilter.class)
-
-//                .addFilterAfter(new JWTTokenGeneratorFilter(), BasicAuthenticationFilter.class)
-
-
-                // TODO add filters
-
+                .addFilterBefore(jwtTokenValidatorFilter(), UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests((request) -> request
-                        .requestMatchers("/secured", "/api/v1/users").authenticated()
-                        .requestMatchers("/api/v1/users/login").permitAll());
-//                .formLogin(Customizer.withDefaults())
-//                .httpBasic(Customizer.withDefaults());
+                        .requestMatchers(WHITE_LIST_URL).permitAll()
+                        .anyRequest().authenticated()
+                )
+                .exceptionHandling(e -> {
+                    e.authenticationEntryPoint(new CustomAuthenticationEntryPoint(exceptionResolver));
+                    e.accessDeniedHandler(new CustomAccessDeniedHandler(exceptionResolver));
+                });
         return http.build();
-    }
-
-    @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration)
-            throws Exception {
-        return authenticationConfiguration.getAuthenticationManager();
-    }
-
-    @Bean
-    PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
     }
 }
