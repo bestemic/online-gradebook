@@ -1,0 +1,1 @@
+export const UNAVAILABLE = 'Service temporarily unavailable, please try again later'

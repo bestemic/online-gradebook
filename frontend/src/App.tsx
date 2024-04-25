@@ -1,35 +1,45 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import Login from "./components/Login.tsx";
+import {Route, Routes} from "react-router-dom";
+import Admin from "./components/Admin.tsx";
+import Teacher from "./components/Teacher.tsx";
+import Student from "./components/Student.tsx";
+import NotFound from "./components/NotFound.tsx";
+import Unauthorized from "./components/Unauthorized.tsx";
+import MainPage from "./components/MainPage.tsx";
+import RequireAuth from "./components/RequireAuth.tsx";
+import Navigation from "./components/Navigation.tsx";
+import {ROLES} from "./constants/roles.ts";
 
 function App() {
-  const [count, setCount] = useState(0)
 
-  return (
-    <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    return (
+        <div className="App">
+            <Routes>
+                <Route path="/" element={<Navigation/>}>
+                    <Route path="login" element={<Login/>}/>
+                    <Route path="unauthorized" element={<Unauthorized/>}/>
+
+                    <Route element={<RequireAuth allowedRoles={[ROLES.Admin, ROLES.Teacher, ROLES.Student]}/>}>
+                        <Route index element={<MainPage/>}/>
+                    </Route>
+
+                    <Route element={<RequireAuth allowedRoles={[ROLES.Admin]}/>}>
+                        <Route path="admin" element={<Admin/>}/>
+                    </Route>
+
+                    <Route element={<RequireAuth allowedRoles={[ROLES.Teacher]}/>}>
+                        <Route path="teacher" element={<Teacher/>}/>
+                    </Route>
+
+                    <Route element={<RequireAuth allowedRoles={[ROLES.Student]}/>}>
+                        <Route path="student" element={<Student/>}/>
+                    </Route>
+
+                    <Route path="*" element={<NotFound/>}/>
+                </Route>
+            </Routes>
+        </div>
+    )
 }
 
 export default App
