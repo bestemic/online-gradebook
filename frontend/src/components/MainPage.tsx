@@ -1,15 +1,6 @@
-import {Link, useNavigate} from "react-router-dom";
-import useAuth from "../hooks/useAuth.ts";
+import {Link} from "react-router-dom";
 
 const MainPage = () => {
-    const navigate = useNavigate();
-    const {setAuth} = useAuth();
-
-    const signOut = async () => {
-        setAuth({email: null, token: null});
-        navigate('/login');
-    }
-
     return (
         <div>
             <h1>Main Page</h1>
@@ -20,8 +11,6 @@ const MainPage = () => {
             <Link to="/teacher">Go to Teacher page</Link>
             <br/>
             <Link to="/student">Go to Student page</Link>
-            <br/>
-            <button onClick={signOut}>Sign Out</button>
         </div>
     );
 };
