@@ -1,9 +1,6 @@
 package com.bestemic.onlinegradebook.controller;
 
-import com.bestemic.onlinegradebook.dto.ErrorResponseDto;
-import com.bestemic.onlinegradebook.dto.TokenDto;
-import com.bestemic.onlinegradebook.dto.UserLoginDto;
-import com.bestemic.onlinegradebook.dto.ValidationErrorDto;
+import com.bestemic.onlinegradebook.dto.*;
 import com.bestemic.onlinegradebook.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -13,6 +10,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -33,15 +31,12 @@ public class UserController {
     @Operation(summary = "User login", description = "Endpoint for user authentication and JWT token generation.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successful login operation",
-                    content = @Content(mediaType = "text/plain", schema = @Schema(implementation = TokenDto.class))
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = TokenDto.class))
             ),
-            @ApiResponse(responseCode = "400", description = "Validation failed",
+            @ApiResponse(responseCode = "400", description = "Bad request",
                     content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = ValidationErrorDto.class)))
             ),
-            @ApiResponse(responseCode = "401", description = "Invalid email",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponseDto.class))
-            ),
-            @ApiResponse(responseCode = "401", description = "Invalid password",
+            @ApiResponse(responseCode = "401", description = "Invalid credentials",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponseDto.class))
             )
     })
@@ -51,4 +46,24 @@ public class UserController {
         return ResponseEntity.ok().body(new TokenDto(jwt));
     }
 
+    @Operation(summary = "User creation", description = "Endpoint for user creation and password generation. Only users with role Admin can access this endpoint.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "User created successfully",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = PasswordDto.class))
+            ),
+            @ApiResponse(responseCode = "400", description = "Bad request",
+                    content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = ValidationErrorDto.class)))
+            ),
+            @ApiResponse(responseCode = "401", description = "Unauthorized - User not logged in",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponseDto.class))
+            ),
+            @ApiResponse(responseCode = "403", description = "Forbidden - Insufficient privileges",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponseDto.class))
+            )
+    })
+    @PostMapping
+    public ResponseEntity<PasswordDto> createUser(@Valid @RequestBody UserAddDto userAddDto) {
+        String password = userService.createUser(userAddDto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(new PasswordDto(password));
+    }
 }

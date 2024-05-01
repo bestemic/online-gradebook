@@ -2,6 +2,7 @@ package com.bestemic.onlinegradebook.handler;
 
 import com.bestemic.onlinegradebook.dto.ErrorResponseDto;
 import com.bestemic.onlinegradebook.dto.ValidationErrorDto;
+import com.bestemic.onlinegradebook.exception.CustomValidationException;
 import com.bestemic.onlinegradebook.exception.InvalidEmailException;
 import com.bestemic.onlinegradebook.exception.InvalidPasswordException;
 import io.jsonwebtoken.JwtException;
@@ -41,6 +42,12 @@ public class GlobalErrorHandler {
                 .collect(Collectors.toList());
 
         return ResponseEntity.status(BAD_REQUEST).body(errors);
+    }
+
+    @ExceptionHandler(CustomValidationException.class)
+    @ResponseBody
+    public ResponseEntity<List<ValidationErrorDto>> handleCustomValidationExceptions(CustomValidationException e) {
+        return ResponseEntity.status(BAD_REQUEST).body(List.of(new ValidationErrorDto(e.getField(), List.of(e.getMessage()))));
     }
 
     @ExceptionHandler(InvalidEmailException.class)

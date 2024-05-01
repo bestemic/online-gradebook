@@ -6,6 +6,7 @@ import com.bestemic.onlinegradebook.handler.CustomAuthenticationEntryPoint;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -69,6 +70,7 @@ public class SecurityConfig {
                 .addFilterBefore(jwtTokenValidatorFilter(), UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests((request) -> request
                         .requestMatchers(WHITE_LIST_URL).permitAll()
+                        .requestMatchers(HttpMethod.POST, "api/v1/users").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling(e -> {
