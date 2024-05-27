@@ -1,14 +1,13 @@
 import Login from "./components/Login.tsx";
 import {Route, Routes} from "react-router-dom";
-import Admin from "./components/Admin.tsx";
-import Teacher from "./components/Teacher.tsx";
-import Student from "./components/Student.tsx";
+import UserManagement from "./components/UserManagement.tsx";
 import NotFound from "./components/NotFound.tsx";
 import Unauthorized from "./components/Unauthorized.tsx";
 import MainPage from "./components/MainPage.tsx";
 import RequireAuth from "./components/RequireAuth.tsx";
 import Navigation from "./components/Navigation.tsx";
 import {ROLES} from "./constants/roles.ts";
+import Classes from "./components/Classes.tsx";
 
 function App() {
 
@@ -24,15 +23,8 @@ function App() {
                     </Route>
 
                     <Route element={<RequireAuth allowedRoles={[ROLES.Admin]}/>}>
-                        <Route path="admin" element={<Admin/>}/>
-                    </Route>
-
-                    <Route element={<RequireAuth allowedRoles={[ROLES.Teacher]}/>}>
-                        <Route path="teacher" element={<Teacher/>}/>
-                    </Route>
-
-                    <Route element={<RequireAuth allowedRoles={[ROLES.Student]}/>}>
-                        <Route path="student" element={<Student/>}/>
+                        <Route path="users" element={<UserManagement/>}/>
+                        <Route path="classes" element={<Classes/>}/>
                     </Route>
 
                     <Route path="*" element={<NotFound/>}/>

@@ -1,5 +1,7 @@
 import {Link, Outlet, useNavigate} from "react-router-dom";
 import useAuth from "../hooks/useAuth.ts";
+import RequireRole from "./RequireRole.tsx";
+import {ROLES} from "../constants/roles.ts";
 
 const Navigation = () => {
     const navigate = useNavigate();
@@ -16,6 +18,20 @@ const Navigation = () => {
             {auth?.token && (
                 <nav className="bg-gray-800 py-3 sm:px-2 lg:px-5">
                     <ul className="flex justify-end space-x-5 text-white text-lg">
+                        <RequireRole allowedRoles={[ROLES.Admin]}>
+                            <li>
+                                <Link to="/classes" className="hover:text-gray-400">
+                                    Classes
+                                </Link>
+                            </li>
+                        </RequireRole>
+                        <RequireRole allowedRoles={[ROLES.Admin]}>
+                            <li>
+                                <Link to="/users" className="hover:text-gray-400">
+                                    Users
+                                </Link>
+                            </li>
+                        </RequireRole>
                         <li>
                             <Link to="/profile" className="hover:text-gray-400">
                                 Profile

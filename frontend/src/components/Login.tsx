@@ -1,6 +1,6 @@
 import useAuth from "../hooks/useAuth.ts";
 import {useLocation, useNavigate} from "react-router-dom";
-import {login} from "../services/users.ts";
+import userService from "../services/users.ts";
 import {zodResolver} from "@hookform/resolvers/zod";
 import {SubmitHandler, useForm} from "react-hook-form";
 import {z} from "zod";
@@ -27,7 +27,7 @@ const Login = () => {
     } = useForm<FormFields>({resolver: zodResolver(schema)});
 
     const handleLoginButton: SubmitHandler<FormFields> = async (data) => {
-        login(data.email, data.password)
+        userService.login(data.email, data.password)
             .then(token => {
                 setAuth({email: data.email, token: token});
                 reset()
