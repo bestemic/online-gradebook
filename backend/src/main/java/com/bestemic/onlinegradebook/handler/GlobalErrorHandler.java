@@ -5,6 +5,7 @@ import com.bestemic.onlinegradebook.dto.ValidationErrorDto;
 import com.bestemic.onlinegradebook.exception.CustomValidationException;
 import com.bestemic.onlinegradebook.exception.InvalidEmailException;
 import com.bestemic.onlinegradebook.exception.InvalidPasswordException;
+import com.bestemic.onlinegradebook.exception.NotFoundException;
 import io.jsonwebtoken.JwtException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -83,6 +84,12 @@ public class GlobalErrorHandler {
     @ExceptionHandler(NoResourceFoundException.class)
     @ResponseBody
     public ResponseEntity<ErrorResponseDto> handleNoResourceFound(NoResourceFoundException e) {
+        return ResponseEntity.status(NOT_FOUND).body(new ErrorResponseDto(NOT_FOUND.value(), NOT_FOUND.getReasonPhrase(), e.getMessage()));
+    }
+
+    @ExceptionHandler(NotFoundException.class)
+    @ResponseBody
+    public ResponseEntity<ErrorResponseDto> handleNotFound(NotFoundException e) {
         return ResponseEntity.status(NOT_FOUND).body(new ErrorResponseDto(NOT_FOUND.value(), NOT_FOUND.getReasonPhrase(), e.getMessage()));
     }
 

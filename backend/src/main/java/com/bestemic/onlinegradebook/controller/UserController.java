@@ -12,10 +12,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping(path = "/api/v1/users")
@@ -65,5 +62,27 @@ public class UserController {
     public ResponseEntity<PasswordDto> createUser(@Valid @RequestBody UserAddDto userAddDto) {
         String password = userService.createUser(userAddDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(new PasswordDto(password));
+    }
+
+    @Operation(summary = "Password changing", description = "Endpoint for password changing.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Password changed successfully"),
+            @ApiResponse(responseCode = "400", description = "Bad request",
+                    content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = ValidationErrorDto.class)))
+            ),
+            @ApiResponse(responseCode = "401", description = "Unauthorized - User not logged in",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponseDto.class))
+            ),
+            @ApiResponse(responseCode = "403", description = "Forbidden - Insufficient privileges",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponseDto.class))
+            ),
+            @ApiResponse(responseCode = "404", description = "User not found",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponseDto.class))
+            )
+    })
+    @PostMapping("/{userId}/password")
+    public ResponseEntity<Void> changePassword(@PathVariable Long userId, @Valid @RequestBody ChangePasswordDto changePasswordDto) {
+        userService.changePassword(userId, changePasswordDto);
+        return ResponseEntity.noContent().build();
     }
 }

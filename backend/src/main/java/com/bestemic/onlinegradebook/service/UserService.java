@@ -2,8 +2,10 @@ package com.bestemic.onlinegradebook.service;
 
 import com.bestemic.onlinegradebook.constants.SecurityConstants;
 import com.bestemic.onlinegradebook.dto.UserAddDto;
+import com.bestemic.onlinegradebook.dto.ChangePasswordDto;
 import com.bestemic.onlinegradebook.dto.UserLoginDto;
 import com.bestemic.onlinegradebook.exception.CustomValidationException;
+import com.bestemic.onlinegradebook.exception.NotFoundException;
 import com.bestemic.onlinegradebook.mapper.UserMapper;
 import com.bestemic.onlinegradebook.model.Role;
 import com.bestemic.onlinegradebook.model.User;
@@ -95,5 +97,16 @@ public class UserService {
         user.setPassword(passwordEncoder.encode(password));
         userRepository.save(user);
         return password;
+    }
+
+    @Transactional
+    public void changePassword(Long userId, ChangePasswordDto changePasswordDto) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("User with provided id does not exist"));
+        if (!passwordEncoder.matches(changePasswordDto.getCurrentPassword(), user.getPassword())) {
+            throw new CustomValidationException("currentPassword", "Current password don't match");
+        }
+
+        user.setPassword(passwordEncoder.encode(changePasswordDto.getNewPassword()));
+        userRepository.save(user);
     }
 }
