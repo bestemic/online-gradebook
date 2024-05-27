@@ -3,6 +3,7 @@ package com.bestemic.onlinegradebook.controller;
 import com.bestemic.onlinegradebook.dto.*;
 import com.bestemic.onlinegradebook.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -64,7 +65,7 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.CREATED).body(new PasswordDto(password));
     }
 
-    @Operation(summary = "Password changing", description = "Endpoint for password changing.")
+    @Operation(summary = "Password change", description = "Endpoint for password changing.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "204", description = "Password changed successfully"),
             @ApiResponse(responseCode = "400", description = "Bad request",
@@ -81,8 +82,29 @@ public class UserController {
             )
     })
     @PostMapping("/{userId}/password")
-    public ResponseEntity<Void> changePassword(@PathVariable Long userId, @Valid @RequestBody ChangePasswordDto changePasswordDto) {
+    public ResponseEntity<Void> changePassword(@Parameter(description = "User id", required = true) @PathVariable Long userId, @Valid @RequestBody ChangePasswordDto changePasswordDto) {
         userService.changePassword(userId, changePasswordDto);
         return ResponseEntity.noContent().build();
+    }
+
+    @Operation(summary = "Password reset", description = "Endpoint for user password reset.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Password reset successfully",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = PasswordDto.class))
+            ),
+            @ApiResponse(responseCode = "401", description = "Unauthorized - User not logged in",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponseDto.class))
+            ),
+            @ApiResponse(responseCode = "403", description = "Forbidden - Insufficient privileges",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponseDto.class))
+            ),
+            @ApiResponse(responseCode = "404", description = "User not found",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponseDto.class))
+            )
+    })
+    @PostMapping("/{userId}/reset-password")
+    public ResponseEntity<PasswordDto> resetPassword(@Parameter(description = "User id", required = true) @PathVariable Long userId) {
+        String password = userService.resetPassword(userId);
+        return ResponseEntity.ok().body(new PasswordDto(password));
     }
 }

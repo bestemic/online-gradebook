@@ -107,6 +107,17 @@ public class UserService {
         }
 
         user.setPassword(passwordEncoder.encode(changePasswordDto.getNewPassword()));
+        user.setPasswordChanged(true);
         userRepository.save(user);
+    }
+
+    @Transactional
+    public String resetPassword(Long userId) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("User with provided id does not exist"));
+        String password = CustomPasswordGenerator.generatePassword();
+        user.setPassword(passwordEncoder.encode(password));
+        user.setPasswordChanged(false);
+        userRepository.save(user);
+        return password;
     }
 }
