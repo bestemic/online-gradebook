@@ -59,9 +59,15 @@ public class UserService {
         if (authentication != null) {
             SecretKey key = Keys.hmacShaKeyFor(SecurityConstants.JWT_KEY.getBytes(StandardCharsets.UTF_8));
             Date createDate = new Date();
+
+            User user = userRepository.findByEmail(authentication.getName()).get();
+            boolean passwordChanged = user.getPasswordChanged();
+
             jwt = Jwts.builder()
+                    .claim("id", user.getId())
                     .claim("email", authentication.getName())
                     .claim("roles", RoleUtils.populateRoles(authentication.getAuthorities()))
+                    .claim("changed", passwordChanged)
                     .issuedAt(createDate)
                     .expiration(new Date(createDate.getTime() + 2700000))
                     .signWith(key).compact();

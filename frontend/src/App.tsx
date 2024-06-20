@@ -8,6 +8,7 @@ import RequireAuth from "./components/RequireAuth.tsx";
 import Navigation from "./components/Navigation.tsx";
 import {ROLES} from "./constants/roles.ts";
 import Classes from "./components/Classes.tsx";
+import ChangePassword from "./components/ChangePassword.tsx";
 
 function App() {
 
@@ -20,6 +21,7 @@ function App() {
 
                     <Route element={<RequireAuth allowedRoles={[ROLES.Admin, ROLES.Teacher, ROLES.Student]}/>}>
                         <Route index element={<MainPage/>}/>
+                        <Route path="change-password" element={<ChangePassword/>}/>
                     </Route>
 
                     <Route element={<RequireAuth allowedRoles={[ROLES.Admin]}/>}>

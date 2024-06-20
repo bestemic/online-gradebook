@@ -90,8 +90,6 @@ const AddUser = () => {
         const roleIndex = mapRoleNameToIndex(roleName);
         const currentRoleIds = getValues('roleIds') || [];
 
-        console.log("test")
-
         if (e.target.checked) {
             setValue('roleIds', [...currentRoleIds, roleIndex], {shouldValidate: true});
         } else {

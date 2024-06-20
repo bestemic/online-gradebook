@@ -4,6 +4,8 @@ import userService from "../services/users.ts";
 import {zodResolver} from "@hookform/resolvers/zod";
 import {SubmitHandler, useForm} from "react-hook-form";
 import {z} from "zod";
+import JwtInterface from "../interfaces/JwtInterface.ts";
+import {jwtDecode} from "jwt-decode";
 
 const schema = z.object({
     email: z.string().email("Invalid email address"),
@@ -30,8 +32,16 @@ const Login = () => {
         userService.login(data.email, data.password)
             .then(token => {
                 setAuth({email: data.email, token: token});
-                reset()
-                navigate(from, {replace: true});
+                reset();
+
+                const decoded: JwtInterface | undefined = token ? jwtDecode(token) : undefined;
+                const changed: boolean = decoded?.changed || false;
+
+                if (!changed) {
+                    navigate("/change-password", {replace: true, state: {from: from}});
+                } else {
+                    navigate(from, {replace: true});
+                }
             })
             .catch(error => {
                 setError("root", {message: error.message});
