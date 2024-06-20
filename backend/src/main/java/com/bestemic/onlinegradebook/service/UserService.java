@@ -1,8 +1,8 @@
 package com.bestemic.onlinegradebook.service;
 
 import com.bestemic.onlinegradebook.constants.SecurityConstants;
-import com.bestemic.onlinegradebook.dto.UserAddDto;
 import com.bestemic.onlinegradebook.dto.ChangePasswordDto;
+import com.bestemic.onlinegradebook.dto.UserAddDto;
 import com.bestemic.onlinegradebook.dto.UserLoginDto;
 import com.bestemic.onlinegradebook.exception.CustomValidationException;
 import com.bestemic.onlinegradebook.exception.NotFoundException;
@@ -24,8 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
-import java.util.Date;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -37,13 +36,15 @@ public class UserService {
     private final RoleRepository roleRepository;
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
+    private final PdfService pdfService;
 
-    public UserService(AuthenticationManager authenticationManager, UserRepository userRepository, RoleRepository roleRepository, UserMapper userMapper, PasswordEncoder passwordEncoder) {
+    public UserService(AuthenticationManager authenticationManager, UserRepository userRepository, RoleRepository roleRepository, UserMapper userMapper, PasswordEncoder passwordEncoder, PdfService pdfService) {
         this.authenticationManager = authenticationManager;
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.userMapper = userMapper;
         this.passwordEncoder = passwordEncoder;
+        this.pdfService = pdfService;
     }
 
     public String authenticateAndGenerateToken(UserLoginDto userLoginDto) {
@@ -119,5 +120,27 @@ public class UserService {
         user.setPasswordChanged(false);
         userRepository.save(user);
         return password;
+    }
+
+    @Transactional
+    public byte[] resetPasswords(List<Long> userIds) {
+        List<User> users = (List<User>) userRepository.findAllById(userIds);
+
+        if (users.size() != userIds.size()) {
+            throw new NotFoundException("One or more users not found");
+        }
+
+        Map<User, String> userPasswordMap = new HashMap<>();
+
+        for (User user : users) {
+            String password = CustomPasswordGenerator.generatePassword();
+            user.setPassword(passwordEncoder.encode(password));
+            user.setPasswordChanged(false);
+            userPasswordMap.put(user, password);
+        }
+
+        byte[] pdfBytes = pdfService.generateFileWithPasswords(userPasswordMap);
+        userRepository.saveAll(users);
+        return pdfBytes;
     }
 }

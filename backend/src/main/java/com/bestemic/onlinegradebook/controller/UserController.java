@@ -11,7 +11,9 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -87,7 +89,7 @@ public class UserController {
         return ResponseEntity.noContent().build();
     }
 
-    @Operation(summary = "Password reset", description = "Endpoint for user password reset.")
+    @Operation(summary = "Single user password reset", description = "Endpoint for user password reset.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Password reset successfully",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = PasswordDto.class))
@@ -106,5 +108,31 @@ public class UserController {
     public ResponseEntity<PasswordDto> resetPassword(@Parameter(description = "User id", required = true) @PathVariable Long userId) {
         String password = userService.resetPassword(userId);
         return ResponseEntity.ok().body(new PasswordDto(password));
+    }
+
+    @Operation(summary = "Multiple users password reset", description = "Endpoint for multiple users password reset.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Password reset successfully",
+                    content = @Content(mediaType = "application/pdf", schema = @Schema(type = "string", format = "binary"))
+            ),
+            @ApiResponse(responseCode = "401", description = "Unauthorized - User not logged in",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponseDto.class))
+            ),
+            @ApiResponse(responseCode = "403", description = "Forbidden - Insufficient privileges",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponseDto.class))
+            ),
+            @ApiResponse(responseCode = "404", description = "User not found",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponseDto.class))
+            )
+    })
+    @PostMapping("/reset-password")
+    public ResponseEntity<byte[]> resetMultiplePasswords(@Valid @RequestBody UserIdsRequestDTO userIds) {
+        byte[] pdfBytes = userService.resetPasswords(userIds.getUserIds());
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=passwords_data.pdf");
+        headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_PDF_VALUE);
+
+        return ResponseEntity.ok().headers(headers).body(pdfBytes);
     }
 }
