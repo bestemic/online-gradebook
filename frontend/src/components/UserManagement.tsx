@@ -1,5 +1,6 @@
 import {useState} from "react";
 import AddUser from "./AddUser.tsx";
+import UsersTab from "./UsersTab.tsx";
 
 
 const UserManagement = () => {
@@ -29,18 +30,10 @@ const UserManagement = () => {
             </div>
 
             <div className="h-full bg-white rounded-b shadow-2xl">
-                {activeTab === "users" ? <AllUsersTab/> : <AddUser/>}
+                {activeTab === "users" ? <UsersTab/> : <AddUser/>}
             </div>
         </div>
     );
 };
 
 export default UserManagement;
-
-const AllUsersTab = () => {
-    return (
-        <div className="flex flex-col items-center justify-center">
-            <h1 className="text-4xl font-bold text-gray-800 mb-6">All Users</h1>
-        </div>
-    );
-};

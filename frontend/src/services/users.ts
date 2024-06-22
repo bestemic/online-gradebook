@@ -78,8 +78,25 @@ const changePassword = (axiosInstance: AxiosInstance, userId: number, currentPas
         });
 }
 
+const getAll = (axiosInstance: AxiosInstance) => {
+    return axiosInstance.get(USERS_URL)
+        .then(response => response.data)
+        .catch(error => {
+            if (!error.response) {
+                throw new Error(UNAVAILABLE);
+            } else if (error.response.status === 401) {
+                throw new Error('Must be logged in');
+            } else if (error.response.status === 403) {
+                throw new Error('You do not have permission to perform this operation');
+            } else {
+                throw new Error('Failed to fetch users list');
+            }
+        });
+};
+
 export default {
     login,
     create,
-    changePassword
+    changePassword,
+    getAll
 };

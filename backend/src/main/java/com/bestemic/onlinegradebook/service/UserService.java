@@ -3,6 +3,7 @@ package com.bestemic.onlinegradebook.service;
 import com.bestemic.onlinegradebook.constants.SecurityConstants;
 import com.bestemic.onlinegradebook.dto.ChangePasswordDto;
 import com.bestemic.onlinegradebook.dto.UserAddDto;
+import com.bestemic.onlinegradebook.dto.UserDto;
 import com.bestemic.onlinegradebook.dto.UserLoginDto;
 import com.bestemic.onlinegradebook.exception.CustomValidationException;
 import com.bestemic.onlinegradebook.exception.NotFoundException;
@@ -148,5 +149,11 @@ public class UserService {
         byte[] pdfBytes = pdfService.generateFileWithPasswords(userPasswordMap);
         userRepository.saveAll(users);
         return pdfBytes;
+    }
+
+    public List<UserDto> getAllUsers() {
+        return ((List<User>) userRepository.findAll()).stream()
+                .map(userMapper::userToUserDto)
+                .collect(Collectors.toList());
     }
 }

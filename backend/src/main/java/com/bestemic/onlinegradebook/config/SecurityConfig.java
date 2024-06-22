@@ -70,6 +70,7 @@ public class SecurityConfig {
                 .addFilterBefore(jwtTokenValidatorFilter(), UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests((request) -> request
                         .requestMatchers(WHITE_LIST_URL).permitAll()
+                        .requestMatchers(HttpMethod.GET, "api/v1/users").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.POST, "api/v1/users").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.POST, "api/v1/users/{userId}/reset-password").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.POST, "api/v1/users/reset-password").hasRole("ADMIN")

@@ -7,7 +7,6 @@ const getAll = (axiosInstance: AxiosInstance) => {
     return axiosInstance.get(GET_URL)
         .then(response => response.data)
         .catch(error => {
-            console.log(error.response);
             if (!error.response) {
                 throw new Error(UNAVAILABLE);
             } else if (error.response.status === 401) {
