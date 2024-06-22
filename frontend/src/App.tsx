@@ -9,11 +9,14 @@ import Navigation from "./components/Navigation.tsx";
 import {ROLES} from "./constants/roles.ts";
 import Classes from "./components/Classes.tsx";
 import ChangePassword from "./components/ChangePassword.tsx";
+import {ToastContainer} from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
 
 function App() {
 
     return (
         <div className="App">
+            <ToastContainer/>
             <Routes>
                 <Route path="/" element={<Navigation/>}>
                     <Route path="login" element={<Login/>}/>

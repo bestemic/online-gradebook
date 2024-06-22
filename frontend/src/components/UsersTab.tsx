@@ -5,6 +5,7 @@ import {
     MantineReactTable,
     type MRT_ColumnDef,
     MRT_GlobalFilterTextInput,
+    MRT_Row,
     MRT_ToggleFiltersButton,
     useMantineReactTable,
 } from 'mantine-react-table';
@@ -14,6 +15,7 @@ import {Menu} from '@mantine/core';
 import {IRole} from "../interfaces/RoleInterface.ts";
 import useAxiosPrivate from "../hooks/useAxiosPrivate.ts";
 import userService from "../services/users.ts";
+import {toast} from "react-toastify";
 
 const UsersTab = () => {
     const axiosPrivate = useAxiosPrivate();
@@ -30,6 +32,42 @@ const UsersTab = () => {
                 setError(error.message);
             });
     }, [axiosPrivate]);
+
+    const copyToClipboard = (text: string) => {
+        navigator.clipboard.writeText(text);
+    };
+
+    const handlePasswordsReset = () => {
+        table.getSelectedRowModel().flatRows.map(() => {
+            alert('reset passwords');  // TODO reset password
+        });
+    };
+
+    const handlePasswordReset = (row: MRT_Row<IUser>) => {
+        userService.resetPassword(axiosPrivate, row.original.id)
+            .then((password) => {
+                toast.success(
+                    <span className="cursor-pointer hover:bg-gray-200 p-2 rounded"
+                          onClick={() => copyToClipboard(password)}>New password: {password}</span>,
+                    {
+                        position: "top-center",
+                        autoClose: false,
+                        closeOnClick: false,
+                    }
+                );
+            })
+            .catch((error) => {
+                toast.error(error.message, {
+                    position: "top-center",
+                    autoClose: false,
+                    closeOnClick: false,
+                });
+            });
+    };
+
+    const handleViewProfile = () => {
+        alert('profile');  // TODO profile view
+    };
 
     const formatRoleName = (roleName: string) => {
         const parts = roleName.split('_');
@@ -75,20 +113,6 @@ const UsersTab = () => {
             }
         ], []);
 
-    const handlePasswordsReset = () => {
-        table.getSelectedRowModel().flatRows.map(() => {
-            alert('reset passwords');  // TODO reset password
-        });
-    };
-
-    const handlePasswordReset = () => {
-        alert('reset password');  // TODO reset password
-    };
-
-    const handleViewProfile = () => {
-        alert('profile');  // TODO profile view
-    };
-
     const table = useMantineReactTable({
         columns,
         data: users,
@@ -99,10 +123,11 @@ const UsersTab = () => {
             showGlobalFilter: true,
         },
         positionToolbarAlertBanner: 'bottom',
-        renderRowActionMenuItems: () => (
+        renderRowActionMenuItems: ({row}) => (
             <>
                 <Menu.Item leftSection={<IconUserCircle/>} onClick={handleViewProfile}>View profile</Menu.Item>
-                <Menu.Item leftSection={<IconRefresh/>} onClick={handlePasswordReset}>Reset password</Menu.Item>
+                <Menu.Item leftSection={<IconRefresh/>} onClick={() => handlePasswordReset(row)}>Reset
+                    password</Menu.Item>
             </>
         ),
         renderTopToolbar: ({table}) => {
