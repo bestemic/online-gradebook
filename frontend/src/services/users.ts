@@ -112,10 +112,41 @@ const resetPassword = (axiosInstance: AxiosInstance, userId: number) => {
         });
 };
 
+const resetPasswords = (axiosInstance: AxiosInstance, userIds: number[]) => {
+    return axiosInstance.post(`${USERS_URL}/reset-password`, {userIds}, {responseType: 'blob'})
+        .then(response => {
+            const header = response.headers['content-disposition'];
+            const filename = header.split('filename=')[1];
+
+            const url = window.URL.createObjectURL(new Blob([response.data], {type: 'application/pdf'}));
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = filename;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(url);
+        })
+        .catch(error => {
+            if (!error.response) {
+                throw new Error(UNAVAILABLE);
+            } else if (error.response.status === 401) {
+                throw new Error('Must be logged in');
+            } else if (error.response.status === 403) {
+                throw new Error('You do not have permission to perform this operation');
+            } else if (error.response.status === 404) {
+                throw new Error('User not found');
+            } else {
+                throw new Error('Failed to reset passwords');
+            }
+        });
+};
+
 export default {
     login,
     create,
     changePassword,
     getAll,
-    resetPassword
+    resetPassword,
+    resetPasswords
 };

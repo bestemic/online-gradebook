@@ -38,9 +38,15 @@ const UsersTab = () => {
     };
 
     const handlePasswordsReset = () => {
-        table.getSelectedRowModel().flatRows.map(() => {
-            alert('reset passwords');  // TODO reset password
-        });
+        const selectedIds = table.getSelectedRowModel().flatRows.map(row => row.original.id);
+        userService.resetPasswords(axiosPrivate, selectedIds)
+            .catch((error) => {
+                toast.error(error.message, {
+                    position: "top-center",
+                    autoClose: false,
+                    closeOnClick: false,
+                });
+            });
     };
 
     const handlePasswordReset = (row: MRT_Row<IUser>) => {
@@ -140,7 +146,7 @@ const UsersTab = () => {
                     <div className="flex space-x-2">
                         <button
                             className="bg-blue-500 text-white px-4 py-2 rounded disabled:opacity-50"
-                            disabled={!table.getIsSomeRowsSelected()}
+                            disabled={!(table.getIsAllRowsSelected() || table.getIsSomeRowsSelected())}
                             onClick={handlePasswordsReset}
                         >
                             Reset password
