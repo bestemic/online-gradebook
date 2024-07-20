@@ -16,13 +16,16 @@ const UserProfile = () => {
     const [user, setUser] = useState<IUser | null>(null);
     const [error, setError] = useState<string | null>(null);
 
-    useEffect(() => {
-        const decoded: JwtInterface | undefined = auth?.token ? jwtDecode(auth.token) : undefined;
-        const currentUserId = decoded?.id;
-        const roles: string[] = decoded?.roles.split(',') || [];
-        const isAdmin = roles.includes(ROLES.Admin);
+    const decoded: JwtInterface | undefined = auth?.token ? jwtDecode(auth.token) : undefined;
+    const currentUserId = decoded?.id;
 
+    useEffect(() => {
         if (id) {
+            const decoded: JwtInterface | undefined = auth?.token ? jwtDecode(auth.token) : undefined;
+            const currentUserId = decoded?.id;
+            const roles: string[] = decoded?.roles.split(',') || [];
+            const isAdmin = roles.includes(ROLES.Admin);
+
             if (!isAdmin) {
                 if (Number(id) !== currentUserId) {
                     navigate("/unauthorized");
@@ -41,12 +44,16 @@ const UserProfile = () => {
         } else {
             setError('Invalid user ID');
         }
-    }, [auth.token, axiosPrivate, id, navigate]);
+    }, [auth.token, axiosPrivate, currentUserId, id, navigate]);
 
     const formatRoleName = (roleName: string) => {
         const parts = roleName.split('_');
         const formatted = parts.length > 1 ? parts[1].toLowerCase() : roleName.toLowerCase();
         return formatted.charAt(0).toUpperCase() + formatted.slice(1);
+    };
+
+    const handlePasswordChange = () => {
+        navigate("/change-password", {state: {from: `/users/${id}`}});
     };
 
     return (
@@ -94,6 +101,17 @@ const UserProfile = () => {
                                 {user.roles.flatMap(role => formatRoleName(role.name)).join(", ")}
                             </div>
                         </div>
+
+                        {Number(id) === currentUserId && (
+                            <div className="mt-12">
+                                <button
+                                    onClick={handlePasswordChange}
+                                    className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition duration-300"
+                                >
+                                    Change Password
+                                </button>
+                            </div>
+                        )}
                     </div>
                 ) : error ? (
                     <div className="text-red-500">{error}</div>
