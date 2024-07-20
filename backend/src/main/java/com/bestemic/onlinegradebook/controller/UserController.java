@@ -158,4 +158,25 @@ public class UserController {
         List<UserDto> users = userService.getAllUsers();
         return ResponseEntity.ok().body(users);
     }
+
+    @Operation(summary = "Get user by ID", description = "Endpoint for retrieving a user by their ID.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "User retrieved successfully",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = UserDto.class))
+            ),
+            @ApiResponse(responseCode = "401", description = "Unauthorized - User not logged in",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponseDto.class))
+            ),
+            @ApiResponse(responseCode = "403", description = "Forbidden - Insufficient privileges",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponseDto.class))
+            ),
+            @ApiResponse(responseCode = "404", description = "Not Found - User does not exist",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponseDto.class))
+            )
+    })
+    @GetMapping("/{userId}")
+    public ResponseEntity<UserDto> getUserById(@PathVariable Long userId) {
+        UserDto user = userService.getUserById(userId);
+        return ResponseEntity.ok().body(user);
+    }
 }

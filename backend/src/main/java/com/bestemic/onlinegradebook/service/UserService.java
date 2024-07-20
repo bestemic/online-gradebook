@@ -156,4 +156,13 @@ public class UserService {
                 .map(userMapper::userToUserDto)
                 .collect(Collectors.toList());
     }
+
+    public UserDto getUserById(Long userId) {
+        Optional<User> userOptional = userRepository.findById(userId);
+        if (userOptional.isPresent()) {
+            return userMapper.userToUserDto(userOptional.get());
+        } else {
+            throw new NotFoundException("User not found with ID: " + userId);
+        }
+    }
 }

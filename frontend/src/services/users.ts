@@ -94,6 +94,24 @@ const getAll = (axiosInstance: AxiosInstance) => {
         });
 };
 
+const get = (axiosInstance: AxiosInstance, userId: string) => {
+    return axiosInstance.get(`${USERS_URL}/${userId}`)
+        .then(response => response.data)
+        .catch(error => {
+            if (!error.response) {
+                throw new Error(UNAVAILABLE);
+            } else if (error.response.status === 401) {
+                throw new Error('Must be logged in');
+            } else if (error.response.status === 403) {
+                throw new Error('You do not have permission to perform this operation');
+            } else if (error.response.status === 404) {
+                throw new Error('User not found');
+            } else {
+                throw new Error('Failed to fetch user');
+            }
+        });
+}
+
 const resetPassword = (axiosInstance: AxiosInstance, userId: number) => {
     return axiosInstance.post(`${USERS_URL}/${userId}/reset-password`)
         .then(response => response.data.password)
@@ -147,6 +165,7 @@ export default {
     create,
     changePassword,
     getAll,
+    get,
     resetPassword,
     resetPasswords
 };

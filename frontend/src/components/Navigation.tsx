@@ -2,6 +2,8 @@ import {Link, Outlet, useNavigate} from "react-router-dom";
 import useAuth from "../hooks/useAuth.ts";
 import RequireRole from "./RequireRole.tsx";
 import {ROLES} from "../constants/roles.ts";
+import JwtInterface from "../interfaces/JwtInterface.ts";
+import {jwtDecode} from "jwt-decode";
 
 const Navigation = () => {
     const navigate = useNavigate();
@@ -33,7 +35,8 @@ const Navigation = () => {
                             </li>
                         </RequireRole>
                         <li>
-                            <Link to="/profile" className="hover:text-gray-400">
+                            <Link to={`/users/${(jwtDecode<JwtInterface>(auth.token))?.id}`}
+                                  className="hover:text-gray-400">
                                 Profile
                             </Link>
                         </li>

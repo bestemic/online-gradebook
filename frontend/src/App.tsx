@@ -11,6 +11,7 @@ import Classes from "./components/Classes.tsx";
 import ChangePassword from "./components/ChangePassword.tsx";
 import {ToastContainer} from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
+import UserProfile from "./components/UserProfile.tsx";
 
 function App() {
 
@@ -25,6 +26,7 @@ function App() {
                     <Route element={<RequireAuth allowedRoles={[ROLES.Admin, ROLES.Teacher, ROLES.Student]}/>}>
                         <Route index element={<MainPage/>}/>
                         <Route path="change-password" element={<ChangePassword/>}/>
+                        <Route path="/users/:id" element={<UserProfile/>}/>
                     </Route>
 
                     <Route element={<RequireAuth allowedRoles={[ROLES.Admin]}/>}>

@@ -16,8 +16,10 @@ import {IRole} from "../interfaces/RoleInterface.ts";
 import useAxiosPrivate from "../hooks/useAxiosPrivate.ts";
 import userService from "../services/users.ts";
 import {toast} from "react-toastify";
+import {useNavigate} from "react-router-dom";
 
 const UsersTab = () => {
+    const navigate = useNavigate();
     const axiosPrivate = useAxiosPrivate();
     const [users, setUsers] = useState<IUser[]>([]);
     const [error, setError] = useState<string | null>(null);
@@ -71,8 +73,9 @@ const UsersTab = () => {
             });
     };
 
-    const handleViewProfile = () => {
-        alert('profile');  // TODO profile view
+    const handleViewProfile = (row: MRT_Row<IUser>) => {
+        const userId = row.original.id;
+        navigate(`/users/${userId}`);
     };
 
     const formatRoleName = (roleName: string) => {
@@ -99,7 +102,10 @@ const UsersTab = () => {
             {
                 accessorKey: "birth",
                 header: "Birth Date",
-                Cell: ({cell}) => new Date(cell.getValue<string>()).toLocaleDateString(),
+                Cell: ({cell}) => {
+                    const dateValue = cell.getValue<string>();
+                    return dateValue ? new Date(dateValue).toLocaleDateString() : "";
+                }
             },
             {
                 accessorKey: "phoneNumber",
@@ -131,7 +137,8 @@ const UsersTab = () => {
         positionToolbarAlertBanner: 'bottom',
         renderRowActionMenuItems: ({row}) => (
             <>
-                <Menu.Item leftSection={<IconUserCircle/>} onClick={handleViewProfile}>View profile</Menu.Item>
+                <Menu.Item leftSection={<IconUserCircle/>} onClick={() => handleViewProfile(row)}>View
+                    profile</Menu.Item>
                 <Menu.Item leftSection={<IconRefresh/>} onClick={() => handlePasswordReset(row)}>Reset
                     password</Menu.Item>
             </>
