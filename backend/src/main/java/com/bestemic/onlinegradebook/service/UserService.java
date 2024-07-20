@@ -16,9 +16,11 @@ import com.bestemic.onlinegradebook.utils.CustomPasswordGenerator;
 import com.bestemic.onlinegradebook.utils.RoleUtils;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -158,11 +160,21 @@ public class UserService {
     }
 
     public UserDto getUserById(Long userId) {
-        Optional<User> userOptional = userRepository.findById(userId);
-        if (userOptional.isPresent()) {
-            return userMapper.userToUserDto(userOptional.get());
+        User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("User not found with ID: " + userId));
+        if (hasAccessToUser(userId)) {
+            return userMapper.userToUserDto(user);
         } else {
-            throw new NotFoundException("User not found with ID: " + userId);
+            throw new AccessDeniedException("You do not have permission to access this user");
         }
+    }
+
+    private boolean hasAccessToUser(Long userId) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Object principal = authentication.getPrincipal();
+        if (principal instanceof String email) {
+            User currentUser = userRepository.findByEmail(email).orElse(null);
+            return currentUser != null && (currentUser.getId().equals(userId) || authentication.getAuthorities().stream().anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_ADMIN")));
+        }
+        return false;
     }
 }
