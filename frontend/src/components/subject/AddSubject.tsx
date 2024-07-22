@@ -63,9 +63,7 @@ const AddSubject = () => {
 
                 {successMessage && (
                     <div className="mt-4">
-                        <h3 className="text-lg font-bold mt-1 text-green-600">
-                            {successMessage}
-                        </h3>
+                        <h3 className="text-lg font-bold mt-1 text-green-600">{successMessage}</h3>
                     </div>
                 )}
             </div>
