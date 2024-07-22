@@ -148,6 +148,8 @@ const resetPasswords = (axiosInstance: AxiosInstance, userIds: number[]) => {
         .catch(error => {
             if (!error.response) {
                 throw new Error(UNAVAILABLE);
+            } else if (error.response.status === 400) {
+                throw new Error('Invalid input data');
             } else if (error.response.status === 401) {
                 throw new Error('Must be logged in');
             } else if (error.response.status === 403) {

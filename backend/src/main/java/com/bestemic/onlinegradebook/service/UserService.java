@@ -2,9 +2,9 @@ package com.bestemic.onlinegradebook.service;
 
 import com.bestemic.onlinegradebook.constants.SecurityConstants;
 import com.bestemic.onlinegradebook.dto.ChangePasswordDto;
-import com.bestemic.onlinegradebook.dto.UserAddDto;
-import com.bestemic.onlinegradebook.dto.UserDto;
-import com.bestemic.onlinegradebook.dto.UserLoginDto;
+import com.bestemic.onlinegradebook.dto.user.UserAddDto;
+import com.bestemic.onlinegradebook.dto.user.UserDto;
+import com.bestemic.onlinegradebook.dto.user.UserLoginDto;
 import com.bestemic.onlinegradebook.exception.CustomValidationException;
 import com.bestemic.onlinegradebook.exception.NotFoundException;
 import com.bestemic.onlinegradebook.mapper.UserMapper;

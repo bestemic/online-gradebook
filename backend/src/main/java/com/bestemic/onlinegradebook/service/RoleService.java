@@ -1,6 +1,6 @@
 package com.bestemic.onlinegradebook.service;
 
-import com.bestemic.onlinegradebook.dto.RoleDto;
+import com.bestemic.onlinegradebook.dto.role.RoleDto;
 import com.bestemic.onlinegradebook.mapper.RoleMapper;
 import com.bestemic.onlinegradebook.repository.RoleRepository;
 import org.springframework.stereotype.Service;

@@ -1,6 +1,10 @@
 package com.bestemic.onlinegradebook.controller;
 
 import com.bestemic.onlinegradebook.dto.*;
+import com.bestemic.onlinegradebook.dto.user.UserAddDto;
+import com.bestemic.onlinegradebook.dto.user.UserDto;
+import com.bestemic.onlinegradebook.dto.user.UserIdsRequestDto;
+import com.bestemic.onlinegradebook.dto.user.UserLoginDto;
 import com.bestemic.onlinegradebook.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -131,7 +135,7 @@ public class UserController {
             )
     })
     @PostMapping("/reset-password")
-    public ResponseEntity<byte[]> resetMultiplePasswords(@Valid @RequestBody UserIdsRequestDTO userIds) {
+    public ResponseEntity<byte[]> resetMultiplePasswords(@Valid @RequestBody UserIdsRequestDto userIds) {
         byte[] pdfBytes = userService.resetPasswords(userIds.getUserIds());
 
         HttpHeaders headers = new HttpHeaders();

@@ -1,7 +1,7 @@
 package com.bestemic.onlinegradebook.mapper;
 
-import com.bestemic.onlinegradebook.dto.UserAddDto;
-import com.bestemic.onlinegradebook.dto.UserDto;
+import com.bestemic.onlinegradebook.dto.user.UserAddDto;
+import com.bestemic.onlinegradebook.dto.user.UserDto;
 import com.bestemic.onlinegradebook.model.User;
 import org.mapstruct.Mapper;
 

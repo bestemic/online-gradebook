@@ -1,17 +1,14 @@
-package com.bestemic.onlinegradebook.dto;
+package com.bestemic.onlinegradebook.dto.user;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.time.LocalDate;
-import java.util.Set;
-
 @Setter
 @Getter
 @AllArgsConstructor
-public class UserDto {
+public class UserBasicDto {
 
     @Schema(description = "Unique identifier of the user", example = "1")
     private Long id;
@@ -24,13 +21,4 @@ public class UserDto {
 
     @Schema(description = "Email address of the user", example = "john.doe@example.com")
     private String email;
-
-    @Schema(description = "Phone number of the user", example = "1234567890")
-    private String phoneNumber;
-
-    @Schema(description = "Birth date of the user", example = "1990-01-01")
-    private LocalDate birth;
-
-    @Schema(description = "Roles assigned to the user")
-    private Set<RoleDto> roles;
 }

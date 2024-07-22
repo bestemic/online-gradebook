@@ -1,6 +1,6 @@
 package com.bestemic.onlinegradebook.mapper;
 
-import com.bestemic.onlinegradebook.dto.RoleDto;
+import com.bestemic.onlinegradebook.dto.role.RoleDto;
 import com.bestemic.onlinegradebook.model.Role;
 import org.mapstruct.Mapper;
 
