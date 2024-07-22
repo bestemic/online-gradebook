@@ -29,6 +29,13 @@ const Navigation = () => {
                         </RequireRole>
                         <RequireRole allowedRoles={[ROLES.Admin]}>
                             <li>
+                                <Link to="/subjects" className="hover:text-gray-400">
+                                    Subjects
+                                </Link>
+                            </li>
+                        </RequireRole>
+                        <RequireRole allowedRoles={[ROLES.Admin]}>
+                            <li>
                                 <Link to="/users" className="hover:text-gray-400">
                                     Users
                                 </Link>

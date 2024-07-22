@@ -1,13 +1,13 @@
 import {SubmitHandler, useForm} from "react-hook-form";
 import {zodResolver} from "@hookform/resolvers/zod";
 import {z} from "zod";
-import {ROLES} from "../constants/roles.ts";
+import {ROLES} from "../../constants/roles.ts";
 import {useEffect, useState} from "react";
-import userService from "../services/users.ts";
-import roleService from "../services/roles.ts";
-import {ICreateUser} from "../interfaces/CreateUserInterface.ts";
-import {IRole} from "../interfaces/RoleInterface.ts";
-import useAxiosPrivate from "../hooks/useAxiosPrivate.ts";
+import userService from "../../services/users.ts";
+import roleService from "../../services/roles.ts";
+import {ICreateUser} from "../../interfaces/CreateUserInterface.ts";
+import {IRole} from "../../interfaces/RoleInterface.ts";
+import useAxiosPrivate from "../../hooks/useAxiosPrivate.ts";
 
 
 const AddUser = () => {
