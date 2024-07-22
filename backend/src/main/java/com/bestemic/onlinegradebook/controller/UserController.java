@@ -183,4 +183,26 @@ public class UserController {
         UserDto user = userService.getUserById(userId);
         return ResponseEntity.ok().body(user);
     }
+
+    @Operation(summary = "Assign subject to teacher", description = "Endpoint for assigning a subject to a teacher. Only users with role Teacher can be assigned to a subject.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Subject assigned successfully"),
+            @ApiResponse(responseCode = "400", description = "Bad request",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ValidationErrorDto.class))
+            ),
+            @ApiResponse(responseCode = "401", description = "Unauthorized - User not logged in",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponseDto.class))
+            ),
+            @ApiResponse(responseCode = "403", description = "Forbidden - Insufficient privileges",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponseDto.class))
+            ),
+            @ApiResponse(responseCode = "404", description = "Not Found - User or subject does not exist",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponseDto.class))
+            )
+    })
+    @PostMapping("/{userId}/subjects/{subjectId}")
+    public ResponseEntity<Void> assignSubjectToTeacher(@PathVariable Long userId, @PathVariable Long subjectId) {
+        userService.assignSubjectToTeacher(userId, subjectId);
+        return ResponseEntity.noContent().build();
+    }
 }

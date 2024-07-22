@@ -9,8 +9,10 @@ import com.bestemic.onlinegradebook.exception.CustomValidationException;
 import com.bestemic.onlinegradebook.exception.NotFoundException;
 import com.bestemic.onlinegradebook.mapper.UserMapper;
 import com.bestemic.onlinegradebook.model.Role;
+import com.bestemic.onlinegradebook.model.Subject;
 import com.bestemic.onlinegradebook.model.User;
 import com.bestemic.onlinegradebook.repository.RoleRepository;
+import com.bestemic.onlinegradebook.repository.SubjectRepository;
 import com.bestemic.onlinegradebook.repository.UserRepository;
 import com.bestemic.onlinegradebook.utils.CustomPasswordGenerator;
 import com.bestemic.onlinegradebook.utils.RoleUtils;
@@ -37,14 +39,16 @@ public class UserService {
     private final AuthenticationManager authenticationManager;
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
+    private final SubjectRepository subjectRepository;
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
     private final PdfService pdfService;
 
-    public UserService(AuthenticationManager authenticationManager, UserRepository userRepository, RoleRepository roleRepository, UserMapper userMapper, PasswordEncoder passwordEncoder, PdfService pdfService) {
+    public UserService(AuthenticationManager authenticationManager, UserRepository userRepository, RoleRepository roleRepository, SubjectRepository subjectRepository, UserMapper userMapper, PasswordEncoder passwordEncoder, PdfService pdfService) {
         this.authenticationManager = authenticationManager;
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
+        this.subjectRepository = subjectRepository;
         this.userMapper = userMapper;
         this.passwordEncoder = passwordEncoder;
         this.pdfService = pdfService;
@@ -166,6 +170,20 @@ public class UserService {
         } else {
             throw new AccessDeniedException("You do not have permission to access this user");
         }
+    }
+
+    @Transactional
+    public void assignSubjectToTeacher(Long userId, Long subjectId) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("User not found"));
+
+        boolean isTeacher = user.getRoles().stream().anyMatch(role -> role.getName().equals("ROLE_TEACHER"));
+        if (!isTeacher) {
+            throw new CustomValidationException(null, "Only users with role Teacher can be assigned to a subject");
+        }
+
+        Subject subject = subjectRepository.findById(subjectId).orElseThrow(() -> new NotFoundException("Subject not found"));
+        user.getSubjects().add(subject);
+        userRepository.save(user);
     }
 
     private boolean hasAccessToUser(Long userId) {
