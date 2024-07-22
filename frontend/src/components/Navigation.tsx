@@ -1,6 +1,6 @@
 import {Link, Outlet, useNavigate} from "react-router-dom";
 import useAuth from "../hooks/useAuth.ts";
-import RequireRole from "./RequireRole.tsx";
+import RequireRole from "./wrapper/RequireRole.tsx";
 import {ROLES} from "../constants/roles.ts";
 import JwtInterface from "../interfaces/JwtInterface.ts";
 import {jwtDecode} from "jwt-decode";

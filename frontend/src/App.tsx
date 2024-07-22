@@ -1,14 +1,14 @@
-import Login from "./components/Login.tsx";
+import Login from "./components/user/Login.tsx";
 import {Route, Routes} from "react-router-dom";
 import UserManagement from "./components/user/UserManagement.tsx";
 import NotFound from "./components/NotFound.tsx";
 import Unauthorized from "./components/Unauthorized.tsx";
 import MainPage from "./components/MainPage.tsx";
-import RequireAuth from "./components/RequireAuth.tsx";
+import RequireAuth from "./components/wrapper/RequireAuth.tsx";
 import Navigation from "./components/Navigation.tsx";
 import {ROLES} from "./constants/roles.ts";
-import Classes from "./components/Classes.tsx";
-import ChangePassword from "./components/ChangePassword.tsx";
+import Classes from "./components/class/Classes.tsx";
+import ChangePassword from "./components/user/ChangePassword.tsx";
 import {ToastContainer} from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
 import UserProfile from "./components/user/UserProfile.tsx";

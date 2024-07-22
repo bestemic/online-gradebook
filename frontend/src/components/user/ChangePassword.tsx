@@ -2,11 +2,11 @@ import {useLocation, useNavigate} from "react-router-dom";
 import {z} from "zod";
 import {zodResolver} from "@hookform/resolvers/zod";
 import {SubmitHandler, useForm} from "react-hook-form";
-import userService from "../services/users.ts";
-import JwtInterface from "../interfaces/JwtInterface.ts";
+import userService from "../../services/users.ts";
+import JwtInterface from "../../interfaces/JwtInterface.ts";
 import {jwtDecode} from "jwt-decode";
-import useAxiosPrivate from "../hooks/useAxiosPrivate.ts";
-import useAuth from "../hooks/useAuth.ts";
+import useAxiosPrivate from "../../hooks/useAxiosPrivate.ts";
+import useAuth from "../../hooks/useAuth.ts";
 
 const schema = z.object({
     currentPassword: z.string().min(4, "Current Password must be at least 4 characters long"),
