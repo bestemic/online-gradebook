@@ -1,6 +1,7 @@
 package com.bestemic.onlinegradebook.controller;
 
 import com.bestemic.onlinegradebook.dto.*;
+import com.bestemic.onlinegradebook.dto.subject.SubjectDto;
 import com.bestemic.onlinegradebook.dto.user.UserAddDto;
 import com.bestemic.onlinegradebook.dto.user.UserDto;
 import com.bestemic.onlinegradebook.dto.user.UserIdsRequestDto;
@@ -184,7 +185,7 @@ public class UserController {
         return ResponseEntity.ok().body(user);
     }
 
-    @Operation(summary = "Assign subject to teacher", description = "Endpoint for assigning a subject to a teacher. Only users with role Teacher can be assigned to a subject.")
+    @Operation(summary = "Assign subject to teacher", description = "Endpoint for assigning a subject to a teacher.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "204", description = "Subject assigned successfully"),
             @ApiResponse(responseCode = "400", description = "Bad request",
@@ -204,5 +205,26 @@ public class UserController {
     public ResponseEntity<Void> assignSubjectToTeacher(@PathVariable Long userId, @PathVariable Long subjectId) {
         userService.assignSubjectToTeacher(userId, subjectId);
         return ResponseEntity.noContent().build();
+    }
+
+    @Operation(summary = "Get user subjects", description = "Endpoint for retrieving the user subjects.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Subjects retrieved successfully",
+                    content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = SubjectDto.class)))
+            ),
+            @ApiResponse(responseCode = "401", description = "Unauthorized - User not logged in",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponseDto.class))
+            ),
+            @ApiResponse(responseCode = "403", description = "Forbidden - Insufficient privileges",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponseDto.class))
+            ),
+            @ApiResponse(responseCode = "404", description = "Not Found - User does not exist",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponseDto.class))
+            )
+    })
+    @GetMapping("/{userId}/subjects")
+    public ResponseEntity<List<SubjectDto>> getSubjectsByUser(@PathVariable Long userId) {
+        List<SubjectDto> subjects = userService.getSubjectsByUser(userId);
+        return ResponseEntity.ok().body(subjects);
     }
 }

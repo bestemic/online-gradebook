@@ -2,11 +2,13 @@ package com.bestemic.onlinegradebook.service;
 
 import com.bestemic.onlinegradebook.constants.SecurityConstants;
 import com.bestemic.onlinegradebook.dto.ChangePasswordDto;
+import com.bestemic.onlinegradebook.dto.subject.SubjectDto;
 import com.bestemic.onlinegradebook.dto.user.UserAddDto;
 import com.bestemic.onlinegradebook.dto.user.UserDto;
 import com.bestemic.onlinegradebook.dto.user.UserLoginDto;
 import com.bestemic.onlinegradebook.exception.CustomValidationException;
 import com.bestemic.onlinegradebook.exception.NotFoundException;
+import com.bestemic.onlinegradebook.mapper.SubjectMapper;
 import com.bestemic.onlinegradebook.mapper.UserMapper;
 import com.bestemic.onlinegradebook.model.Role;
 import com.bestemic.onlinegradebook.model.Subject;
@@ -41,15 +43,17 @@ public class UserService {
     private final RoleRepository roleRepository;
     private final SubjectRepository subjectRepository;
     private final UserMapper userMapper;
+    private final SubjectMapper subjectMapper;
     private final PasswordEncoder passwordEncoder;
     private final PdfService pdfService;
 
-    public UserService(AuthenticationManager authenticationManager, UserRepository userRepository, RoleRepository roleRepository, SubjectRepository subjectRepository, UserMapper userMapper, PasswordEncoder passwordEncoder, PdfService pdfService) {
+    public UserService(AuthenticationManager authenticationManager, UserRepository userRepository, RoleRepository roleRepository, SubjectRepository subjectRepository, UserMapper userMapper, SubjectMapper subjectMapper, PasswordEncoder passwordEncoder, PdfService pdfService) {
         this.authenticationManager = authenticationManager;
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.subjectRepository = subjectRepository;
         this.userMapper = userMapper;
+        this.subjectMapper = subjectMapper;
         this.passwordEncoder = passwordEncoder;
         this.pdfService = pdfService;
     }
@@ -184,6 +188,13 @@ public class UserService {
         Subject subject = subjectRepository.findById(subjectId).orElseThrow(() -> new NotFoundException("Subject not found"));
         user.getSubjects().add(subject);
         userRepository.save(user);
+    }
+
+    public List<SubjectDto> getSubjectsByUser(Long userId) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("User not found"));
+        return user.getSubjects().stream()
+                .map(subjectMapper::subjectToSubjectDto)
+                .collect(Collectors.toList());
     }
 
     private boolean hasAccessToUser(Long userId) {
