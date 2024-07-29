@@ -146,7 +146,7 @@ public class UserController {
         return ResponseEntity.ok().headers(headers).body(pdfBytes);
     }
 
-    @Operation(summary = "Get all users", description = "Endpoint for retrieving the list of users.")
+    @Operation(summary = "Get all users with given role", description = "Endpoint for retrieving the list of users with given role.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Users retrieved successfully",
                     content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = UserDto.class)))
@@ -159,8 +159,14 @@ public class UserController {
             )
     })
     @GetMapping
-    public ResponseEntity<List<UserDto>> getAllUsers() {
-        List<UserDto> users = userService.getAllUsers();
+    public ResponseEntity<List<UserDto>> getAllUsers(
+            @Parameter(
+                    name = "roleName",
+                    description = "User role name",
+                    example = "ROLE_STUDENT"
+            )
+            @RequestParam(required = false) String roleName) {
+        List<UserDto> users = userService.getAllUsers(roleName);
         return ResponseEntity.ok().body(users);
     }
 

@@ -161,10 +161,18 @@ public class UserService {
         return pdfBytes;
     }
 
-    public List<UserDto> getAllUsers() {
-        return ((List<User>) userRepository.findAll()).stream()
-                .map(userMapper::userToUserDto)
-                .collect(Collectors.toList());
+    public List<UserDto> getAllUsers(String roleName) {
+        if (roleName != null && !roleName.isEmpty()) {
+            return userRepository.findByRolesName(roleName)
+                    .stream()
+                    .map(userMapper::userToUserDto)
+                    .collect(Collectors.toList());
+        } else {
+            return ((List<User>) userRepository.findAll())
+                    .stream()
+                    .map(userMapper::userToUserDto)
+                    .collect(Collectors.toList());
+        }
     }
 
     public UserDto getUserById(Long userId) {

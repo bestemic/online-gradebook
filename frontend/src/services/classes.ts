@@ -1,6 +1,7 @@
 import {UNAVAILABLE} from "../constants/messages.ts";
 import {AxiosInstance} from "axios";
 import {IBadRequest} from "../interfaces/BadRequestInterface.ts";
+import {ICreateClassGroup} from "../interfaces/CreateClassGroupInterface.ts";
 
 const CLASSES_URL = '/classes';
 

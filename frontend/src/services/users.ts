@@ -78,8 +78,8 @@ const changePassword = (axiosInstance: AxiosInstance, userId: number, currentPas
         });
 }
 
-const getAll = (axiosInstance: AxiosInstance) => {
-    return axiosInstance.get(USERS_URL)
+const getAll = (axiosInstance: AxiosInstance, roleName = "") => {
+    return axiosInstance.get(USERS_URL, {params: {roleName}})
         .then(response => response.data)
         .catch(error => {
             if (!error.response) {
