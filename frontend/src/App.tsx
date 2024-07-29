@@ -7,12 +7,12 @@ import MainPage from "./components/MainPage.tsx";
 import RequireAuth from "./components/wrapper/RequireAuth.tsx";
 import Navigation from "./components/Navigation.tsx";
 import {ROLES} from "./constants/roles.ts";
-import Classes from "./components/class/Classes.tsx";
 import ChangePassword from "./components/user/ChangePassword.tsx";
 import {ToastContainer} from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
 import UserProfile from "./components/user/UserProfile.tsx";
 import SubjectManagement from "./components/subject/SubjectManagement.tsx";
+import ClassManagement from "./components/class/ClassManagement.tsx";
 
 function App() {
 
@@ -33,7 +33,7 @@ function App() {
                     <Route element={<RequireAuth allowedRoles={[ROLES.Admin]}/>}>
                         <Route path="users" element={<UserManagement/>}/>
                         <Route path="subjects" element={<SubjectManagement/>}/>
-                        <Route path="classes" element={<Classes/>}/>
+                        <Route path="classes" element={<ClassManagement/>}/>
                     </Route>
 
                     <Route path="*" element={<NotFound/>}/>
