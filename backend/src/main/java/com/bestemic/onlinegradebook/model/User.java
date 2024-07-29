@@ -43,4 +43,8 @@ public class User {
     @ManyToMany(fetch = FetchType.EAGER)
     private Set<Subject> subjects;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "class_id")
+    private ClassGroup classGroup;
+
 }
