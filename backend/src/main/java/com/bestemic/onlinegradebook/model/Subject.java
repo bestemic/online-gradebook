@@ -23,4 +23,7 @@ public class Subject {
     @ManyToMany(mappedBy = "subjects")
     private Set<User> teachers = new HashSet<>();
 
+    @OneToMany(mappedBy = "subject")
+    private Set<ClassGroupSubjectTeacher> classGroupSubjectTeachers = new HashSet<>();
+
 }

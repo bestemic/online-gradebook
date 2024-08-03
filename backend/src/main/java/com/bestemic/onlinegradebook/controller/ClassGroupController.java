@@ -4,6 +4,8 @@ import com.bestemic.onlinegradebook.dto.ErrorResponseDto;
 import com.bestemic.onlinegradebook.dto.ValidationErrorDto;
 import com.bestemic.onlinegradebook.dto.class_group.ClassGroupAddDto;
 import com.bestemic.onlinegradebook.dto.class_group.ClassGroupDto;
+import com.bestemic.onlinegradebook.dto.class_group.ClassGroupSubjectTeacherAssignDto;
+import com.bestemic.onlinegradebook.dto.class_group.ClassGroupSubjectTeacherDto;
 import com.bestemic.onlinegradebook.service.ClassGroupService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -67,5 +69,32 @@ public class ClassGroupController {
     ResponseEntity<List<ClassGroupDto>> getAllClasses() {
         List<ClassGroupDto> classes = classGroupService.getAllClasses();
         return ResponseEntity.ok().body(classes);
+    }
+
+    @Operation(summary = "Assign subject and teacher to class", description = "Endpoint for assigning a subject and teacher to a class. Only users with role Admin can access this endpoint.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Subject and teacher assigned successfully",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ClassGroupSubjectTeacherDto.class))
+            ),
+            @ApiResponse(responseCode = "400", description = "Bad request",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponseDto.class))
+            ),
+            @ApiResponse(responseCode = "401", description = "Unauthorized - User not logged in",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponseDto.class))
+            ),
+            @ApiResponse(responseCode = "403", description = "Forbidden - Insufficient privileges",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponseDto.class))
+            ),
+            @ApiResponse(responseCode = "404", description = "Not Found - Class, Subject, or Teacher not found",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponseDto.class))
+            ),
+            @ApiResponse(responseCode = "409", description = "Conflict - Subject is already assigned to this class",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponseDto.class))
+            )
+    })
+    @PostMapping("/{classId}/assign-subject-teacher")
+    public ResponseEntity<ClassGroupSubjectTeacherDto> assignSubjectToClassAndTeacher(@PathVariable Long classId, @Valid @RequestBody ClassGroupSubjectTeacherAssignDto assignDto) {
+        ClassGroupSubjectTeacherDto result = classGroupService.assignSubjectAndTeacherToClass(classId, assignDto);
+        return ResponseEntity.ok().body(result);
     }
 }

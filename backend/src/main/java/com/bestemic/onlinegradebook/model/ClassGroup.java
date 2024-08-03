@@ -5,7 +5,9 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Setter
 @Getter
@@ -25,5 +27,8 @@ public class ClassGroup {
 
     @OneToMany(mappedBy = "classGroup")
     private List<User> students = new ArrayList<>();
+
+    @OneToMany(mappedBy = "classGroup")
+    private Set<ClassGroupSubjectTeacher> classGroupSubjectTeachers = new HashSet<>();
 
 }

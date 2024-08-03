@@ -78,7 +78,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/v1/subjects",
                                 "/api/v1/users/{userId}/subjects/{subjectId}").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.GET, "/api/v1/classes").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.POST, "/api/v1/classes").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/api/v1/classes", "/api/v1/classes/{classId}/assign-subject-teacher").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling(e -> {

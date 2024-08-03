@@ -93,6 +93,12 @@ public class GlobalErrorHandler {
         return ResponseEntity.status(NOT_FOUND).body(new ErrorResponseDto(NOT_FOUND.value(), NOT_FOUND.getReasonPhrase(), e.getMessage()));
     }
 
+    @ExceptionHandler(IllegalStateException.class)
+    @ResponseBody
+    public ResponseEntity<ErrorResponseDto> handleIllegalState(IllegalStateException e) {
+        return ResponseEntity.status(CONFLICT).body(new ErrorResponseDto(CONFLICT.value(), CONFLICT.getReasonPhrase(), e.getMessage()));
+    }
+
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
     @ResponseBody
     public ResponseEntity<ErrorResponseDto> handleUnsupportedMethod(HttpRequestMethodNotSupportedException e) {

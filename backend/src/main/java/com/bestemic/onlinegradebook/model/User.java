@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.Set;
 
 @Setter
@@ -46,5 +47,8 @@ public class User {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "class_id")
     private ClassGroup classGroup;
+
+    @OneToMany(mappedBy = "teacher")
+    private Set<ClassGroupSubjectTeacher> classGroupSubjectTeachers = new HashSet<>();
 
 }
