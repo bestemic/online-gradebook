@@ -19,7 +19,7 @@ public class ClassGroupSubjectTeacherDto {
     private Long id;
 
     @Schema(description = "Class")
-    private ClassGroupDto classGroup;
+    private ClassGroupBasicDto classGroup;
 
     @Schema(description = "Student assigned to the class")
     private SubjectDto subject;

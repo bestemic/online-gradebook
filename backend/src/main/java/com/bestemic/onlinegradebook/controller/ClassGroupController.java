@@ -71,6 +71,27 @@ public class ClassGroupController {
         return ResponseEntity.ok().body(classes);
     }
 
+    @Operation(summary = "Get class", description = "Endpoint for retrieving class info.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Class retrieved successfully",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ClassGroupDto.class))
+            ),
+            @ApiResponse(responseCode = "401", description = "Unauthorized - User not logged in",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponseDto.class))
+            ),
+            @ApiResponse(responseCode = "403", description = "Forbidden - Insufficient privileges",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponseDto.class))
+            ),
+            @ApiResponse(responseCode = "404", description = "Not Found - Class not found",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponseDto.class))
+            )
+    })
+    @GetMapping("/{classId}")
+    ResponseEntity<ClassGroupDto> getById(@PathVariable Long classId) {
+        ClassGroupDto classGroup = classGroupService.getClassById(classId);
+        return ResponseEntity.ok().body(classGroup);
+    }
+
     @Operation(summary = "Assign subject and teacher to class", description = "Endpoint for assigning a subject and teacher to a class. Only users with role Admin can access this endpoint.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Subject and teacher assigned successfully",
@@ -96,5 +117,26 @@ public class ClassGroupController {
     public ResponseEntity<ClassGroupSubjectTeacherDto> assignSubjectToClassAndTeacher(@PathVariable Long classId, @Valid @RequestBody ClassGroupSubjectTeacherAssignDto assignDto) {
         ClassGroupSubjectTeacherDto result = classGroupService.assignSubjectAndTeacherToClass(classId, assignDto);
         return ResponseEntity.ok().body(result);
+    }
+
+    @Operation(summary = "Get all subjects assigned to class", description = "Endpoint for retrieving the list of all subjects assigned to class.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Subjects assigned to class retrieved successfully",
+                    content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = ClassGroupSubjectTeacherDto.class)))
+            ),
+            @ApiResponse(responseCode = "401", description = "Unauthorized - User not logged in",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponseDto.class))
+            ),
+            @ApiResponse(responseCode = "403", description = "Forbidden - Insufficient privileges",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponseDto.class))
+            ),
+            @ApiResponse(responseCode = "404", description = "Not Found - Class not found",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponseDto.class))
+            )
+    })
+    @GetMapping("/{classId}/subjects")
+    public ResponseEntity<List<ClassGroupSubjectTeacherDto>> getAllSubjectsAssignedToClass(@PathVariable Long classId) {
+        List<ClassGroupSubjectTeacherDto> classes = classGroupService.getAllSubjectsAssignedToClass(classId);
+        return ResponseEntity.ok().body(classes);
     }
 }

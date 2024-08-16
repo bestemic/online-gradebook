@@ -105,4 +105,18 @@ public class ClassGroupService {
         classGroupSubjectTeacher = classGroupSubjectTeacherRepository.save(classGroupSubjectTeacher);
         return classGroupMapper.classGroupSubjectTeacherToClassGroupSubjectTeacherDto(classGroupSubjectTeacher);
     }
+
+    public ClassGroupDto getClassById(Long classId) {
+        ClassGroup classGroup = classGroupRepository.findById(classId).orElseThrow(() -> new NotFoundException("Class not found with ID: " + classId));
+        return classGroupMapper.classGroupToClassGroupDto(classGroup);
+    }
+
+    public List<ClassGroupSubjectTeacherDto> getAllSubjectsAssignedToClass(Long classId) {
+        classGroupRepository.findById(classId).orElseThrow(() -> new NotFoundException("Class not found with ID: " + classId));
+
+        return classGroupSubjectTeacherRepository.findAllByClassGroupId(classId)
+                .stream()
+                .map(classGroupMapper::classGroupSubjectTeacherToClassGroupSubjectTeacherDto)
+                .collect(Collectors.toList());
+    }
 }

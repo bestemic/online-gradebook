@@ -13,6 +13,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import UserProfile from "./components/user/UserProfile.tsx";
 import SubjectManagement from "./components/subject/SubjectManagement.tsx";
 import ClassManagement from "./components/class/ClassManagement.tsx";
+import ClassProfile from "./components/class/ClassProfile.tsx";
 
 function App() {
 
@@ -28,6 +29,7 @@ function App() {
                         <Route index element={<MainPage/>}/>
                         <Route path="change-password" element={<ChangePassword/>}/>
                         <Route path="/users/:id" element={<UserProfile/>}/>
+                        <Route path="/classes/:id" element={<ClassProfile/>}/>
                     </Route>
 
                     <Route element={<RequireAuth allowedRoles={[ROLES.Admin]}/>}>
