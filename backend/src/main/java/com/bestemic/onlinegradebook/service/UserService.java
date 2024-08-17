@@ -1,7 +1,7 @@
 package com.bestemic.onlinegradebook.service;
 
 import com.bestemic.onlinegradebook.constants.SecurityConstants;
-import com.bestemic.onlinegradebook.dto.ChangePasswordDto;
+import com.bestemic.onlinegradebook.dto.password.ChangePasswordDto;
 import com.bestemic.onlinegradebook.dto.subject.SubjectDto;
 import com.bestemic.onlinegradebook.dto.user.UserAddDto;
 import com.bestemic.onlinegradebook.dto.user.UserDto;

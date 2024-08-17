@@ -1,6 +1,6 @@
 package com.bestemic.onlinegradebook.controller;
 
-import com.bestemic.onlinegradebook.dto.ErrorResponseDto;
+import com.bestemic.onlinegradebook.dto.error.ErrorResponseDto;
 import com.bestemic.onlinegradebook.dto.role.RoleDto;
 import com.bestemic.onlinegradebook.service.RoleService;
 import io.swagger.v3.oas.annotations.Operation;

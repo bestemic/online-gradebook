@@ -1,7 +1,7 @@
 package com.bestemic.onlinegradebook.controller;
 
-import com.bestemic.onlinegradebook.dto.ErrorResponseDto;
-import com.bestemic.onlinegradebook.dto.ValidationErrorDto;
+import com.bestemic.onlinegradebook.dto.error.ErrorResponseDto;
+import com.bestemic.onlinegradebook.dto.error.ValidationErrorDto;
 import com.bestemic.onlinegradebook.dto.subject.SubjectAddDto;
 import com.bestemic.onlinegradebook.dto.subject.SubjectDto;
 import com.bestemic.onlinegradebook.service.SubjectService;

@@ -1,6 +1,10 @@
 package com.bestemic.onlinegradebook.controller;
 
-import com.bestemic.onlinegradebook.dto.*;
+import com.bestemic.onlinegradebook.dto.error.ErrorResponseDto;
+import com.bestemic.onlinegradebook.dto.error.ValidationErrorDto;
+import com.bestemic.onlinegradebook.dto.password.ChangePasswordDto;
+import com.bestemic.onlinegradebook.dto.password.PasswordDto;
+import com.bestemic.onlinegradebook.dto.token.TokenDto;
 import com.bestemic.onlinegradebook.dto.subject.SubjectDto;
 import com.bestemic.onlinegradebook.dto.user.UserAddDto;
 import com.bestemic.onlinegradebook.dto.user.UserDto;

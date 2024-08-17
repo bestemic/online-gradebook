@@ -1,7 +1,7 @@
 package com.bestemic.onlinegradebook.handler;
 
-import com.bestemic.onlinegradebook.dto.ErrorResponseDto;
-import com.bestemic.onlinegradebook.dto.ValidationErrorDto;
+import com.bestemic.onlinegradebook.dto.error.ErrorResponseDto;
+import com.bestemic.onlinegradebook.dto.error.ValidationErrorDto;
 import com.bestemic.onlinegradebook.exception.CustomValidationException;
 import com.bestemic.onlinegradebook.exception.InvalidEmailException;
 import com.bestemic.onlinegradebook.exception.InvalidPasswordException;
