@@ -115,7 +115,7 @@ public class UserController {
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponseDto.class))
             )
     })
-    @PostMapping("/{userId}/reset-password")
+    @PostMapping("/{userId}/password/reset")
     public ResponseEntity<PasswordDto> resetPassword(@Parameter(description = "User id", required = true) @PathVariable Long userId) {
         String password = userService.resetPassword(userId);
         return ResponseEntity.ok().body(new PasswordDto(password));
@@ -139,7 +139,7 @@ public class UserController {
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponseDto.class))
             )
     })
-    @PostMapping("/reset-password")
+    @PostMapping("/password/reset/bulk")
     public ResponseEntity<byte[]> resetMultiplePasswords(@Valid @RequestBody UserIdsRequestDto userIds) {
         byte[] pdfBytes = userService.resetPasswords(userIds.getUserIds());
 
