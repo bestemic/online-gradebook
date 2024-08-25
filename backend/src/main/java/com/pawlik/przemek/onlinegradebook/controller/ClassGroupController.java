@@ -113,7 +113,7 @@ public class ClassGroupController {
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponseDto.class))
             )
     })
-    @PostMapping("/{classId}/assign-subject-teacher")
+    @PostMapping("/{classId}/subjects")
     public ResponseEntity<ClassGroupSubjectTeacherDto> assignSubjectToClassAndTeacher(@PathVariable Long classId, @Valid @RequestBody ClassGroupSubjectTeacherAssignDto assignDto) {
         ClassGroupSubjectTeacherDto result = classGroupService.assignSubjectAndTeacherToClass(classId, assignDto);
         return ResponseEntity.ok().body(result);
