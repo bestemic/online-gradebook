@@ -113,7 +113,7 @@ const get = (axiosInstance: AxiosInstance, userId: string) => {
 }
 
 const resetPassword = (axiosInstance: AxiosInstance, userId: number) => {
-    return axiosInstance.post(`${USERS_URL}/${userId}/reset-password`)
+    return axiosInstance.post(`${USERS_URL}/${userId}/password/reset`)
         .then(response => response.data.password)
         .catch(error => {
             if (!error.response) {
@@ -131,7 +131,7 @@ const resetPassword = (axiosInstance: AxiosInstance, userId: number) => {
 };
 
 const resetPasswords = (axiosInstance: AxiosInstance, userIds: number[]) => {
-    return axiosInstance.post(`${USERS_URL}/reset-password`, {userIds}, {responseType: 'blob'})
+    return axiosInstance.post(`${USERS_URL}/password/reset/bulk`, {userIds}, {responseType: 'blob'})
         .then(response => {
             const header = response.headers['content-disposition'];
             const filename = header.split('filename=')[1];

@@ -83,7 +83,7 @@ const getClassAssignedSubjects = (axiosInstance: AxiosInstance, id: number) => {
 }
 
 const assignSubjectAndTeacher = (axiosInstance: AxiosInstance, classId: number, subjectId: number, teacherId: number) => {
-    return axiosInstance.post(`${CLASSES_URL}/${classId}/assign-subject-teacher`, {subjectId, teacherId})
+    return axiosInstance.post(`${CLASSES_URL}/${classId}/subjects`, {subjectId, teacherId})
         .then(response => response.data)
         .catch(error => {
             if (!error.response) {
