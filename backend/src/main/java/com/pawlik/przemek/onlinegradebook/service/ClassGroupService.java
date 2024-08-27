@@ -119,4 +119,10 @@ public class ClassGroupService {
                 .map(classGroupMapper::classGroupSubjectTeacherToClassGroupSubjectTeacherDto)
                 .collect(Collectors.toList());
     }
+
+    public List<ClassGroupSubjectTeacherDto> getAllSubjects() {
+        return ((List<ClassGroupSubjectTeacher>) classGroupSubjectTeacherRepository.findAll()).stream()
+                .map(classGroupMapper::classGroupSubjectTeacherToClassGroupSubjectTeacherDto)
+                .collect(Collectors.toList());
+    }
 }

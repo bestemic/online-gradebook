@@ -139,4 +139,22 @@ public class ClassGroupController {
         List<ClassGroupSubjectTeacherDto> classes = classGroupService.getAllSubjectsAssignedToClass(classId);
         return ResponseEntity.ok().body(classes);
     }
+
+    @Operation(summary = "Get all subjects assigned to all classes", description = "Endpoint for retrieving the list of all subjects assigned to all classes.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Subjects assigned to all class retrieved successfully",
+                    content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = ClassGroupSubjectTeacherDto.class)))
+            ),
+            @ApiResponse(responseCode = "401", description = "Unauthorized - User not logged in",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponseDto.class))
+            ),
+            @ApiResponse(responseCode = "403", description = "Forbidden - Insufficient privileges",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponseDto.class))
+            )
+    })
+    @GetMapping("/subjects")
+    public ResponseEntity<List<ClassGroupSubjectTeacherDto>> getAllSubjectsInClasses() {
+        List<ClassGroupSubjectTeacherDto> classes = classGroupService.getAllSubjects();
+        return ResponseEntity.ok().body(classes);
+    }
 }

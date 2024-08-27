@@ -32,7 +32,7 @@ public class LessonAddDto {
     @Schema(description = "Date of lesson", example = "2024-01-01")
     private LocalDate date;
 
-    @NotNull(message = "Class-Subject-Teacher id id is required.")
+    @NotNull(message = "Class-Subject-Teacher id is required.")
     @Schema(description = "Class-Subject-Teacher id", example = "5")
     private Long classGroupSubjectTeacherId;
 }

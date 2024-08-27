@@ -3,7 +3,7 @@ import SubjectsTab from "./SubjectsTab.tsx";
 import AddSubject from "./AddSubject.tsx";
 
 
-const SubjectManagement = () => {
+const AdminSubjectsManagement = () => {
     const [activeTab, setActiveTab] = useState<"subjects" | "addSubject">("subjects");
 
     return (
@@ -36,4 +36,4 @@ const SubjectManagement = () => {
     );
 };
 
-export default SubjectManagement;
+export default AdminSubjectsManagement;

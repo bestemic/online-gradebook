@@ -116,10 +116,27 @@ const assignSubjectAndTeacher = (axiosInstance: AxiosInstance, classId: number, 
         });
 }
 
+const getAllSubjectsInClasses = (axiosInstance: AxiosInstance) => {
+    return axiosInstance.get(`${CLASSES_URL}/subjects`)
+        .then(response => response.data)
+        .catch(error => {
+            if (!error.response) {
+                throw new Error(UNAVAILABLE);
+            } else if (error.response.status === 401) {
+                throw new Error('Must be logged in');
+            } else if (error.response.status === 403) {
+                throw new Error('You do not have permission to perform this operation');
+            } else {
+                throw new Error('Failed to fetch all classes subjects');
+            }
+        });
+}
+
 export default {
     create,
     getAll,
     getById,
     getClassAssignedSubjects,
-    assignSubjectAndTeacher
+    assignSubjectAndTeacher,
+    getAllSubjectsInClasses
 };
