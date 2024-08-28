@@ -25,7 +25,7 @@ public class Lesson {
     @Column(nullable = false)
     private LocalDate date;
 
-    @ManyToOne
-    @JoinColumn(name = "class_group_subject_teacher_id", nullable = false)
-    private ClassGroupSubjectTeacher classGroupSubjectTeacher;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "subject_id")
+    private Subject subject;
 }

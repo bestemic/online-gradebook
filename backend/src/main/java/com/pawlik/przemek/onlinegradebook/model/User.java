@@ -5,7 +5,6 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDate;
-import java.util.HashSet;
 import java.util.Set;
 
 @Setter
@@ -39,16 +38,17 @@ public class User {
     private Boolean passwordChanged = false;
 
     @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "user_roles",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id")
+    )
     private Set<Role> roles;
 
-    @ManyToMany(fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "teacher", fetch = FetchType.LAZY)
     private Set<Subject> subjects;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "class_id")
-    private ClassGroup classGroup;
-
-    @OneToMany(mappedBy = "teacher")
-    private Set<ClassGroupSubjectTeacher> classGroupSubjectTeachers = new HashSet<>();
-
+    private SchoolClass schoolClass;
 }
