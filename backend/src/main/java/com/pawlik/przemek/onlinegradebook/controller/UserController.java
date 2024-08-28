@@ -5,7 +5,6 @@ import com.pawlik.przemek.onlinegradebook.dto.error.ValidationErrorDto;
 import com.pawlik.przemek.onlinegradebook.dto.password.ChangePasswordDto;
 import com.pawlik.przemek.onlinegradebook.dto.password.PasswordDto;
 import com.pawlik.przemek.onlinegradebook.dto.token.TokenDto;
-import com.pawlik.przemek.onlinegradebook.dto.subject.SubjectDto;
 import com.pawlik.przemek.onlinegradebook.dto.user.UserAddDto;
 import com.pawlik.przemek.onlinegradebook.dto.user.UserDto;
 import com.pawlik.przemek.onlinegradebook.dto.user.UserIdsRequestDto;
@@ -150,7 +149,7 @@ public class UserController {
         return ResponseEntity.ok().headers(headers).body(pdfBytes);
     }
 
-    @Operation(summary = "Get all users with given role", description = "Endpoint for retrieving the list of users with given role.")
+    @Operation(summary = "Get all users with given role", description = "Endpoint for retrieving the list of users with given role. When role is not specified all users are returned.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Users retrieved successfully",
                     content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = UserDto.class)))
@@ -193,48 +192,5 @@ public class UserController {
     public ResponseEntity<UserDto> getUserById(@PathVariable Long userId) {
         UserDto user = userService.getUserById(userId);
         return ResponseEntity.ok().body(user);
-    }
-
-    @Operation(summary = "Assign subject to teacher", description = "Endpoint for assigning a subject to a teacher.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "204", description = "Subject assigned successfully"),
-            @ApiResponse(responseCode = "400", description = "Bad request",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ValidationErrorDto.class))
-            ),
-            @ApiResponse(responseCode = "401", description = "Unauthorized - User not logged in",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponseDto.class))
-            ),
-            @ApiResponse(responseCode = "403", description = "Forbidden - Insufficient privileges",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponseDto.class))
-            ),
-            @ApiResponse(responseCode = "404", description = "Not Found - User or subject does not exist",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponseDto.class))
-            )
-    })
-    @PostMapping("/{userId}/subjects/{subjectId}")
-    public ResponseEntity<Void> assignSubjectToTeacher(@PathVariable Long userId, @PathVariable Long subjectId) {
-        userService.assignSubjectToTeacher(userId, subjectId);
-        return ResponseEntity.noContent().build();
-    }
-
-    @Operation(summary = "Get user subjects", description = "Endpoint for retrieving the user subjects.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Subjects retrieved successfully",
-                    content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = SubjectDto.class)))
-            ),
-            @ApiResponse(responseCode = "401", description = "Unauthorized - User not logged in",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponseDto.class))
-            ),
-            @ApiResponse(responseCode = "403", description = "Forbidden - Insufficient privileges",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponseDto.class))
-            ),
-            @ApiResponse(responseCode = "404", description = "Not Found - User does not exist",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponseDto.class))
-            )
-    })
-    @GetMapping("/{userId}/subjects")
-    public ResponseEntity<List<SubjectDto>> getSubjectsByUser(@PathVariable Long userId) {
-        List<SubjectDto> subjects = userService.getSubjectsByUser(userId);
-        return ResponseEntity.ok().body(subjects);
     }
 }

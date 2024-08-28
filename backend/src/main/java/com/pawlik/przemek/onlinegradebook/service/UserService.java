@@ -2,19 +2,15 @@ package com.pawlik.przemek.onlinegradebook.service;
 
 import com.pawlik.przemek.onlinegradebook.constants.SecurityConstants;
 import com.pawlik.przemek.onlinegradebook.dto.password.ChangePasswordDto;
-import com.pawlik.przemek.onlinegradebook.dto.subject.SubjectDto;
 import com.pawlik.przemek.onlinegradebook.dto.user.UserAddDto;
 import com.pawlik.przemek.onlinegradebook.dto.user.UserDto;
 import com.pawlik.przemek.onlinegradebook.dto.user.UserLoginDto;
 import com.pawlik.przemek.onlinegradebook.exception.CustomValidationException;
 import com.pawlik.przemek.onlinegradebook.exception.NotFoundException;
-import com.pawlik.przemek.onlinegradebook.mapper.SubjectMapper;
 import com.pawlik.przemek.onlinegradebook.mapper.UserMapper;
 import com.pawlik.przemek.onlinegradebook.model.Role;
-import com.pawlik.przemek.onlinegradebook.model.Subject;
 import com.pawlik.przemek.onlinegradebook.model.User;
 import com.pawlik.przemek.onlinegradebook.repository.RoleRepository;
-import com.pawlik.przemek.onlinegradebook.repository.SubjectRepository;
 import com.pawlik.przemek.onlinegradebook.repository.UserRepository;
 import com.pawlik.przemek.onlinegradebook.utils.CustomPasswordGenerator;
 import com.pawlik.przemek.onlinegradebook.utils.RoleUtils;
@@ -41,19 +37,15 @@ public class UserService {
     private final AuthenticationManager authenticationManager;
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
-    private final SubjectRepository subjectRepository;
     private final UserMapper userMapper;
-    private final SubjectMapper subjectMapper;
     private final PasswordEncoder passwordEncoder;
     private final PdfService pdfService;
 
-    public UserService(AuthenticationManager authenticationManager, UserRepository userRepository, RoleRepository roleRepository, SubjectRepository subjectRepository, UserMapper userMapper, SubjectMapper subjectMapper, PasswordEncoder passwordEncoder, PdfService pdfService) {
+    public UserService(AuthenticationManager authenticationManager, UserRepository userRepository, RoleRepository roleRepository, UserMapper userMapper, PasswordEncoder passwordEncoder, PdfService pdfService) {
         this.authenticationManager = authenticationManager;
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
-        this.subjectRepository = subjectRepository;
         this.userMapper = userMapper;
-        this.subjectMapper = subjectMapper;
         this.passwordEncoder = passwordEncoder;
         this.pdfService = pdfService;
     }
@@ -182,27 +174,6 @@ public class UserService {
         } else {
             throw new AccessDeniedException("You do not have permission to access this user");
         }
-    }
-
-    @Transactional
-    public void assignSubjectToTeacher(Long userId, Long subjectId) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("User not found"));
-
-        boolean isTeacher = user.getRoles().stream().anyMatch(role -> role.getName().equals("ROLE_TEACHER"));
-        if (!isTeacher) {
-            throw new CustomValidationException(null, "Only users with role Teacher can be assigned to a subject");
-        }
-
-        Subject subject = subjectRepository.findById(subjectId).orElseThrow(() -> new NotFoundException("Subject not found"));
-        user.getSubjects().add(subject);
-        userRepository.save(user);
-    }
-
-    public List<SubjectDto> getSubjectsByUser(Long userId) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("User not found"));
-        return user.getSubjects().stream()
-                .map(subjectMapper::subjectToSubjectDto)
-                .collect(Collectors.toList());
     }
 
     private boolean hasAccessToUser(Long userId) {
