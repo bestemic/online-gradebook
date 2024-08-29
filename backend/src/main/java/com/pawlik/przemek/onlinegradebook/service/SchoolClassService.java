@@ -64,4 +64,26 @@ public class SchoolClassService {
     public SchoolClass getClassObjectById(Long classId) {
         return schoolClassRepository.findById(classId).orElseThrow(() -> new NotFoundException("Class not found with ID: " + classId));
     }
+
+    public void removeStudentFromClass(Long classId, Long userId) {
+        SchoolClass schoolClass = schoolClassRepository.findById(classId).orElseThrow(() -> new NotFoundException("Class not found with ID: " + classId));
+        User student = userService.getUserObjectById(userId);
+
+        if (!schoolClass.getStudents().contains(student)) {
+            throw new IllegalArgumentException("User is not assigned to this class");
+        }
+
+        student.setSchoolClass(null);
+        schoolClass.getStudents().remove(student);
+        schoolClassRepository.save(schoolClass);
+    }
+
+    public void addStudentToClass(Long classId, Long userId) {
+        SchoolClass schoolClass = schoolClassRepository.findById(classId).orElseThrow(() -> new NotFoundException("Class not found with ID: " + classId));
+        User student = userService.getUserObjectById(userId);
+
+        student.setSchoolClass(schoolClass);
+        schoolClass.getStudents().add(student);
+        schoolClassRepository.save(schoolClass);
+    }
 }
