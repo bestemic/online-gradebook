@@ -145,31 +145,31 @@ const ClassProfile = () => {
                             {isAddingSubject ? (
                                 <div className="mt-4">
                                     <div>
-                                        <label className="block font-bold mb-1">Subject Name:</label>
-                                        <input
-                                            type="text"
-                                            className="border border-gray-300 rounded px-3 py-2 w-full"
-                                            value={subjectName}
-                                            onChange={(e) => {
-                                                setSubjectName(e.target.value);
-                                                if (e.target.value.length >= 2) {
-                                                    setSubjectNameError(null);
-                                                } else {
-                                                    setSubjectNameError("Subject name must be at least 2 characters long.");
-                                                }
-                                            }}
-                                            placeholder="Enter subject name"
-                                        />
-                                        {subjectNameError && (
-                                            <div className="text-red-500 mt-1">{subjectNameError}</div>
-                                        )}
+                                        <label className="block mb-1">Subject Name:</label>
+                                            <input
+                                                type="text"
+                                                className="border border-gray-300 rounded px-3 py-2 w-full"
+                                                value={subjectName}
+                                                onChange={(e) => {
+                                                    setSubjectName(e.target.value);
+                                                    if (e.target.value.length >= 2) {
+                                                        setSubjectNameError(null);
+                                                    } else {
+                                                        setSubjectNameError("Subject name must be at least 2 characters long.");
+                                                    }
+                                                }}
+                                                placeholder="Enter subject name"
+                                            />
+                                            {subjectNameError && (
+                                                <div className="text-red-500 mt-1">{subjectNameError}</div>
+                                            )}
                                     </div>
 
                                     {teachersError ? (
                                         <div className="text-red-500">{teachersError}</div>
                                     ) : (
                                         <div>
-                                            <label className="block font-bold mt-4 mb-1">Teacher:</label>
+                                            <label className="block mt-4 mb-1">Teacher:</label>
                                             <Select
                                                 data={teachers.map(teacher => ({
                                                     value: String(teacher.id),
@@ -185,7 +185,7 @@ const ClassProfile = () => {
                                     <div className="mt-4 flex space-x-4">
                                         <button
                                             onClick={handleAddSubject}
-                                            className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition duration-300"
+                                            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-500 transition duration-300"
                                         >
                                             Save
                                         </button>

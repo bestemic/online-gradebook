@@ -71,7 +71,7 @@ const AddSubject = () => {
                 <h1 className="text-3xl font-bold mb-4 text-center">Add New Subject</h1>
 
                 <div className="mb-4">
-                    <label className="block font-bold mb-1">Subject Name:</label>
+                    <label className="block mb-1">Subject Name:</label>
                     <input
                         type="text"
                         value={subjectName}
@@ -90,7 +90,7 @@ const AddSubject = () => {
                 </div>
 
                 <div className="mb-4">
-                    <label className="block font-bold mb-1">Class:</label>
+                    <label className="block mb-1">Class:</label>
                     <Select
                         data={classes.map(schoolClass => ({
                             value: String(schoolClass.id),
@@ -103,7 +103,7 @@ const AddSubject = () => {
                 </div>
 
                 <div className="mb-4">
-                    <label className="block font-bold mb-1">Teacher:</label>
+                    <label className="block mb-1">Teacher:</label>
                     <Select
                         data={teachers.map(teacher => ({
                             value: String(teacher.id),
@@ -118,7 +118,7 @@ const AddSubject = () => {
                 <div className="flex space-x-4">
                     <button
                         onClick={handleAddSubject}
-                        className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition duration-300"
+                        className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-500 transition duration-300"
                     >
                         Add Subject
                     </button>
