@@ -12,8 +12,9 @@ const AdminSubjects = () => {
 
     useEffect(() => {
         subjectsService.getAll(axiosPrivate)
-            .then(data => {
-                setSubjects(data);
+            .then((data: ISubject[]) => {
+                const sortedSubjects = data.sort((a, b) => a.name.localeCompare(b.name));
+                setSubjects(sortedSubjects);
                 setError(null);
             })
             .catch(error => {

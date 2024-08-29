@@ -7,6 +7,7 @@ import {ROLES} from "../../constants/roles.ts";
 import useAuth from "../../hooks/useAuth.ts";
 import JwtInterface from "../../interfaces/helper/JwtInterface.ts";
 import {jwtDecode} from "jwt-decode";
+import AddSubject from "./AddSubject.tsx";
 
 
 const SubjectsManagement = () => {
@@ -64,18 +65,24 @@ const SubjectsManagement = () => {
                         Manage Subjects
                     </button>
                 </RequireRole>
+                <RequireRole allowedRoles={[ROLES.Admin]}>
+                    <button
+                        onClick={() => setActiveTab("addSubject")}
+                        className={`px-4 py-2 rounded-t-2xl text-white text-lg font-bold border border-b-0 ${
+                            activeTab === "addSubject" ? "bg-blue-600" : "bg-blue-400"
+                        }`}
+                        style={{minWidth: "15%"}}
+                    >
+                        Add Subject
+                    </button>
+                </RequireRole>
             </div>
 
             <div className="h-full bg-white rounded-b shadow-2xl">
-                {activeTab === "adminSubjects" && (
-                    <AdminSubjects/>
-                )}
-                {activeTab === "teacherSubjects" && (
-                    <TeacherSubjects/>
-                )}
-                {activeTab === "studentSubjects" && (
-                    <StudentSubjects/>
-                )}
+                {activeTab === "adminSubjects" && (<AdminSubjects/>)}
+                {activeTab === "addSubject" && (<AddSubject/>)}
+                {activeTab === "teacherSubjects" && (<TeacherSubjects/>)}
+                {activeTab === "studentSubjects" && (<StudentSubjects/>)}
             </div>
         </div>
     );
