@@ -67,7 +67,11 @@ public class SubjectService {
     }
 
     public SubjectDto getSubjectById(Long subjectId) {
-        Subject subject = subjectRepository.findById(subjectId).orElseThrow(() -> new NotFoundException("Subject not found with ID: " + subjectId));
+        Subject subject = getSubjectObjectById(subjectId);
         return subjectMapper.subjectToSubjectDto(subject);
+    }
+
+    public Subject getSubjectObjectById(Long subjectId) {
+        return subjectRepository.findById(subjectId).orElseThrow(() -> new NotFoundException("Subject not found with ID: " + subjectId));
     }
 }
