@@ -82,6 +82,11 @@ public class SchoolClassService {
         SchoolClass schoolClass = schoolClassRepository.findById(classId).orElseThrow(() -> new NotFoundException("Class not found with ID: " + classId));
         User student = userService.getUserObjectById(userId);
 
+        boolean isStudent = student.getRoles().stream().anyMatch(role -> role.getName().equals("ROLE_STUDENT"));
+        if (!isStudent) {
+            throw new IllegalArgumentException("User with ID: " + student.getId() + " is not a student");
+        }
+
         student.setSchoolClass(schoolClass);
         schoolClass.getStudents().add(student);
         schoolClassRepository.save(schoolClass);

@@ -11,6 +11,7 @@ import RequireRole from "../wrapper/RequireRole.tsx";
 import {Select} from "@mantine/core";
 import {IUserBasic} from "../../interfaces/user/UserBasicInterface.ts";
 import {ICreateSubject} from "../../interfaces/subject/CreateSubjectInterface.ts";
+import {IconXboxX} from "@tabler/icons-react";
 
 const ClassProfile = () => {
     const {id} = useParams();
@@ -26,6 +27,11 @@ const ClassProfile = () => {
     const [teachersError, setTeachersError] = useState<string | null>(null);
     const [subjectNameError, setSubjectNameError] = useState<string | null>(null);
     const [subjectAddError, setSubjectAddError] = useState<string | null>(null);
+    const [removeStudentError, setRemoveStudentError] = useState<string | null>(null);
+    const [isAddingStudent, setIsAddingStudent] = useState(false);
+    const [selectedStudentId, setSelectedStudentId] = useState<number | null>(null);
+    const [students, setStudents] = useState<IUserBasic[]>([]);
+    const [studentAddError, setStudentAddError] = useState<string | null>(null);
 
     useEffect(() => {
         if (id) {
@@ -66,6 +72,20 @@ const ClassProfile = () => {
         }
     }, [isAddingSubject, axiosPrivate, teachers.length]);
 
+    useEffect(() => {
+        if (isAddingStudent && students.length === 0) {
+            userService.getAll(axiosPrivate, ROLES.Student)
+                .then(data => {
+                    setStudents(data);
+                    setStudentAddError(null);
+                })
+                .catch(error => {
+                    setStudentAddError(error.message);
+                });
+        }
+    }, [isAddingStudent, axiosPrivate, students.length]);
+
+
     const handleAddSubjectSection = () => {
         setSelectedTeacherId(null);
         setSubjectName("");
@@ -93,6 +113,53 @@ const ClassProfile = () => {
         }
     };
 
+    const handleRemoveStudent = (studentId: number) => {
+        if (id) {
+            classesService.removeStudent(axiosPrivate, Number(id), studentId)
+                .then(() => {
+                    if (schoolClass) {
+                        setSchoolClass({
+                            ...schoolClass,
+                            students: schoolClass.students.filter(student => student.id !== studentId)
+                        });
+                    }
+                    setRemoveStudentError(null);
+                })
+                .catch(error => {
+                    setRemoveStudentError(error.message);
+                });
+        }
+    };
+
+    const handleAddStudentSection = () => {
+        setIsAddingStudent(!isAddingStudent);
+        setSelectedStudentId(null);
+        setStudentAddError(null);
+    };
+
+    const handleAddStudent = () => {
+        if (selectedStudentId && id) {
+            classesService.addStudent(axiosPrivate, Number(id), selectedStudentId)
+                .then(() => {
+                    schoolClass?.students.push(students.find(student => student.id === selectedStudentId)!);
+                    handleAddStudentSection();
+                })
+                .catch(error => {
+                    setStudentAddError(error.message);
+                });
+        }
+    };
+
+    const getAvailableStudents = () => {
+        if (schoolClass) {
+            return students.filter(student =>
+                !schoolClass.students.some(existingStudent => existingStudent.id === student.id)
+            );
+        }
+        return students;
+    };
+
+
     return (
         <div className="h-full flex items-center justify-center">
             <div className="bg-white p-8 rounded-b shadow-2xl max-w-4xl w-full">
@@ -106,21 +173,73 @@ const ClassProfile = () => {
                             <div className="pr-8 mt-8">
                                 <h2 className="text-lg font-semibold mb-2">Students</h2>
                                 {schoolClass.students.length > 0 ? (
-                                    <ul>
-                                        {schoolClass.students.map((student) => (
-                                            <li key={student.id} className="border-t py-2 flex justify-between">
-                                                <div className="flex-1 flex items-center">
-                                                    <span>{student.firstName} {student.lastName}</span>
-                                                </div>
-                                                <span>{student.email}</span>
-                                            </li>
-                                        ))}
-                                    </ul>
+                                    <div>
+                                        <ul>
+                                            {schoolClass.students.map((student) => (
+                                                <li key={student.id} className="border-t py-2 flex justify-between">
+                                                    <div className="flex-1 flex items-center">
+                                                        <span>{student.firstName} {student.lastName}</span>
+                                                    </div>
+                                                    <span>{student.email}</span>
+                                                    <IconXboxX
+                                                        className="text-red-500 cursor-pointer hover:text-red-700 transition duration-300 ml-4"
+                                                        onClick={() => handleRemoveStudent(student.id)}
+                                                    />
+                                                </li>
+                                            ))}
+                                        </ul>
+                                        {removeStudentError && (
+                                            <div className="text-red-500">{removeStudentError}</div>)}
+                                    </div>
                                 ) : (
                                     <p>No students in this class.</p>
                                 )}
                             </div>
                         </div>
+
+                        {isAddingStudent ? (
+                            <div className="mt-2 pr-8">
+                                <div>
+                                    <label className="block mb-1">Select Student:</label>
+                                    <Select
+                                        data={getAvailableStudents().map(student => ({
+                                            value: String(student.id),
+                                            label: `${student.firstName} ${student.lastName} [${student.email}]`
+                                        }))}
+                                        placeholder="Select a student"
+                                        value={selectedStudentId ? String(selectedStudentId) : ''}
+                                        onChange={(_value, option) => setSelectedStudentId(Number(option.value))}
+                                    />
+                                </div>
+
+                                <div className="mt-4 flex space-x-4">
+                                    <button
+                                        onClick={handleAddStudent}
+                                        className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-500 transition duration-300"
+                                    >
+                                        Add Student
+                                    </button>
+                                    <button
+                                        onClick={handleAddStudentSection}
+                                        className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition duration-300"
+                                    >
+                                        Cancel
+                                    </button>
+                                </div>
+                                {studentAddError && (
+                                    <div className="text-red-500 mt-2">{studentAddError}</div>
+                                )}
+                            </div>
+                        ) : (
+                            <RequireRole allowedRoles={[ROLES.Admin]}>
+                                <button
+                                    onClick={handleAddStudentSection}
+                                    className="mt-2 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition duration-300"
+                                >
+                                    Add Student
+                                </button>
+                            </RequireRole>
+                        )}
 
                         <div className="pr-8 mt-8">
                             <h2 className="block font-bold mb-2">Assigned subjects</h2>
@@ -146,23 +265,23 @@ const ClassProfile = () => {
                                 <div className="mt-4">
                                     <div>
                                         <label className="block mb-1">Subject Name:</label>
-                                            <input
-                                                type="text"
-                                                className="border border-gray-300 rounded px-3 py-2 w-full"
-                                                value={subjectName}
-                                                onChange={(e) => {
-                                                    setSubjectName(e.target.value);
-                                                    if (e.target.value.length >= 2) {
-                                                        setSubjectNameError(null);
-                                                    } else {
-                                                        setSubjectNameError("Subject name must be at least 2 characters long.");
-                                                    }
-                                                }}
-                                                placeholder="Enter subject name"
-                                            />
-                                            {subjectNameError && (
-                                                <div className="text-red-500 mt-1">{subjectNameError}</div>
-                                            )}
+                                        <input
+                                            type="text"
+                                            className="border border-gray-300 rounded px-3 py-2 w-full"
+                                            value={subjectName}
+                                            onChange={(e) => {
+                                                setSubjectName(e.target.value);
+                                                if (e.target.value.length >= 2) {
+                                                    setSubjectNameError(null);
+                                                } else {
+                                                    setSubjectNameError("Subject name must be at least 2 characters long.");
+                                                }
+                                            }}
+                                            placeholder="Enter subject name"
+                                        />
+                                        {subjectNameError && (
+                                            <div className="text-red-500 mt-1">{subjectNameError}</div>
+                                        )}
                                     </div>
 
                                     {teachersError ? (

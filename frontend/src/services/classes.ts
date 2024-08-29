@@ -64,8 +64,48 @@ const getById = (axiosInstance: AxiosInstance, id: number) => {
         });
 }
 
+const removeStudent = (axiosInstance: AxiosInstance, classId: number, studentId: number) => {
+    return axiosInstance.delete(`${CLASSES_URL}/${classId}/students/${studentId}`)
+        .catch(error => {
+            if (!error.response) {
+                throw new Error(UNAVAILABLE);
+            } else if (error.response.status === 401) {
+                throw new Error('Must be logged in');
+            } else if (error.response.status === 403) {
+                throw new Error('You do not have permission to perform this operation');
+            } else if (error.response.status === 404) {
+                throw new Error('Student not found');
+            } else if (error.response.status === 409) {
+                throw new Error('Student is not in the class');
+            } else {
+                throw new Error('Failed to remove student from class');
+            }
+        });
+}
+
+const addStudent = (axiosInstance: AxiosInstance, classId: number, studentId: number) => {
+    return axiosInstance.post(`${CLASSES_URL}/${classId}/students/${studentId}`)
+        .catch(error => {
+            if (!error.response) {
+                throw new Error(UNAVAILABLE);
+            } else if (error.response.status === 401) {
+                throw new Error('Must be logged in');
+            } else if (error.response.status === 403) {
+                throw new Error('You do not have permission to perform this operation');
+            } else if (error.response.status === 404) {
+                throw new Error('Student not found');
+            } else if (error.response.status === 409) {
+                throw new Error('User is not a student');
+            } else {
+                throw new Error('Failed to add student to class');
+            }
+        })
+}
+
 export default {
     create,
     getAll,
-    getById
+    getById,
+    removeStudent,
+    addStudent
 };
