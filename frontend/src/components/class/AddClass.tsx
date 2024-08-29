@@ -25,14 +25,17 @@ const AddClass = () => {
 
     const axiosPrivate = useAxiosPrivate();
     const [successMessage, setSuccessMessage] = useState<string | null>(null);
-    const [students, setStudents] = useState<IUser[]>([]);
+    const [allStudents, setAllStudents] = useState<IUser[]>([]);
+    const [unassignedStudents, setUnassignedStudents] = useState<IUser[]>([]);
     const [selectedStudents, setSelectedStudents] = useState<IUser[]>([]);
     const [isInitialized, setIsInitialized] = useState(false);
+    const [showUnassignedOnly, setShowUnassignedOnly] = useState(true);
 
     useEffect(() => {
         userService.getAll(axiosPrivate, ROLES.Student)
-            .then(data => {
-                setStudents(data);
+            .then((data: IUser[]) => {
+                setAllStudents(data);
+                setUnassignedStudents(data.filter(student => student.classId === null));
                 setError("root", {message: ""});
             })
             .catch(error => {
@@ -73,13 +76,19 @@ const AddClass = () => {
     const handleSelectStudent = (student: IUser) => {
         setIsInitialized(true);
         setSelectedStudents(prev => [...prev, student]);
-        setStudents(prev => prev.filter(s => s.id !== student.id));
+        setUnassignedStudents(prev => prev.filter(s => s.id !== student.id));
     };
 
     const handleDeselectStudent = (student: IUser) => {
-        setStudents(prev => [...prev, student]);
+        setUnassignedStudents(prev => [...prev, student]);
         setSelectedStudents(prev => prev.filter(s => s.id !== student.id));
     };
+
+    const handleToggleShowUnassigned = () => {
+        setShowUnassignedOnly(prev => !prev);
+    };
+
+    const filteredStudents = showUnassignedOnly ? unassignedStudents : allStudents;
 
     const sortStudents = (list: IUser[]) => {
         return list.sort((a, b) => {
@@ -127,10 +136,19 @@ const AddClass = () => {
 
                     <div className="mb-4">
                         <label className="block mb-1">Select students:</label>
+                        <div className="flex mb-2 items-center">
+                            <input
+                                type="checkbox"
+                                checked={showUnassignedOnly}
+                                onChange={handleToggleShowUnassigned}
+                                className="mr-2 cursor-pointer"
+                            />
+                            <span>Show only unassigned students</span>
+                        </div>
                         <div className="flex">
                             <div className="w-1/2 pr-2">
                                 <ul className="border border-gray-300 rounded p-2 h-64 overflow-y-auto">
-                                    {sortStudents(students).map(student => (
+                                    {sortStudents(filteredStudents).map(student => (
                                         <li
                                             key={student.id}
                                             className="cursor-pointer hover:bg-gray-200 p-2 flex justify-between"

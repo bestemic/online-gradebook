@@ -7,5 +7,6 @@ export interface IUser {
     email: string;
     phoneNumber: string;
     birth: string;
+    classId: number;
     roles: IRole[];
 }
