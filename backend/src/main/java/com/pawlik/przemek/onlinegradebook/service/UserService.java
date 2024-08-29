@@ -2,19 +2,15 @@ package com.pawlik.przemek.onlinegradebook.service;
 
 import com.pawlik.przemek.onlinegradebook.constants.SecurityConstants;
 import com.pawlik.przemek.onlinegradebook.dto.password.ChangePasswordDto;
-import com.pawlik.przemek.onlinegradebook.dto.subject.SubjectDto;
 import com.pawlik.przemek.onlinegradebook.dto.user.UserAddDto;
 import com.pawlik.przemek.onlinegradebook.dto.user.UserDto;
 import com.pawlik.przemek.onlinegradebook.dto.user.UserLoginDto;
 import com.pawlik.przemek.onlinegradebook.exception.CustomValidationException;
 import com.pawlik.przemek.onlinegradebook.exception.NotFoundException;
-import com.pawlik.przemek.onlinegradebook.mapper.SubjectMapper;
 import com.pawlik.przemek.onlinegradebook.mapper.UserMapper;
 import com.pawlik.przemek.onlinegradebook.model.Role;
-import com.pawlik.przemek.onlinegradebook.model.Subject;
 import com.pawlik.przemek.onlinegradebook.model.User;
 import com.pawlik.przemek.onlinegradebook.repository.RoleRepository;
-import com.pawlik.przemek.onlinegradebook.repository.SubjectRepository;
 import com.pawlik.przemek.onlinegradebook.repository.UserRepository;
 import com.pawlik.przemek.onlinegradebook.utils.CustomPasswordGenerator;
 import com.pawlik.przemek.onlinegradebook.utils.RoleUtils;
@@ -41,19 +37,15 @@ public class UserService {
     private final AuthenticationManager authenticationManager;
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
-    private final SubjectRepository subjectRepository;
     private final UserMapper userMapper;
-    private final SubjectMapper subjectMapper;
     private final PasswordEncoder passwordEncoder;
     private final PdfService pdfService;
 
-    public UserService(AuthenticationManager authenticationManager, UserRepository userRepository, RoleRepository roleRepository, SubjectRepository subjectRepository, UserMapper userMapper, SubjectMapper subjectMapper, PasswordEncoder passwordEncoder, PdfService pdfService) {
+    public UserService(AuthenticationManager authenticationManager, UserRepository userRepository, RoleRepository roleRepository, UserMapper userMapper, PasswordEncoder passwordEncoder, PdfService pdfService) {
         this.authenticationManager = authenticationManager;
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
-        this.subjectRepository = subjectRepository;
         this.userMapper = userMapper;
-        this.subjectMapper = subjectMapper;
         this.passwordEncoder = passwordEncoder;
         this.pdfService = pdfService;
     }
@@ -176,7 +168,7 @@ public class UserService {
     }
 
     public UserDto getUserById(Long userId) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("User not found with ID: " + userId));
+        User user = getUserObjectById(userId);
         if (hasAccessToUser(userId)) {
             return userMapper.userToUserDto(user);
         } else {
@@ -184,25 +176,25 @@ public class UserService {
         }
     }
 
-    @Transactional
-    public void assignSubjectToTeacher(Long userId, Long subjectId) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("User not found"));
-
-        boolean isTeacher = user.getRoles().stream().anyMatch(role -> role.getName().equals("ROLE_TEACHER"));
-        if (!isTeacher) {
-            throw new CustomValidationException(null, "Only users with role Teacher can be assigned to a subject");
-        }
-
-        Subject subject = subjectRepository.findById(subjectId).orElseThrow(() -> new NotFoundException("Subject not found"));
-        user.getSubjects().add(subject);
-        userRepository.save(user);
+    public User getUserObjectById(Long userId) {
+        return userRepository.findById(userId).orElseThrow(() -> new NotFoundException("User not found with ID: " + userId));
     }
 
-    public List<SubjectDto> getSubjectsByUser(Long userId) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("User not found"));
-        return user.getSubjects().stream()
-                .map(subjectMapper::subjectToSubjectDto)
-                .collect(Collectors.toList());
+    public List<User> getAllStudentsWithIds(List<Long> studentsIds) throws Exception {
+        List<User> students = (List<User>) userRepository.findAllById(studentsIds);
+
+        if (students.size() != studentsIds.size()) {
+            throw new Exception("Some students do not exist");
+        }
+
+        for (User user : students) {
+            boolean isStudent = user.getRoles().stream().anyMatch(role -> role.getName().equals("ROLE_STUDENT"));
+            if (!isStudent) {
+                throw new Exception("User with ID: " + user.getId() + " is not a student");
+            }
+        }
+
+        return students;
     }
 
     private boolean hasAccessToUser(Long userId) {

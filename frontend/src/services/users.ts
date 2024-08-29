@@ -1,8 +1,8 @@
 import axios from "../api/axios";
 import {UNAVAILABLE} from "../constants/messages.ts";
-import {ICreateUser} from "../interfaces/CreateUserInterface.ts";
+import {ICreateUser} from "../interfaces/user/CreateUserInterface.ts";
 import {AxiosInstance} from "axios";
-import {IBadRequest} from "../interfaces/BadRequestInterface.ts";
+import {IBadRequest} from "../interfaces/helper/BadRequestInterface.ts";
 
 const LOGIN_URL = '/users/login';
 const USERS_URL = '/users';
@@ -162,45 +162,6 @@ const resetPasswords = (axiosInstance: AxiosInstance, userIds: number[]) => {
         });
 };
 
-const getUserSubjects = (axiosInstance: AxiosInstance, userId: string) => {
-    return axiosInstance.get(`${USERS_URL}/${userId}/subjects`)
-        .then(response => {
-            return response.data;
-        })
-        .catch(error => {
-            if (!error.response) {
-                throw new Error(UNAVAILABLE);
-            } else if (error.response.status === 401) {
-                throw new Error('Must be logged in');
-            } else if (error.response.status === 403) {
-                throw new Error('You do not have permission to perform this operation');
-            } else if (error.response.status === 404) {
-                throw new Error('User not found');
-            } else {
-                throw new Error('Failed to get users subjects');
-            }
-        });
-};
-
-const assignSubjectToTeacher = (axiosInstance: AxiosInstance, userId: string, subjectId: number) => {
-    return axiosInstance.post(`${USERS_URL}/${userId}/subjects/${subjectId}`)
-        .catch(error => {
-            if (!error.response) {
-                throw new Error(UNAVAILABLE);
-            } else if (error.response.status === 400) {
-                throw new Error('Only teachers can be assigned to subjects');
-            } else if (error.response.status === 401) {
-                throw new Error('Must be logged in');
-            } else if (error.response.status === 403) {
-                throw new Error('You do not have permission to perform this operation');
-            } else if (error.response.status === 404) {
-                throw new Error('User not found');
-            } else {
-                throw new Error('Failed to set subject to teacher');
-            }
-        });
-};
-
 export default {
     login,
     create,
@@ -208,7 +169,5 @@ export default {
     getAll,
     get,
     resetPassword,
-    resetPasswords,
-    getUserSubjects,
-    assignSubjectToTeacher
+    resetPasswords
 };

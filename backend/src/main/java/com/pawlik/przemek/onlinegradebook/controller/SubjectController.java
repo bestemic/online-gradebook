@@ -6,6 +6,7 @@ import com.pawlik.przemek.onlinegradebook.dto.subject.SubjectAddDto;
 import com.pawlik.przemek.onlinegradebook.dto.subject.SubjectDto;
 import com.pawlik.przemek.onlinegradebook.service.SubjectService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -43,6 +44,9 @@ public class SubjectController {
             ),
             @ApiResponse(responseCode = "403", description = "Forbidden - Insufficient privileges",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponseDto.class))
+            ),
+            @ApiResponse(responseCode = "404", description = "Not Found - Class or teacher does not exist",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponseDto.class))
             )
     })
     @PostMapping
@@ -51,7 +55,7 @@ public class SubjectController {
         return ResponseEntity.status(HttpStatus.CREATED).body(subject);
     }
 
-    @Operation(summary = "Get all subjects", description = "Endpoint for retrieving the list of all subjects.")
+    @Operation(summary = "Get all subjects", description = "Endpoint for retrieving the list of subjects. When params are not specified all subjects are returned.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Subjects retrieved successfully",
                     content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = SubjectDto.class)))
@@ -64,8 +68,14 @@ public class SubjectController {
             )
     })
     @GetMapping
-    public ResponseEntity<List<SubjectDto>> getAllSubjects() {
-        List<SubjectDto> subjects = subjectService.getAllSubjects();
+    public ResponseEntity<List<SubjectDto>> getAllSubjects(
+            @Parameter(
+                    name = "classId",
+                    description = "Class id",
+                    example = "3"
+            )
+            @RequestParam(required = false) String classId) {
+        List<SubjectDto> subjects = subjectService.getAllSubjects(classId);
         return ResponseEntity.ok().body(subjects);
     }
 

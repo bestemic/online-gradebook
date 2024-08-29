@@ -21,7 +21,6 @@ public class LessonDto {
     @Schema(description = "Date of lesson", example = "2024-01-01")
     private LocalDate date;
 
-    @Schema(description = "Class-Subject-Teacher id", example = "5")
-    private Long classGroupSubjectTeacherId;
-
+    @Schema(description = "Subject id", example = "5")
+    private Long subjectId;
 }

@@ -5,8 +5,8 @@ import {ROLES} from "../../constants/roles.ts";
 import {useEffect, useState} from "react";
 import userService from "../../services/users.ts";
 import roleService from "../../services/roles.ts";
-import {ICreateUser} from "../../interfaces/CreateUserInterface.ts";
-import {IRole} from "../../interfaces/RoleInterface.ts";
+import {ICreateUser} from "../../interfaces/user/CreateUserInterface.ts";
+import {IRole} from "../../interfaces/role/RoleInterface.ts";
 import useAxiosPrivate from "../../hooks/useAxiosPrivate.ts";
 
 

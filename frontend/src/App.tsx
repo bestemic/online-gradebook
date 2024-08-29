@@ -13,8 +13,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import UserProfile from "./components/user/UserProfile.tsx";
 import ClassManagement from "./components/class/ClassManagement.tsx";
 import ClassProfile from "./components/class/ClassProfile.tsx";
-import AdminSubjectsManagement from "./components/subject/AdminSubjectsManagement.tsx";
-import TeacherSubjects from "./components/subject/TeacherSubjects.tsx";
+import SubjectsManagement from "./components/subject/SubjectsManagement.tsx";
 
 function App() {
 
@@ -31,16 +30,12 @@ function App() {
                         <Route path="change-password" element={<ChangePassword/>}/>
                         <Route path="/users/:id" element={<UserProfile/>}/>
                         <Route path="/classes/:id" element={<ClassProfile/>}/>
+                        <Route path="subjects" element={<SubjectsManagement/>}/>
                     </Route>
 
                     <Route element={<RequireAuth allowedRoles={[ROLES.Admin]}/>}>
                         <Route path="users" element={<UserManagement/>}/>
-                        <Route path="subjects/admin" element={<AdminSubjectsManagement/>}/>
                         <Route path="classes" element={<ClassManagement/>}/>
-                    </Route>
-
-                    <Route element={<RequireAuth allowedRoles={[ROLES.Teacher]}/>}>
-                        <Route path="subjects/teacher" element={<TeacherSubjects/>}/>
                     </Route>
 
                     <Route path="*" element={<NotFound/>}/>

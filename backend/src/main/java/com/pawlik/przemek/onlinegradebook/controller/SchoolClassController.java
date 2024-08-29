@@ -2,11 +2,9 @@ package com.pawlik.przemek.onlinegradebook.controller;
 
 import com.pawlik.przemek.onlinegradebook.dto.error.ErrorResponseDto;
 import com.pawlik.przemek.onlinegradebook.dto.error.ValidationErrorDto;
-import com.pawlik.przemek.onlinegradebook.dto.class_group.ClassGroupAddDto;
-import com.pawlik.przemek.onlinegradebook.dto.class_group.ClassGroupDto;
-import com.pawlik.przemek.onlinegradebook.dto.class_group.ClassGroupSubjectTeacherAssignDto;
-import com.pawlik.przemek.onlinegradebook.dto.class_group.ClassGroupSubjectTeacherDto;
-import com.pawlik.przemek.onlinegradebook.service.ClassGroupService;
+import com.pawlik.przemek.onlinegradebook.dto.school_class.SchoolClassAddDto;
+import com.pawlik.przemek.onlinegradebook.dto.school_class.SchoolClassDto;
+import com.pawlik.przemek.onlinegradebook.service.SchoolClassService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -24,18 +22,18 @@ import java.util.List;
 @RestController
 @RequestMapping(path = "/api/v1/classes")
 @Tag(name = "Classes API", description = "Endpoints for managing classes")
-public class ClassGroupController {
+public class SchoolClassController {
 
-    private final ClassGroupService classGroupService;
+    private final SchoolClassService schoolClassService;
 
-    public ClassGroupController(ClassGroupService classGroupService) {
-        this.classGroupService = classGroupService;
+    public SchoolClassController(SchoolClassService schoolClassService) {
+        this.schoolClassService = schoolClassService;
     }
 
     @Operation(summary = "Class creation", description = "Endpoint for class creation. Only users with role Admin can access this endpoint.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Class created successfully",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ClassGroupDto.class))
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = SchoolClassDto.class))
             ),
             @ApiResponse(responseCode = "400", description = "Bad request",
                     content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = ValidationErrorDto.class)))
@@ -48,15 +46,15 @@ public class ClassGroupController {
             )
     })
     @PostMapping
-    public ResponseEntity<ClassGroupDto> createClass(@Valid @RequestBody ClassGroupAddDto classGroupAddDto) {
-        ClassGroupDto classGroupDto = classGroupService.createClass(classGroupAddDto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(classGroupDto);
+    public ResponseEntity<SchoolClassDto> createClass(@Valid @RequestBody SchoolClassAddDto schoolClassAddDto) {
+        SchoolClassDto schoolClassDto = schoolClassService.createClass(schoolClassAddDto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(schoolClassDto);
     }
 
     @Operation(summary = "Get all classes", description = "Endpoint for retrieving the list of all classes. Only users with role Admin can access this endpoint.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Classes retrieved successfully",
-                    content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = ClassGroupDto.class)))
+                    content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = SchoolClassDto.class)))
             ),
             @ApiResponse(responseCode = "401", description = "Unauthorized - User not logged in",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponseDto.class))
@@ -66,15 +64,15 @@ public class ClassGroupController {
             )
     })
     @GetMapping
-    ResponseEntity<List<ClassGroupDto>> getAllClasses() {
-        List<ClassGroupDto> classes = classGroupService.getAllClasses();
+    ResponseEntity<List<SchoolClassDto>> getAllClasses() {
+        List<SchoolClassDto> classes = schoolClassService.getAllClasses();
         return ResponseEntity.ok().body(classes);
     }
 
     @Operation(summary = "Get class", description = "Endpoint for retrieving class info.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Class retrieved successfully",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ClassGroupDto.class))
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = SchoolClassDto.class))
             ),
             @ApiResponse(responseCode = "401", description = "Unauthorized - User not logged in",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponseDto.class))
@@ -87,18 +85,14 @@ public class ClassGroupController {
             )
     })
     @GetMapping("/{classId}")
-    ResponseEntity<ClassGroupDto> getById(@PathVariable Long classId) {
-        ClassGroupDto classGroup = classGroupService.getClassById(classId);
-        return ResponseEntity.ok().body(classGroup);
+    ResponseEntity<SchoolClassDto> getById(@PathVariable Long classId) {
+        SchoolClassDto schoolClassDto = schoolClassService.getClassById(classId);
+        return ResponseEntity.ok().body(schoolClassDto);
     }
 
-    @Operation(summary = "Assign subject and teacher to class", description = "Endpoint for assigning a subject and teacher to a class. Only users with role Admin can access this endpoint.")
+    @Operation(summary = "Remove student from class", description = "Endpoint for removing student from class. Only users with role Admin can access this endpoint.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Subject and teacher assigned successfully",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ClassGroupSubjectTeacherDto.class))
-            ),
-            @ApiResponse(responseCode = "400", description = "Bad request",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponseDto.class))
+            @ApiResponse(responseCode = "204", description = "Student removed from class successfully"
             ),
             @ApiResponse(responseCode = "401", description = "Unauthorized - User not logged in",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponseDto.class))
@@ -106,23 +100,22 @@ public class ClassGroupController {
             @ApiResponse(responseCode = "403", description = "Forbidden - Insufficient privileges",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponseDto.class))
             ),
-            @ApiResponse(responseCode = "404", description = "Not Found - Class, Subject, or Teacher not found",
+            @ApiResponse(responseCode = "404", description = "Not Found - Class or student not found",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponseDto.class))
             ),
-            @ApiResponse(responseCode = "409", description = "Conflict - Subject is already assigned to this class",
+            @ApiResponse(responseCode = "409", description = "Conflict - Student is not assigned to the class",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponseDto.class))
             )
     })
-    @PostMapping("/{classId}/subjects")
-    public ResponseEntity<ClassGroupSubjectTeacherDto> assignSubjectToClassAndTeacher(@PathVariable Long classId, @Valid @RequestBody ClassGroupSubjectTeacherAssignDto assignDto) {
-        ClassGroupSubjectTeacherDto result = classGroupService.assignSubjectAndTeacherToClass(classId, assignDto);
-        return ResponseEntity.ok().body(result);
+    @DeleteMapping("/{classId}/students/{userId}")
+    public ResponseEntity<Void> removeStudentFromClass(@PathVariable Long classId, @PathVariable Long userId) {
+        schoolClassService.removeStudentFromClass(classId, userId);
+        return ResponseEntity.noContent().build();
     }
 
-    @Operation(summary = "Get all subjects assigned to class", description = "Endpoint for retrieving the list of all subjects assigned to class.")
+    @Operation(summary = "Add student to class", description = "Endpoint for adding student to class. Only users with role Admin can access this endpoint.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Subjects assigned to class retrieved successfully",
-                    content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = ClassGroupSubjectTeacherDto.class)))
+            @ApiResponse(responseCode = "200", description = "Student added to class successfully"
             ),
             @ApiResponse(responseCode = "401", description = "Unauthorized - User not logged in",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponseDto.class))
@@ -130,31 +123,16 @@ public class ClassGroupController {
             @ApiResponse(responseCode = "403", description = "Forbidden - Insufficient privileges",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponseDto.class))
             ),
-            @ApiResponse(responseCode = "404", description = "Not Found - Class not found",
+            @ApiResponse(responseCode = "404", description = "Not Found - Class or student not found",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponseDto.class))
+            ),
+            @ApiResponse(responseCode = "409", description = "Conflict - Student is not a student",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponseDto.class))
             )
     })
-    @GetMapping("/{classId}/subjects")
-    public ResponseEntity<List<ClassGroupSubjectTeacherDto>> getAllSubjectsAssignedToClass(@PathVariable Long classId) {
-        List<ClassGroupSubjectTeacherDto> classes = classGroupService.getAllSubjectsAssignedToClass(classId);
-        return ResponseEntity.ok().body(classes);
-    }
-
-    @Operation(summary = "Get all subjects assigned to all classes", description = "Endpoint for retrieving the list of all subjects assigned to all classes.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Subjects assigned to all class retrieved successfully",
-                    content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = ClassGroupSubjectTeacherDto.class)))
-            ),
-            @ApiResponse(responseCode = "401", description = "Unauthorized - User not logged in",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponseDto.class))
-            ),
-            @ApiResponse(responseCode = "403", description = "Forbidden - Insufficient privileges",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponseDto.class))
-            )
-    })
-    @GetMapping("/subjects")
-    public ResponseEntity<List<ClassGroupSubjectTeacherDto>> getAllSubjectsInClasses() {
-        List<ClassGroupSubjectTeacherDto> classes = classGroupService.getAllSubjects();
-        return ResponseEntity.ok().body(classes);
+    @PostMapping("/{classId}/students/{userId}")
+    public ResponseEntity<Void> addStudentToClass(@PathVariable Long classId, @PathVariable Long userId) {
+        schoolClassService.addStudentToClass(classId, userId);
+        return ResponseEntity.ok().build();
     }
 }

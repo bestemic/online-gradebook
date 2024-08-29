@@ -1,21 +1,21 @@
 import {UNAVAILABLE} from "../constants/messages.ts";
 import {AxiosInstance} from "axios";
-import {IBadRequest} from "../interfaces/BadRequestInterface.ts";
-import {ICreateSubject} from "../interfaces/CreateSubjectInterface.ts";
+import {IBadRequest} from "../interfaces/helper/BadRequestInterface.ts";
+import {ICreateSubject} from "../interfaces/subject/CreateSubjectInterface.ts";
 
 const SUBJECTS_URL = '/subjects';
 
 const create = (axiosInstance: AxiosInstance, data: ICreateSubject) => {
     return axiosInstance.post(SUBJECTS_URL, data)
-        .then(response => response.data.password)
+        .then(response => response.data)
         .catch(error => {
             if (!error.response) {
                 throw new Error(UNAVAILABLE);
             } else if (error.response.status === 400) {
                 error.response.data.forEach((error: IBadRequest) => {
                     error.errors.forEach((errorMessage: string) => {
-                        if (errorMessage.includes("already exists")) {
-                            throw new Error("A subject with the given name already exists");
+                        if (errorMessage.includes("class already")) {
+                            throw new Error("Class already has a subject with this name taught by this teacher");
                         }
                     });
                 });
@@ -30,8 +30,8 @@ const create = (axiosInstance: AxiosInstance, data: ICreateSubject) => {
         });
 }
 
-const getAll = (axiosInstance: AxiosInstance) => {
-    return axiosInstance.get(SUBJECTS_URL)
+const getAll = (axiosInstance: AxiosInstance, classId = "") => {
+    return axiosInstance.get(SUBJECTS_URL, {params: {classId}})
         .then(response => response.data)
         .catch(error => {
             if (!error.response) {
@@ -46,7 +46,7 @@ const getAll = (axiosInstance: AxiosInstance) => {
         });
 };
 
-const get = (axiosInstance: AxiosInstance, subjectId: string) => {
+const getById = (axiosInstance: AxiosInstance, subjectId: string) => {
     return axiosInstance.get(`${SUBJECTS_URL}/${subjectId}`)
         .then(response => response.data)
         .catch(error => {
@@ -67,5 +67,5 @@ const get = (axiosInstance: AxiosInstance, subjectId: string) => {
 export default {
     create,
     getAll,
-    get
+    getById
 };

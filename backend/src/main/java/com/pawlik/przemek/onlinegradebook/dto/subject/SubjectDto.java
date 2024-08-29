@@ -1,12 +1,11 @@
 package com.pawlik.przemek.onlinegradebook.dto.subject;
 
+import com.pawlik.przemek.onlinegradebook.dto.school_class.SchoolClassBasicDto;
 import com.pawlik.przemek.onlinegradebook.dto.user.UserBasicDto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
-
-import java.util.Set;
 
 @Setter
 @Getter
@@ -19,7 +18,10 @@ public class SubjectDto {
     @Schema(description = "Name of the subject", example = "English")
     private String name;
 
-    @Schema(description = "List of teachers that teach the subject")
-    private Set<UserBasicDto> teachers;
+    @Schema(description = "Class that the subject is assigned to")
+    private SchoolClassBasicDto schoolClass;
+
+    @Schema(description = "Teacher assigned to the subject")
+    private UserBasicDto teacher;
 }
 

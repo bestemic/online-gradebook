@@ -1,4 +1,4 @@
-import {IRole} from "./RoleInterface.ts";
+import {IRole} from "../role/RoleInterface.ts";
 
 export interface IUser {
     id: number;
@@ -7,5 +7,6 @@ export interface IUser {
     email: string;
     phoneNumber: string;
     birth: string;
+    classId: number;
     roles: IRole[];
 }

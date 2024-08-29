@@ -4,7 +4,7 @@ import userService from "../../services/users.ts";
 import {zodResolver} from "@hookform/resolvers/zod";
 import {SubmitHandler, useForm} from "react-hook-form";
 import {z} from "zod";
-import JwtInterface from "../../interfaces/JwtInterface.ts";
+import JwtInterface from "../../interfaces/helper/JwtInterface.ts";
 import {jwtDecode} from "jwt-decode";
 
 const schema = z.object({

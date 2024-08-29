@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.HashSet;
 import java.util.Set;
 
 @Setter
@@ -20,10 +19,14 @@ public class Subject {
     @Column(unique = true, nullable = false)
     private String name;
 
-    @ManyToMany(mappedBy = "subjects")
-    private Set<User> teachers = new HashSet<>();
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "teacher_id")
+    private User teacher;
 
-    @OneToMany(mappedBy = "subject")
-    private Set<ClassGroupSubjectTeacher> classGroupSubjectTeachers = new HashSet<>();
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "class_id")
+    private SchoolClass schoolClass;
 
+    @OneToMany(mappedBy = "subject", fetch = FetchType.LAZY)
+    private Set<Lesson> lessons;
 }

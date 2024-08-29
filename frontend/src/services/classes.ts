@@ -1,11 +1,11 @@
 import {UNAVAILABLE} from "../constants/messages.ts";
 import {AxiosInstance} from "axios";
-import {IBadRequest} from "../interfaces/BadRequestInterface.ts";
-import {ICreateClassGroup} from "../interfaces/CreateClassGroupInterface.ts";
+import {IBadRequest} from "../interfaces/helper/BadRequestInterface.ts";
+import {ICreateSchoolClass} from "../interfaces/school_class/CreateSchoolClassInterface.ts";
 
 const CLASSES_URL = '/classes';
 
-const create = (axiosInstance: AxiosInstance, data: ICreateClassGroup) => {
+const create = (axiosInstance: AxiosInstance, data: ICreateSchoolClass) => {
     return axiosInstance.post(CLASSES_URL, data)
         .then(response => response.data.password)
         .catch(error => {
@@ -64,9 +64,8 @@ const getById = (axiosInstance: AxiosInstance, id: number) => {
         });
 }
 
-const getClassAssignedSubjects = (axiosInstance: AxiosInstance, id: number) => {
-    return axiosInstance.get(`${CLASSES_URL}/${id}/subjects`)
-        .then(response => response.data)
+const removeStudent = (axiosInstance: AxiosInstance, classId: number, studentId: number) => {
+    return axiosInstance.delete(`${CLASSES_URL}/${classId}/students/${studentId}`)
         .catch(error => {
             if (!error.response) {
                 throw new Error(UNAVAILABLE);
@@ -75,50 +74,17 @@ const getClassAssignedSubjects = (axiosInstance: AxiosInstance, id: number) => {
             } else if (error.response.status === 403) {
                 throw new Error('You do not have permission to perform this operation');
             } else if (error.response.status === 404) {
-                throw new Error('Class not found');
-            } else {
-                throw new Error('Failed to fetch class subjects');
-            }
-        });
-}
-
-const assignSubjectAndTeacher = (axiosInstance: AxiosInstance, classId: number, subjectId: number, teacherId: number) => {
-    return axiosInstance.post(`${CLASSES_URL}/${classId}/subjects`, {subjectId, teacherId})
-        .then(response => response.data)
-        .catch(error => {
-            if (!error.response) {
-                throw new Error(UNAVAILABLE);
-            } else if (error.response.status === 400) {
-                throw new Error('Invalid input data');
-            } else if (error.response.status === 401) {
-                throw new Error('Must be logged in');
-            } else if (error.response.status === 403) {
-                throw new Error('You do not have permission to perform this operation');
-            } else if (error.response.status === 404) {
-                error.response.data.forEach((error: IBadRequest) => {
-                    error.errors.forEach((errorMessage: string) => {
-                        if (errorMessage.includes("Class")) {
-                            throw new Error("Class not found");
-                        }
-                        if (errorMessage.includes("Subject")) {
-                            throw new Error("Subject not found");
-                        }
-                        if (errorMessage.includes("Teacher")) {
-                            throw new Error("Teacher not found");
-                        }
-                    });
-                });
+                throw new Error('Student not found');
             } else if (error.response.status === 409) {
-                throw new Error('Subject is already assigned to this class');
+                throw new Error('Student is not in the class');
             } else {
-                throw new Error('Failed to set subject to class');
+                throw new Error('Failed to remove student from class');
             }
         });
 }
 
-const getAllSubjectsInClasses = (axiosInstance: AxiosInstance) => {
-    return axiosInstance.get(`${CLASSES_URL}/subjects`)
-        .then(response => response.data)
+const addStudent = (axiosInstance: AxiosInstance, classId: number, studentId: number) => {
+    return axiosInstance.post(`${CLASSES_URL}/${classId}/students/${studentId}`)
         .catch(error => {
             if (!error.response) {
                 throw new Error(UNAVAILABLE);
@@ -126,17 +92,20 @@ const getAllSubjectsInClasses = (axiosInstance: AxiosInstance) => {
                 throw new Error('Must be logged in');
             } else if (error.response.status === 403) {
                 throw new Error('You do not have permission to perform this operation');
+            } else if (error.response.status === 404) {
+                throw new Error('Student not found');
+            } else if (error.response.status === 409) {
+                throw new Error('User is not a student');
             } else {
-                throw new Error('Failed to fetch all classes subjects');
+                throw new Error('Failed to add student to class');
             }
-        });
+        })
 }
 
 export default {
     create,
     getAll,
     getById,
-    getClassAssignedSubjects,
-    assignSubjectAndTeacher,
-    getAllSubjectsInClasses
+    removeStudent,
+    addStudent
 };

@@ -1,5 +1,5 @@
 import React, {createContext, useState} from "react";
-import {authContextDefaults, IAuthContext} from "../interfaces/AuthContextInterface.ts";
+import {authContextDefaults, IAuthContext} from "../interfaces/helper/AuthContextInterface.ts";
 
 type Props = {
     children: React.ReactNode;

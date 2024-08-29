@@ -1,4 +1,4 @@
-export interface IClassGroupBasic {
+export interface ISchoolClassBasic {
     id: number;
     name: string;
     classroom: string;
