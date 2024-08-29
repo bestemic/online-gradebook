@@ -70,15 +70,20 @@ public class SecurityConfig {
                 .addFilterBefore(jwtTokenValidatorFilter(), UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests((request) -> request
                         .requestMatchers(WHITE_LIST_URL).permitAll()
-                        .requestMatchers(HttpMethod.GET, "api/v1/users").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.POST, "api/v1/users").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.POST, "api/v1/users/{userId}/password/reset").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.POST, "api/v1/users/password/reset/bulk").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.GET, "/api/v1/roles").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.POST, "/api/v1/subjects",
-                                "/api/v1/users/{userId}/subjects/{subjectId}").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.GET, "/api/v1/classes").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.POST, "/api/v1/classes", "/api/v1/classes/{classId}/subjects").hasRole("ADMIN")
+
+                        .requestMatchers(HttpMethod.GET, "api/v1/users").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST, "api/v1/users", "api/v1/users/{userId}/password/reset", "api/v1/users/password/reset/bulk").hasRole("ADMIN")
+
+                        .requestMatchers(HttpMethod.GET, "/api/v1/subjects").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/v1/subjects/{subjectId}").hasAnyRole("TEACHER", "STUDENT")
+                        .requestMatchers(HttpMethod.POST, "/api/v1/subjects").hasRole("ADMIN")
+
+                        .requestMatchers(HttpMethod.GET, "/api/v1/classes", "/api/v1/classes/{classId}").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/api/v1/classes", "/api/v1/classes/{classId}/students/{userId}").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/v1/classes/{classId}/students/{userId}").hasRole("ADMIN")
+
+                        .requestMatchers(HttpMethod.GET, "/api/v1/lessons/{lessonId}").hasAnyRole("TEACHER", "STUDENT")
                         .requestMatchers(HttpMethod.POST, "/api/v1/lessons").hasRole("TEACHER")
                         .anyRequest().authenticated()
                 )
