@@ -1,4 +1,4 @@
-package com.pawlik.przemek.onlinegradebook.dto.class_group;
+package com.pawlik.przemek.onlinegradebook.dto.school_class;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
@@ -12,7 +12,7 @@ import java.util.List;
 
 @Getter
 @Setter
-public class ClassGroupAddDto {
+public class SchoolClassAddDto {
 
     @NotNull(message = "Name is required.")
     @NotBlank(message = "Name must not be blank.")

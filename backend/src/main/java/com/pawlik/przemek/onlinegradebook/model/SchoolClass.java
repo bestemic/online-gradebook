@@ -26,5 +26,5 @@ public class SchoolClass {
     private Set<Subject> subjects;
 
     @OneToMany(mappedBy = "schoolClass", fetch = FetchType.LAZY)
-    private Set<User> users;
+    private Set<User> students;
 }

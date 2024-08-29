@@ -168,12 +168,33 @@ public class UserService {
     }
 
     public UserDto getUserById(Long userId) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("User not found with ID: " + userId));
+        User user = getUserObjectById(userId);
         if (hasAccessToUser(userId)) {
             return userMapper.userToUserDto(user);
         } else {
             throw new AccessDeniedException("You do not have permission to access this user");
         }
+    }
+
+    public User getUserObjectById(Long userId) {
+        return userRepository.findById(userId).orElseThrow(() -> new NotFoundException("User not found with ID: " + userId));
+    }
+
+    public List<User> getAllStudentsWithIds(List<Long> studentsIds) throws Exception {
+        List<User> students = (List<User>) userRepository.findAllById(studentsIds);
+
+        if (students.size() != studentsIds.size()) {
+            throw new Exception("Some students do not exist");
+        }
+
+        for (User user : students) {
+            boolean isStudent = user.getRoles().stream().anyMatch(role -> role.getName().equals("ROLE_STUDENT"));
+            if (!isStudent) {
+                throw new Exception("User with ID: " + user.getId() + " is not a student");
+            }
+        }
+
+        return students;
     }
 
     private boolean hasAccessToUser(Long userId) {

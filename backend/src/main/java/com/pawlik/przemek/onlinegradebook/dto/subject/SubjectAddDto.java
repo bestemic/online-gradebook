@@ -13,7 +13,15 @@ public class SubjectAddDto {
 
     @NotNull(message = "Subject name is required.")
     @NotBlank(message = "Subject name must not be blank.")
-    @Size(min = 2, max = 50, message = "Subject name length must be between 2 and 50 characters.")
+    @Size(min = 2, max = 100, message = "Subject name length must be between 2 and 100 characters.")
     @Schema(description = "Subject name", example = "English")
     private String name;
+
+    @NotNull(message = "Class id is required.")
+    @Schema(description = "Class id", example = "1")
+    private Long classId;
+
+    @NotNull(message = "Teacher id is required.")
+    @Schema(description = "Teacher id", example = "2")
+    private Long teacherId;
 }
