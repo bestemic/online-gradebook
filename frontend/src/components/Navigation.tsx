@@ -20,17 +20,10 @@ const Navigation = () => {
             {auth?.token && (
                 <nav className="bg-gray-800 py-3 sm:px-2 lg:px-5">
                     <ul className="flex justify-end space-x-5 text-white text-lg">
-                        <RequireRole allowedRoles={[ROLES.Teacher]}>
+                        <RequireRole allowedRoles={[ROLES.Admin, ROLES.Teacher, ROLES.Student]}>
                             <li>
-                                <Link to="/subjects/teacher" className="hover:text-gray-400">
-                                    Teaching
-                                </Link>
-                            </li>
-                        </RequireRole>
-                        <RequireRole allowedRoles={[ROLES.Admin]}>
-                            <li>
-                                <Link to="/subjects/admin" className="hover:text-gray-400">
-                                    Manage Subjects
+                                <Link to="/subjects" className="hover:text-gray-400">
+                                    Subjects
                                 </Link>
                             </li>
                         </RequireRole>
