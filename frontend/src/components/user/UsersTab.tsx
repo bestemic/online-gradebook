@@ -9,10 +9,10 @@ import {
     MRT_ToggleFiltersButton,
     useMantineReactTable,
 } from 'mantine-react-table';
-import {IUser} from "../../interfaces/UserInterface.ts";
+import {IUser} from "../../interfaces/user/UserInterface.ts";
 import {IconRefresh, IconUserCircle} from "@tabler/icons-react";
 import {Menu} from '@mantine/core';
-import {IRole} from "../../interfaces/RoleInterface.ts";
+import {IRole} from "../../interfaces/role/RoleInterface.ts";
 import useAxiosPrivate from "../../hooks/useAxiosPrivate.ts";
 import userService from "../../services/users.ts";
 import {toast} from "react-toastify";

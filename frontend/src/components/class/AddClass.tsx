@@ -3,11 +3,11 @@ import {SubmitHandler, useForm} from "react-hook-form";
 import {zodResolver} from "@hookform/resolvers/zod";
 import useAxiosPrivate from "../../hooks/useAxiosPrivate.ts";
 import {useEffect, useState} from "react";
-import {ICreateClassGroup} from "../../interfaces/CreateClassGroupInterface.ts";
+import {ICreateSchoolClass} from "../../interfaces/school_class/CreateSchoolClassInterface.ts";
 import classService from "../../services/classes.ts";
 import userService from "../../services/users.ts";
 import {ROLES} from "../../constants/roles.ts";
-import {IUser} from "../../interfaces/UserInterface.ts";
+import {IUser} from "../../interfaces/user/UserInterface.ts";
 
 const AddClass = () => {
     const schema = z.object({
@@ -21,7 +21,7 @@ const AddClass = () => {
         setError,
         reset,
         formState: {errors, isSubmitting}
-    } = useForm<ICreateClassGroup>({resolver: zodResolver(schema)});
+    } = useForm<ICreateSchoolClass>({resolver: zodResolver(schema)});
 
     const axiosPrivate = useAxiosPrivate();
     const [successMessage, setSuccessMessage] = useState<string | null>(null);
@@ -52,7 +52,7 @@ const AddClass = () => {
         }
     }, [isInitialized, selectedStudents.length, setError]);
 
-    const handleAddButton: SubmitHandler<ICreateClassGroup> = async (data) => {
+    const handleAddButton: SubmitHandler<ICreateSchoolClass> = async (data) => {
         if (selectedStudents.length === 0) {
             setError("studentsIds", {message: "At least one student must be selected."});
             return;

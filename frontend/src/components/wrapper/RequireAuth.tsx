@@ -1,7 +1,7 @@
 import {Navigate, Outlet, useLocation} from "react-router-dom";
 import useAuth from "../../hooks/useAuth.ts";
 import {jwtDecode} from "jwt-decode";
-import JwtInterface from "../../interfaces/JwtInterface.ts";
+import JwtInterface from "../../interfaces/helper/JwtInterface.ts";
 
 type Props = {
     allowedRoles: string[];

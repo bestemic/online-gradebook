@@ -1,12 +1,12 @@
 import useAxiosPrivate from "../../hooks/useAxiosPrivate.ts";
 import {useEffect, useState} from "react";
 import classesService from "../../services/classes.ts";
-import {IClassGroup} from "../../interfaces/ClassGroupInterface.ts";
+import {ISchoolClass} from "../../interfaces/school_class/SchoolClassInterface.ts";
 import {useNavigate} from "react-router-dom";
 
 const ClassesTab = () => {
     const axiosPrivate = useAxiosPrivate();
-    const [classes, setClasses] = useState<IClassGroup[]>([]);
+    const [classes, setClasses] = useState<ISchoolClass[]>([]);
     const [error, setError] = useState<string | null>(null);
     const navigate = useNavigate();
 
@@ -44,13 +44,13 @@ const ClassesTab = () => {
                                     <span className="w-2/5 text-center">Number of Students</span>
                                 </div>
                             </li>
-                            {classes.map(classGroup => (
-                                <li key={classGroup.id} className="border rounded shadow cursor-pointer"
-                                    onClick={() => handleClassClick(classGroup.id)}>
+                            {classes.map(schoolClass => (
+                                <li key={schoolClass.id} className="border rounded shadow cursor-pointer"
+                                    onClick={() => handleClassClick(schoolClass.id)}>
                                     <div className="flex items-center justify-between p-2">
-                                        <span className="w-2/5 text-center">{classGroup.name}</span>
-                                        <span className="w-1/5 text-center">{classGroup.classroom}</span>
-                                        <span className="w-2/5 text-center">{classGroup.students.length}</span>
+                                        <span className="w-2/5 text-center">{schoolClass.name}</span>
+                                        <span className="w-1/5 text-center">{schoolClass.classroom}</span>
+                                        <span className="w-2/5 text-center">{schoolClass.students.length}</span>
                                     </div>
                                 </li>
                             ))}

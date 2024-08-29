@@ -1,11 +1,11 @@
 import {useNavigate, useParams} from "react-router-dom";
 import {useEffect, useState} from "react";
-import {IUser} from "../../interfaces/UserInterface.ts";
+import {IUser} from "../../interfaces/user/UserInterface.ts";
 import userService from "../../services/users.ts";
 import useAxiosPrivate from "../../hooks/useAxiosPrivate.ts";
 import useAuth from "../../hooks/useAuth.ts";
 import {jwtDecode} from "jwt-decode";
-import JwtInterface from "../../interfaces/JwtInterface.ts";
+import JwtInterface from "../../interfaces/helper/JwtInterface.ts";
 import {ROLES} from "../../constants/roles.ts";
 
 const UserProfile = () => {

@@ -2,7 +2,7 @@ import {Link, Outlet, useNavigate} from "react-router-dom";
 import useAuth from "../hooks/useAuth.ts";
 import RequireRole from "./wrapper/RequireRole.tsx";
 import {ROLES} from "../constants/roles.ts";
-import JwtInterface from "../interfaces/JwtInterface.ts";
+import JwtInterface from "../interfaces/helper/JwtInterface.ts";
 import {jwtDecode} from "jwt-decode";
 
 const Navigation = () => {
@@ -20,13 +20,6 @@ const Navigation = () => {
             {auth?.token && (
                 <nav className="bg-gray-800 py-3 sm:px-2 lg:px-5">
                     <ul className="flex justify-end space-x-5 text-white text-lg">
-                        <RequireRole allowedRoles={[ROLES.Admin]}>
-                            <li>
-                                <Link to="/classes" className="hover:text-gray-400">
-                                    Classes
-                                </Link>
-                            </li>
-                        </RequireRole>
                         <RequireRole allowedRoles={[ROLES.Teacher]}>
                             <li>
                                 <Link to="/subjects/teacher" className="hover:text-gray-400">
@@ -38,6 +31,13 @@ const Navigation = () => {
                             <li>
                                 <Link to="/subjects/admin" className="hover:text-gray-400">
                                     Manage Subjects
+                                </Link>
+                            </li>
+                        </RequireRole>
+                        <RequireRole allowedRoles={[ROLES.Admin]}>
+                            <li>
+                                <Link to="/classes" className="hover:text-gray-400">
+                                    Classes
                                 </Link>
                             </li>
                         </RequireRole>

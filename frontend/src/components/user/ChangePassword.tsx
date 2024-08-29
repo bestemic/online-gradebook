@@ -3,7 +3,7 @@ import {z} from "zod";
 import {zodResolver} from "@hookform/resolvers/zod";
 import {SubmitHandler, useForm} from "react-hook-form";
 import userService from "../../services/users.ts";
-import JwtInterface from "../../interfaces/JwtInterface.ts";
+import JwtInterface from "../../interfaces/helper/JwtInterface.ts";
 import {jwtDecode} from "jwt-decode";
 import useAxiosPrivate from "../../hooks/useAxiosPrivate.ts";
 import useAuth from "../../hooks/useAuth.ts";

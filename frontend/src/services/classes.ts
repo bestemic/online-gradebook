@@ -1,11 +1,11 @@
 import {UNAVAILABLE} from "../constants/messages.ts";
 import {AxiosInstance} from "axios";
-import {IBadRequest} from "../interfaces/BadRequestInterface.ts";
-import {ICreateClassGroup} from "../interfaces/CreateClassGroupInterface.ts";
+import {IBadRequest} from "../interfaces/helper/BadRequestInterface.ts";
+import {ICreateSchoolClass} from "../interfaces/school_class/CreateSchoolClassInterface.ts";
 
 const CLASSES_URL = '/classes';
 
-const create = (axiosInstance: AxiosInstance, data: ICreateClassGroup) => {
+const create = (axiosInstance: AxiosInstance, data: ICreateSchoolClass) => {
     return axiosInstance.post(CLASSES_URL, data)
         .then(response => response.data.password)
         .catch(error => {
@@ -64,79 +64,8 @@ const getById = (axiosInstance: AxiosInstance, id: number) => {
         });
 }
 
-const getClassAssignedSubjects = (axiosInstance: AxiosInstance, id: number) => {
-    return axiosInstance.get(`${CLASSES_URL}/${id}/subjects`)
-        .then(response => response.data)
-        .catch(error => {
-            if (!error.response) {
-                throw new Error(UNAVAILABLE);
-            } else if (error.response.status === 401) {
-                throw new Error('Must be logged in');
-            } else if (error.response.status === 403) {
-                throw new Error('You do not have permission to perform this operation');
-            } else if (error.response.status === 404) {
-                throw new Error('Class not found');
-            } else {
-                throw new Error('Failed to fetch class subjects');
-            }
-        });
-}
-
-const assignSubjectAndTeacher = (axiosInstance: AxiosInstance, classId: number, subjectId: number, teacherId: number) => {
-    return axiosInstance.post(`${CLASSES_URL}/${classId}/subjects`, {subjectId, teacherId})
-        .then(response => response.data)
-        .catch(error => {
-            if (!error.response) {
-                throw new Error(UNAVAILABLE);
-            } else if (error.response.status === 400) {
-                throw new Error('Invalid input data');
-            } else if (error.response.status === 401) {
-                throw new Error('Must be logged in');
-            } else if (error.response.status === 403) {
-                throw new Error('You do not have permission to perform this operation');
-            } else if (error.response.status === 404) {
-                error.response.data.forEach((error: IBadRequest) => {
-                    error.errors.forEach((errorMessage: string) => {
-                        if (errorMessage.includes("Class")) {
-                            throw new Error("Class not found");
-                        }
-                        if (errorMessage.includes("Subject")) {
-                            throw new Error("Subject not found");
-                        }
-                        if (errorMessage.includes("Teacher")) {
-                            throw new Error("Teacher not found");
-                        }
-                    });
-                });
-            } else if (error.response.status === 409) {
-                throw new Error('Subject is already assigned to this class');
-            } else {
-                throw new Error('Failed to set subject to class');
-            }
-        });
-}
-
-const getAllSubjectsInClasses = (axiosInstance: AxiosInstance) => {
-    return axiosInstance.get(`${CLASSES_URL}/subjects`)
-        .then(response => response.data)
-        .catch(error => {
-            if (!error.response) {
-                throw new Error(UNAVAILABLE);
-            } else if (error.response.status === 401) {
-                throw new Error('Must be logged in');
-            } else if (error.response.status === 403) {
-                throw new Error('You do not have permission to perform this operation');
-            } else {
-                throw new Error('Failed to fetch all classes subjects');
-            }
-        });
-}
-
 export default {
     create,
     getAll,
-    getById,
-    getClassAssignedSubjects,
-    assignSubjectAndTeacher,
-    getAllSubjectsInClasses
+    getById
 };

@@ -1,4 +1,4 @@
-import {IRole} from "./RoleInterface.ts";
+import {IRole} from "../role/RoleInterface.ts";
 
 export interface IUser {
     id: number;

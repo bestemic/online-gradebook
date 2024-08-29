@@ -1,5 +1,5 @@
 import useAuth from "../../hooks/useAuth.ts";
-import JwtInterface from "../../interfaces/JwtInterface.ts";
+import JwtInterface from "../../interfaces/helper/JwtInterface.ts";
 import {jwtDecode} from "jwt-decode";
 import React from "react";
 
