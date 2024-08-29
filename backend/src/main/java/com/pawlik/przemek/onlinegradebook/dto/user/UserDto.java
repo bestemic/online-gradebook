@@ -32,6 +32,9 @@ public class UserDto {
     @Schema(description = "Birth date of the user", example = "1990-01-01")
     private LocalDate birth;
 
+    @Schema(description = "Unique identifier of the class assigned to user", example = "1")
+    private Long classId;
+
     @Schema(description = "Roles assigned to the user")
     private Set<RoleDto> roles;
 }
