@@ -30,11 +30,11 @@ const create = (axiosInstance: AxiosInstance, data: ICreateSubject) => {
         });
 }
 
-const getAll = (axiosInstance: AxiosInstance, classId = "", teacherId = "") => {
+const getAll = (axiosInstance: AxiosInstance, classId: number | null = null, teacherId: number | null = null) => {
     return axiosInstance.get(SUBJECTS_URL, {
         params: {
-            classId: classId,
-            teacherId: teacherId,
+            classId: classId ?? undefined,
+            teacherId: teacherId ?? undefined
         }
     })
         .then(response => response.data)

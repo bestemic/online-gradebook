@@ -53,19 +53,19 @@ public class SubjectService {
         return subjectMapper.subjectToSubjectDto(subject);
     }
 
-    public List<SubjectDto> getAllSubjects(String classId, String teacherId) {
-        if (classId != null && !classId.isEmpty() && teacherId != null && !teacherId.isEmpty()) {
-            return subjectRepository.findBySchoolClassIdAndTeacherId(Long.parseLong(classId), Long.parseLong(teacherId))
+    public List<SubjectDto> getAllSubjects(Long classId, Long teacherId) {
+        if (classId != null && teacherId != null) {
+            return subjectRepository.findBySchoolClassIdAndTeacherId(classId, teacherId)
                     .stream()
                     .map(subjectMapper::subjectToSubjectDto)
                     .collect(Collectors.toList());
-        } else if (classId != null && !classId.isEmpty()) {
-            return subjectRepository.findBySchoolClassId(Long.parseLong(classId))
+        } else if (classId != null) {
+            return subjectRepository.findBySchoolClassId(classId)
                     .stream()
                     .map(subjectMapper::subjectToSubjectDto)
                     .collect(Collectors.toList());
-        } else if (teacherId != null && !teacherId.isEmpty()) {
-            return subjectRepository.findByTeacherId(Long.parseLong(teacherId))
+        } else if (teacherId != null) {
+            return subjectRepository.findByTeacherId(teacherId)
                     .stream()
                     .map(subjectMapper::subjectToSubjectDto)
                     .collect(Collectors.toList());
