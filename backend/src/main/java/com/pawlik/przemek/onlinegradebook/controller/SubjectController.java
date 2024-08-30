@@ -69,15 +69,12 @@ public class SubjectController {
     })
     @GetMapping
     public ResponseEntity<List<SubjectDto>> getAllSubjects(
-            @Parameter(
-                    name = "classId",
-                    description = "Class id",
-                    example = "3"
-            )
-            @RequestParam(required = false) String classId) {
-        List<SubjectDto> subjects = subjectService.getAllSubjects(classId);
+            @Parameter(name = "classId", description = "Class id", example = "3") @RequestParam(required = false) String classId,
+            @Parameter(name = "teacherId", description = "Teacher id", example = "5") @RequestParam(required = false) String teacherId) {
+        List<SubjectDto> subjects = subjectService.getAllSubjects(classId, teacherId);
         return ResponseEntity.ok().body(subjects);
     }
+
 
     @Operation(summary = "Get subject by ID", description = "Endpoint for retrieving a subject by its ID.")
     @ApiResponses(value = {
