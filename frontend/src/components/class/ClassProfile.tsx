@@ -48,7 +48,7 @@ const ClassProfile = () => {
 
     useEffect(() => {
         if (id) {
-            subjectsService.getAll(axiosPrivate, id)
+            subjectsService.getAll(axiosPrivate, Number(id))
                 .then(data => {
                     setSubjects(data);
                     setSubjectsError(null);

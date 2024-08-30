@@ -14,6 +14,7 @@ import UserProfile from "./components/user/UserProfile.tsx";
 import ClassManagement from "./components/class/ClassManagement.tsx";
 import ClassProfile from "./components/class/ClassProfile.tsx";
 import SubjectsManagement from "./components/subject/SubjectsManagement.tsx";
+import SubjectProfile from "./components/subject/SubjectProfile.tsx";
 
 function App() {
 
@@ -31,6 +32,10 @@ function App() {
                         <Route path="/users/:id" element={<UserProfile/>}/>
                         <Route path="/classes/:id" element={<ClassProfile/>}/>
                         <Route path="subjects" element={<SubjectsManagement/>}/>
+                    </Route>
+
+                    <Route element={<RequireAuth allowedRoles={[ROLES.Teacher, ROLES.Student]}/>}>
+                        <Route path="subjects/:id" element={<SubjectProfile/>}/>
                     </Route>
 
                     <Route element={<RequireAuth allowedRoles={[ROLES.Admin]}/>}>
