@@ -94,7 +94,7 @@ const getAll = (axiosInstance: AxiosInstance, roleName = "") => {
         });
 };
 
-const get = (axiosInstance: AxiosInstance, userId: string) => {
+const getById = (axiosInstance: AxiosInstance, userId: string) => {
     return axiosInstance.get(`${USERS_URL}/${userId}`)
         .then(response => response.data)
         .catch(error => {
@@ -167,7 +167,7 @@ export default {
     create,
     changePassword,
     getAll,
-    get,
+    getById,
     resetPassword,
     resetPasswords
 };

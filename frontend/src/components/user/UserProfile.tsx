@@ -33,7 +33,7 @@ const UserProfile = () => {
                 }
             }
 
-            userService.get(axiosPrivate, id)
+            userService.getById(axiosPrivate, id)
                 .then(data => {
                     setUser(data);
                     setUserError(null);

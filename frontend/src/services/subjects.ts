@@ -30,8 +30,13 @@ const create = (axiosInstance: AxiosInstance, data: ICreateSubject) => {
         });
 }
 
-const getAll = (axiosInstance: AxiosInstance, classId = "") => {
-    return axiosInstance.get(SUBJECTS_URL, {params: {classId}})
+const getAll = (axiosInstance: AxiosInstance, classId = "", teacherId = "") => {
+    return axiosInstance.get(SUBJECTS_URL, {
+        params: {
+            classId: classId,
+            teacherId: teacherId,
+        }
+    })
         .then(response => response.data)
         .catch(error => {
             if (!error.response) {
