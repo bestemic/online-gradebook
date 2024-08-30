@@ -1,16 +1,11 @@
 import subjectsService from "../../services/subjects.ts";
 import GenericSubjects from "./GenericSubjectsList.tsx";
 import {ISubject} from "../../interfaces/subject/SubjectInterface.ts";
-import {NavigateFunction} from "react-router-dom";
 import {AxiosInstance} from "axios";
 
 const TeacherSubjects = () => {
     const fetchSubjects = (axiosPrivate: AxiosInstance, teacherId: number) => {
         return subjectsService.getAll(axiosPrivate, null, teacherId);
-    };
-
-    const handleItemClick = (navigate: NavigateFunction, id: number) => {
-        navigate(`/subjects/${id}`);
     };
 
     const renderHeaders = () => (
@@ -30,7 +25,6 @@ const TeacherSubjects = () => {
     return (
         <GenericSubjects
             fetchSubjects={fetchSubjects}
-            handleItemClick={handleItemClick}
             renderHeaders={renderHeaders}
             renderRow={renderRow}
         />

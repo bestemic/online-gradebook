@@ -1,25 +1,20 @@
 import React, {useEffect, useState} from "react";
 import useAxiosPrivate from "../../hooks/useAxiosPrivate.ts";
-import {NavigateFunction, useNavigate} from "react-router-dom";
+import {useNavigate} from "react-router-dom";
 import {jwtDecode} from "jwt-decode";
 import useAuth from "../../hooks/useAuth.ts";
 import {ISubject} from "../../interfaces/subject/SubjectInterface.ts";
 import JwtInterface from "../../interfaces/helper/JwtInterface.ts";
 import {AxiosInstance} from "axios";
+import {ROLES} from "../../constants/roles.ts";
 
 interface GenericSubjectsProps {
     fetchSubjects: (axiosPrivate: AxiosInstance, userId: number, classId?: number) => Promise<ISubject[]>;
-    handleItemClick: (navigate: NavigateFunction, id: number) => void;
     renderHeaders: () => React.ReactNode;
     renderRow: (subject: ISubject) => React.ReactNode;
 }
 
-const GenericSubjects: React.FC<GenericSubjectsProps> = ({
-                                                             fetchSubjects,
-                                                             handleItemClick,
-                                                             renderHeaders,
-                                                             renderRow
-                                                         }) => {
+const GenericSubjects: React.FC<GenericSubjectsProps> = ({fetchSubjects, renderHeaders, renderRow}) => {
     const axiosPrivate = useAxiosPrivate();
     const {auth} = useAuth();
     const [subjects, setSubjects] = useState<ISubject[]>([]);
@@ -41,6 +36,17 @@ const GenericSubjects: React.FC<GenericSubjectsProps> = ({
             });
     }, [auth.token, axiosPrivate, fetchSubjects]);
 
+    const handleItemClick = (id: number) => {
+        const decoded: JwtInterface | undefined = auth?.token ? jwtDecode(auth.token) : undefined;
+        const roles: string[] = decoded?.roles ? decoded.roles.split(',') : [];
+
+        if (roles.includes(ROLES.Admin) && roles.length === 1) {
+            return;
+        } else {
+            navigate(`/subjects/${id}`);
+        }
+    };
+
     return (
         <>
             {error ? (
@@ -56,7 +62,7 @@ const GenericSubjects: React.FC<GenericSubjectsProps> = ({
                             <li className="border-b-2">{renderHeaders()}</li>
                             {subjects.map(subject => (
                                 <li key={subject.id} className="border rounded shadow cursor-pointer"
-                                    onClick={() => handleItemClick(navigate, subject.id)}>
+                                    onClick={() => handleItemClick(subject.id)}>
                                     {renderRow(subject)}
                                 </li>
                             ))}

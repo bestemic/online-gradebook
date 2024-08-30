@@ -67,7 +67,7 @@ const AddSubject = () => {
 
     return (
         <div className="h-full flex items-center justify-center">
-            <div className="bg-white p-8 rounded-b shadow-2xl max-w-4xl w-full">
+            <div className="max-w-xl w-full">
                 <h1 className="text-3xl font-bold mb-4 text-center">Add New Subject</h1>
 
                 <div className="mb-4">
