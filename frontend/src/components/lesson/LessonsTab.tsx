@@ -53,7 +53,7 @@ const LessonsTab = () => {
 
                     {currentUserId === subject?.teacher.id && (
                         <RequireRole allowedRoles={[ROLES.Teacher]}>
-                            <div className="">
+                            <div className="max-w-3xl w-full mt-6">
                                 <AddLesson/>
                             </div>
                         </RequireRole>

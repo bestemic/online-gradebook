@@ -60,7 +60,7 @@ const AddLesson = () => {
     }
 
     return (
-        <div className="mb-6 max-w-5xl w-full">
+        <div>
             {isAddingLesson ? (
                 <>
                     <form onSubmit={handleSubmit(handleAddLesson)}>
@@ -104,9 +104,9 @@ const AddLesson = () => {
                 <RequireRole allowedRoles={[ROLES.Teacher]}>
                     <button
                         onClick={handleAddLessonSection}
-                        className="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition duration-300"
+                        className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition duration-300"
                     >
-                        Add Subject
+                        Add Lesson
                     </button>
                 </RequireRole>
             )}
