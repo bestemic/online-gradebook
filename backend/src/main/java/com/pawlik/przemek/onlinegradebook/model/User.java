@@ -51,4 +51,10 @@ public class User {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "class_id")
     private SchoolClass schoolClass;
+
+    @OneToMany(mappedBy = "student", fetch = FetchType.LAZY)
+    private Set<Attendance> attendances;
+
+    @OneToMany(mappedBy = "student", fetch = FetchType.LAZY)
+    private Set<Grade> grades;
 }

@@ -5,31 +5,30 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDate;
-import java.util.Set;
 
 @Setter
 @Getter
 @Entity
-@Table(name = "lessons")
-public class Lesson {
+@Table(name = "materials")
+public class Material {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(nullable = false)
-    private String title;
+    private String name;
 
     @Column(nullable = false)
     private String description;
 
     @Column(nullable = false)
-    private LocalDate date;
+    private String filePath;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "subject_id")
+    @Column(name = "publication_date", nullable = false)
+    private LocalDate publicationDate;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "subject_id", nullable = false)
     private Subject subject;
-
-    @OneToMany(mappedBy = "lesson", fetch = FetchType.LAZY)
-    private Set<Attendance> attendances;
 }

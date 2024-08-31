@@ -29,4 +29,10 @@ public class Subject {
 
     @OneToMany(mappedBy = "subject", fetch = FetchType.LAZY)
     private Set<Lesson> lessons;
+
+    @OneToMany(mappedBy = "subject", fetch = FetchType.LAZY)
+    private Set<Grade> grades;
+
+    @OneToMany(mappedBy = "subject", fetch = FetchType.LAZY)
+    private Set<Material> materials;
 }
