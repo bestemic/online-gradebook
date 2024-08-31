@@ -12,6 +12,9 @@ import java.time.LocalDate;
 @AllArgsConstructor
 public class LessonDto {
 
+    @Schema(description = "Unique identifier of the lesson", example = "1")
+    private Long id;
+
     @Schema(description = "Lesson title", example = "Present Simple Tense")
     private String title;
 
