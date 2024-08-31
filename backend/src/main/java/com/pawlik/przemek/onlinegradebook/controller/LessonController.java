@@ -6,6 +6,7 @@ import com.pawlik.przemek.onlinegradebook.dto.lesson.LessonAddDto;
 import com.pawlik.przemek.onlinegradebook.dto.lesson.LessonDto;
 import com.pawlik.przemek.onlinegradebook.service.LessonService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -16,6 +17,8 @@ import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping(path = "/api/v1/lessons")
@@ -50,6 +53,25 @@ public class LessonController {
     public ResponseEntity<LessonDto> createLesson(@Valid @RequestBody LessonAddDto lessonAddDto) {
         LessonDto lessonDto = lessonService.createLesson(lessonAddDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(lessonDto);
+    }
+
+    @Operation(summary = "Get all lessons", description = "Endpoint for retrieving the list of lessons. When params are not specified all lessons are returned.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Lessons retrieved successfully",
+                    content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = LessonDto.class)))
+            ),
+            @ApiResponse(responseCode = "401", description = "Unauthorized - User not logged in",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponseDto.class))
+            ),
+            @ApiResponse(responseCode = "403", description = "Forbidden - Insufficient privileges",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponseDto.class))
+            )
+    })
+    @GetMapping
+    public ResponseEntity<List<LessonDto>> getAllLessons(
+            @Parameter(name = "subjectId", description = "Subject id", example = "5") @RequestParam(required = false) Long subjectId) {
+        List<LessonDto> lessons = lessonService.getAllLessons(subjectId);
+        return ResponseEntity.ok().body(lessons);
     }
 
     @Operation(summary = "Get lesson by ID", description = "Endpoint for retrieving a lesson by ID.")

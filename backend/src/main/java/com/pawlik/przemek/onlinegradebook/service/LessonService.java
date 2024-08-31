@@ -10,6 +10,9 @@ import com.pawlik.przemek.onlinegradebook.repository.LessonRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 
 @Service
 public class LessonService {
@@ -37,5 +40,17 @@ public class LessonService {
     public LessonDto getLessonById(Long lessonId) {
         Lesson lesson = lessonRepository.findById(lessonId).orElseThrow(() -> new NotFoundException("Lesson not found with ID: " + lessonId));
         return lessonMapper.lessonToLessonDto(lesson);
+    }
+
+    public List<LessonDto> getAllLessons(Long subjectId) {
+        if (subjectId != null) {
+            return lessonRepository.findBySubjectId(subjectId).stream()
+                    .map(lessonMapper::lessonToLessonDto)
+                    .collect(Collectors.toList());
+        }
+
+        return ((List<Lesson>) lessonRepository.findAll()).stream()
+                .map(lessonMapper::lessonToLessonDto)
+                .collect(Collectors.toList());
     }
 }
