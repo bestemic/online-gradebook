@@ -3,6 +3,7 @@ import {useState} from "react";
 import LessonsTab from "../lesson/LessonsTab.tsx";
 import GradesTab from "../grade/GradesTab.tsx";
 import MaterialsTab from "../material/MaterialsTab.tsx";
+import {SubjectProvider} from "../../context/SubjecProvider.tsx";
 
 const SubjectProfile = () => {
     const [activeTab, setActiveTab] = useState<string>("subjectOverview");
@@ -48,12 +49,14 @@ const SubjectProfile = () => {
                 </button>
             </div>
 
-            <div className="h-full bg-white rounded-b shadow-2xl">
-                {activeTab === "subjectOverview" && (<SubjectOverview/>)}
-                {activeTab === "lessonsTab" && (<LessonsTab/>)}
-                {activeTab === "gradesTab" && (<GradesTab/>)}
-                {activeTab === "materialsTab" && (<MaterialsTab/>)}
-            </div>
+            <SubjectProvider>
+                <div className="h-full bg-white rounded-b shadow-2xl">
+                    {activeTab === "subjectOverview" && (<SubjectOverview/>)}
+                    {activeTab === "lessonsTab" && (<LessonsTab/>)}
+                    {activeTab === "gradesTab" && (<GradesTab/>)}
+                    {activeTab === "materialsTab" && (<MaterialsTab/>)}
+                </div>
+            </SubjectProvider>
         </div>
     );
 };

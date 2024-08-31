@@ -1,18 +1,16 @@
 import {useParams} from "react-router-dom";
 import useAxiosPrivate from "../../hooks/useAxiosPrivate.ts";
 import {useEffect, useState} from "react";
-import {ISubject} from "../../interfaces/subject/SubjectInterface.ts";
 import subjectsService from "../../services/subjects.ts";
 import classesService from "../../services/classes.ts";
 import RequireRole from "../wrapper/RequireRole.tsx";
 import {ROLES} from "../../constants/roles.ts";
-import {ISchoolClass} from "../../interfaces/school_class/SchoolClassInterface.ts";
+import useSubject from "../../hooks/useSubject.ts";
 
 const SubjectOverview = () => {
     const {id} = useParams();
     const axiosPrivate = useAxiosPrivate();
-    const [subject, setSubject] = useState<ISubject | null>(null);
-    const [schoolClass, setSchoolClass] = useState<ISchoolClass | null>(null);
+    const {subject, setSubject, schoolClass, setSchoolClass} = useSubject();
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
@@ -36,7 +34,7 @@ const SubjectOverview = () => {
                     setError(error.message);
                 });
         }
-    }, [id, axiosPrivate]);
+    }, [id, axiosPrivate, setSubject, setSchoolClass]);
 
     return (
         <div className="h-full flex items-center justify-center">

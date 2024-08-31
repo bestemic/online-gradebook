@@ -62,7 +62,7 @@ const getById = (axiosInstance: AxiosInstance, subjectId: string) => {
             } else if (error.response.status === 403) {
                 throw new Error('You do not have permission to perform this operation');
             } else if (error.response.status === 404) {
-                throw new Error('User not found');
+                throw new Error('Lesson not found');
             } else {
                 throw new Error('Failed to fetch subject');
             }
