@@ -15,6 +15,7 @@ import ClassManagement from "./components/class/ClassManagement.tsx";
 import ClassProfile from "./components/class/ClassProfile.tsx";
 import SubjectsManagement from "./components/subject/SubjectsManagement.tsx";
 import SubjectProfile from "./components/subject/SubjectProfile.tsx";
+import LessonProfile from "./components/lesson/LessonProfile.tsx";
 
 function App() {
 
@@ -36,6 +37,7 @@ function App() {
 
                     <Route element={<RequireAuth allowedRoles={[ROLES.Teacher, ROLES.Student]}/>}>
                         <Route path="subjects/:id" element={<SubjectProfile/>}/>
+                        <Route path="lessons/:id" element={<LessonProfile/>}/>
                     </Route>
 
                     <Route element={<RequireAuth allowedRoles={[ROLES.Admin]}/>}>
