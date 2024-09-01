@@ -38,8 +38,12 @@ public class LessonService {
     }
 
     public LessonDto getLessonById(Long lessonId) {
-        Lesson lesson = lessonRepository.findById(lessonId).orElseThrow(() -> new NotFoundException("Lesson not found with ID: " + lessonId));
+        Lesson lesson = getLessonObjectById(lessonId);
         return lessonMapper.lessonToLessonDto(lesson);
+    }
+
+    public Lesson getLessonObjectById(Long lessonId) {
+        return lessonRepository.findById(lessonId).orElseThrow(() -> new NotFoundException("Lesson not found with ID: " + lessonId));
     }
 
     public List<LessonDto> getAllLessons(Long subjectId) {

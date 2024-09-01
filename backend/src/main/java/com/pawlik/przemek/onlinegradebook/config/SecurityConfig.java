@@ -86,6 +86,11 @@ public class SecurityConfig {
 
                         .requestMatchers(HttpMethod.GET, "/api/v1/lessons", "/api/v1/lessons/{lessonId}").hasAnyRole("TEACHER", "STUDENT")
                         .requestMatchers(HttpMethod.POST, "/api/v1/lessons").hasRole("TEACHER")
+
+                        .requestMatchers(HttpMethod.GET, "/api/v1/attendances/lesson/{lessonId}").hasAnyRole("TEACHER")
+                        .requestMatchers(HttpMethod.GET, "/api/v1/attendances/lesson/{lessonId}/student/{studentId}").hasAnyRole("STUDENT")
+                        .requestMatchers(HttpMethod.POST, "/api/v1/attendances").hasRole("TEACHER")
+
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling(e -> {
