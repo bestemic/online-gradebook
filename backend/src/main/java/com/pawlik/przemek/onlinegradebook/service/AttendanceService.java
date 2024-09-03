@@ -59,7 +59,7 @@ public class AttendanceService {
 
         for (AttendanceAddDto attendanceAddDto : attendancesAddDto.getAttendances()) {
             if (attendanceRepository.existsByStudentIdAndLessonId(attendanceAddDto.getStudentId(), attendancesAddDto.getLessonId())) {
-                throw new IllegalArgumentException("Attendance record already exists for student with id " + attendanceAddDto.getStudentId() + " in lesson " + attendancesAddDto.getLessonId() + ".");
+                throw new IllegalStateException("Attendance record already exists for student with id " + attendanceAddDto.getStudentId() + " in lesson " + attendancesAddDto.getLessonId() + ".");
             }
         }
 
@@ -87,6 +87,9 @@ public class AttendanceService {
         lessonService.getLessonObjectById(lessonId);
         List<Attendance> attendances = attendanceRepository.findAllByLessonId(lessonId);
 
+        if (attendances.isEmpty()) {
+            throw new NotFoundException(("Attendance not found for lesson with id " + lessonId + "."));
+        }
         AttendancesLessonDto result = attendanceMapper.attendanceToAttendancesLessonDto(attendances.get(0));
         result.setAttendances(attendances.stream()
                 .map(attendanceMapper::attendanceToAttendanceDto)

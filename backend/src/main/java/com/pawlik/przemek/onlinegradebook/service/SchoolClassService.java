@@ -70,7 +70,7 @@ public class SchoolClassService {
         User student = userService.getUserObjectById(userId);
 
         if (!schoolClass.getStudents().contains(student)) {
-            throw new IllegalArgumentException("User is not assigned to this class");
+            throw new IllegalStateException("User is not assigned to this class");
         }
 
         student.setSchoolClass(null);
@@ -84,7 +84,7 @@ public class SchoolClassService {
 
         boolean isStudent = student.getRoles().stream().anyMatch(role -> role.getName().equals("ROLE_STUDENT"));
         if (!isStudent) {
-            throw new IllegalArgumentException("User with ID: " + student.getId() + " is not a student");
+            throw new IllegalStateException("User with ID: " + student.getId() + " is not a student");
         }
 
         student.setSchoolClass(schoolClass);

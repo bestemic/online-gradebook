@@ -10,6 +10,8 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 public class AttendanceDto {
+    @Schema(description = "Unique identifier of the attendance", example = "1")
+    private Long id;
 
     @Schema(description = "Student whose attendance is being marked")
     private UserBasicDto student;

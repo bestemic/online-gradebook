@@ -13,9 +13,6 @@ import java.util.List;
 @AllArgsConstructor
 public class AttendancesLessonDto {
 
-    @Schema(description = "Unique identifier of the attendance", example = "1")
-    private Long id;
-
     @Schema(description = "Lesson on which attendance is being marked")
     private LessonDto lesson;
 
