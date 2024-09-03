@@ -3,6 +3,7 @@ import useAxiosPrivate from "../../hooks/useAxiosPrivate.ts";
 import {useEffect, useState} from "react";
 import {ILesson} from "../../interfaces/lesson/LessonInterface.ts";
 import lessonsService from "../../services/lessons.ts";
+import Attendances from "../attendance/Attendances.tsx";
 
 const LessonProfile = () => {
     const {id} = useParams();
@@ -37,6 +38,8 @@ const LessonProfile = () => {
                                 {new Date(lesson.date).toLocaleDateString()}
                             </p>
                         </div>
+
+                        <Attendances/>
                     </>
                 ) : !error && (
                     <div>Loading...</div>

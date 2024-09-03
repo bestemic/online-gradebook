@@ -43,7 +43,6 @@ const AddLesson = () => {
         lessonsService.create(axiosPrivate, data)
             .then((data: ILesson) => {
                 handleAddLessonSection();
-                console.log(data);
                 navigate(`/lessons/${data.id}`);
             })
             .catch(error => {
