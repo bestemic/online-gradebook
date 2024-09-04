@@ -6,4 +6,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface GradeRepository extends CrudRepository<Grade, Long> {
+
+    boolean existsBySubjectIdAndName(Long subjectId, String name);
 }
