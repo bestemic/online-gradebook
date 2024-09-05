@@ -1,7 +1,7 @@
 import useAuth from "../../hooks/useAuth.ts";
 import useSubject from "../../hooks/useSubject.ts";
 import useAxiosPrivate from "../../hooks/useAxiosPrivate.ts";
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import JwtInterface from "../../interfaces/helper/JwtInterface.ts";
 import {jwtDecode} from "jwt-decode";
 import RequireRole from "../wrapper/RequireRole.tsx";
@@ -9,6 +9,8 @@ import {ROLES} from "../../constants/roles.ts";
 import {ICreateGrade} from "../../interfaces/grade/CreateGradeInterface.ts";
 import {ICreateGrades} from "../../interfaces/grade/CreateGradesInterface.ts";
 import gradesService from "../../services/grades.ts";
+import {IGrades} from "../../interfaces/grade/GradesInferface.ts";
+import {IGradeStudent} from "../../interfaces/grade/GradeStudentInterface.ts";
 
 const GradesTab = () => {
     const {auth} = useAuth();
@@ -18,11 +20,49 @@ const GradesTab = () => {
     const [addError, setAddError] = useState<string | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isAddingGrade, setIsAddingGrade] = useState(false);
+    const [classGrades, setClassGrades] = useState<IGrades[]>([]);
+    const [studentGrades, setStudentGrades] = useState<IGradeStudent[]>([]);
     const [gradesCreate, setGradesCreate] = useState<ICreateGrade[]>([]);
     const [gradeName, setGradeName] = useState<string>("");
 
     const decoded: JwtInterface | undefined = auth?.token ? jwtDecode(auth.token) : undefined;
     const currentUserId: number = decoded?.id || 0;
+
+    useEffect(() => {
+        if (subject && currentUserId === subject.teacher.id) {
+            gradesService.getBySubjectId(axiosPrivate, subject.id)
+                .then((data: IGrades[]) => {
+                    setClassGrades(data);
+                    setError(null);
+                })
+                .catch(error => {
+                    if (error.message.includes("Grades not found")) {
+                        setClassGrades([]);
+                        setError(null);
+                    } else {
+                        setError(error.message);
+                    }
+                })
+        }
+    }, [axiosPrivate, currentUserId, subject]);
+
+    useEffect(() => {
+        if (schoolClass && schoolClass.students.some(student => student.id === currentUserId) && subject) {
+            gradesService.getBySubjectIdAndStudentId(axiosPrivate, subject.id, currentUserId)
+                .then((data: IGradeStudent[]) => {
+                    setStudentGrades(data);
+                    setError(null);
+                })
+                .catch(error => {
+                    if (error.message.includes("Grades not found")) {
+                        setStudentGrades([]);
+                        setError(null);
+                    } else {
+                        setError(error.message);
+                    }
+                });
+        }
+    }, [axiosPrivate, currentUserId, schoolClass, subject]);
 
     const handleAddGradeSection = () => {
         if (currentUserId === subject?.teacher.id && schoolClass && schoolClass.students) {
@@ -149,6 +189,38 @@ const GradesTab = () => {
                             </button>
                         )}
                     </RequireRole>
+                )}
+
+                {currentUserId === subject?.teacher.id && (
+                    <div>
+                        <h1 className="text-xl font-bold mb-2">Students grades</h1>
+
+                    </div>
+                )}
+
+                {schoolClass && schoolClass.students.some(student => student.id === currentUserId) && (
+                    <div>
+                        <h1 className="text-lg font-bold">Your grades</h1>
+                        <ul className="space-y-2 mb-4">
+                            {studentGrades.length > 0 ? (
+                                studentGrades.map((grade) => (
+                                    <li key={grade.id}
+                                        className="flex items-center justify-between py-1 pr-2 border-b border-gray-300">
+                                        <div>
+                                            <span className="font-semibold">{grade.name}</span>
+                                            <span
+                                                className="block text-sm text-gray-500">{new Date(grade.assignedDate).toLocaleDateString()}</span>
+                                        </div>
+                                        <div>
+                                            <span className="text-lg">{grade.grade ? grade.grade : "—"}</span>
+                                        </div>
+                                    </li>
+                                ))
+                            ) : (
+                                <div className="text-gray-500">No grades available</div>
+                            )}
+                        </ul>
+                    </div>
                 )}
 
                 {error && (<div className="text-lg text-red-500 mt-2">{error}</div>)}
