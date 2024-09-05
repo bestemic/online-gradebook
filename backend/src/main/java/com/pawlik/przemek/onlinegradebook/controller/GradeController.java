@@ -48,7 +48,7 @@ public class GradeController {
             @ApiResponse(responseCode = "404", description = "Not Found - Subject not found",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponseDto.class))
             ),
-            @ApiResponse(responseCode = "409", description = "Conflict - Grades already exists in this class",
+            @ApiResponse(responseCode = "409", description = "Conflict - Grades already exists in this subject",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponseDto.class))
             )
     })

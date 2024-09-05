@@ -17,7 +17,7 @@ const AttendancesTab = () => {
     const {subject, schoolClass} = useSubject();
     const axiosPrivate = useAxiosPrivate();
     const [attendances, setAttendances] = useState<IAttendance[]>([]);
-    const [studentAttendance, setStudentAttendance] = useState<IAttendance>(null);
+    const [studentAttendance, setStudentAttendance] = useState<IAttendance | null>(null);
     const [attendancesCreate, setAttendancesCreate] = useState<ICreateAttendance[]>([]);
     const [error, setError] = useState<string | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -58,7 +58,7 @@ const AttendancesTab = () => {
 
     useEffect(() => {
         if (schoolClass && schoolClass.students.some(student => student.id === currentUserId)) {
-            attendanceService.getByLessonIdAndStudentId(axiosPrivate, parseInt(id), currentUserId)
+            attendanceService.getByLessonIdAndStudentId(axiosPrivate, parseInt(id || "0"), currentUserId)
                 .then((data: IAttendance) => {
                     setStudentAttendance(data);
                     setError(null);

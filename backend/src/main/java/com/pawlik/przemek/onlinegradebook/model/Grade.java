@@ -19,7 +19,7 @@ public class Grade {
     @Column(nullable = false)
     private String name;
 
-    @Column(nullable = false)
+    @Column
     private String grade;
 
     @Column(name = "assigned_date", nullable = false)
