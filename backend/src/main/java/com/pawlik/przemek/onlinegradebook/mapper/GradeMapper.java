@@ -1,6 +1,7 @@
 package com.pawlik.przemek.onlinegradebook.mapper;
 
 import com.pawlik.przemek.onlinegradebook.dto.grade.GradeDto;
+import com.pawlik.przemek.onlinegradebook.dto.grade.GradeStudentDto;
 import com.pawlik.przemek.onlinegradebook.dto.grade.GradesDto;
 import com.pawlik.przemek.onlinegradebook.model.Grade;
 import org.mapstruct.Mapper;
@@ -12,4 +13,6 @@ public interface GradeMapper {
     GradesDto gradeToGradesDto(Grade grade);
 
     GradeDto gradeToGradeDto(Grade grade);
+
+    GradeStudentDto gradeToGradeStudentDto(Grade grade);
 }

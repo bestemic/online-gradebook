@@ -1,9 +1,11 @@
 package com.pawlik.przemek.onlinegradebook.service;
 
 import com.pawlik.przemek.onlinegradebook.dto.grade.GradeAddDto;
+import com.pawlik.przemek.onlinegradebook.dto.grade.GradeStudentDto;
 import com.pawlik.przemek.onlinegradebook.dto.grade.GradesAddDto;
 import com.pawlik.przemek.onlinegradebook.dto.grade.GradesDto;
 import com.pawlik.przemek.onlinegradebook.exception.CustomValidationException;
+import com.pawlik.przemek.onlinegradebook.exception.NotFoundException;
 import com.pawlik.przemek.onlinegradebook.mapper.GradeMapper;
 import com.pawlik.przemek.onlinegradebook.model.Grade;
 import com.pawlik.przemek.onlinegradebook.model.Subject;
@@ -14,6 +16,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -103,5 +106,41 @@ public class GradeService {
                 .map(gradeMapper::gradeToGradeDto)
                 .collect(Collectors.toList()));
         return result;
+    }
+
+    public List<GradesDto> getGradesBySubject(Long subjectId) {
+        subjectService.getSubjectObjectById(subjectId);
+
+        List<Grade> grades = gradeRepository.findBySubjectId(subjectId);
+        if (grades.isEmpty()) {
+            throw new NotFoundException("Grades not found for subject with id " + subjectId);
+        }
+
+        Map<String, List<Grade>> gradesByName = grades.stream()
+                .collect(Collectors.groupingBy(Grade::getName));
+
+        return gradesByName.values().stream()
+                .map(groupedGrades -> {
+                    GradesDto result = gradeMapper.gradeToGradesDto(groupedGrades.get(0));
+                    result.setGrades(groupedGrades.stream()
+                            .map(gradeMapper::gradeToGradeDto)
+                            .collect(Collectors.toList()));
+                    return result;
+                })
+                .collect(Collectors.toList());
+    }
+
+    public List<GradeStudentDto> getGradesBySubjectAndStudent(Long subjectId, Long studentId) {
+        subjectService.getSubjectObjectById(subjectId);
+        userService.getUserObjectById(studentId);
+
+        List<Grade> grades = gradeRepository.findBySubjectIdAndStudentId(subjectId, studentId);
+        if (grades.isEmpty()) {
+            throw new NotFoundException("Grades not found for user with id " + studentId + " on subject with id " + subjectId + ".");
+        }
+
+        return grades.stream()
+                .map(gradeMapper::gradeToGradeStudentDto)
+                .collect(Collectors.toList());
     }
 }
