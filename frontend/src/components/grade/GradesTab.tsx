@@ -11,6 +11,8 @@ import {ICreateGrades} from "../../interfaces/grade/CreateGradesInterface.ts";
 import gradesService from "../../services/grades.ts";
 import {IGrades} from "../../interfaces/grade/GradesInferface.ts";
 import {IGradeStudent} from "../../interfaces/grade/GradeStudentInterface.ts";
+import {IGrade} from "../../interfaces/grade/GradeInterface.ts";
+import {IconSquareRoundedChevronDown} from "@tabler/icons-react";
 
 const GradesTab = () => {
     const {auth} = useAuth();
@@ -24,6 +26,7 @@ const GradesTab = () => {
     const [studentGrades, setStudentGrades] = useState<IGradeStudent[]>([]);
     const [gradesCreate, setGradesCreate] = useState<ICreateGrade[]>([]);
     const [gradeName, setGradeName] = useState<string>("");
+    const [expandedGradeIds, setExpandedGradeIds] = useState<string[]>([]);
 
     const decoded: JwtInterface | undefined = auth?.token ? jwtDecode(auth.token) : undefined;
     const currentUserId: number = decoded?.id || 0;
@@ -117,6 +120,12 @@ const GradesTab = () => {
             .finally(() => setIsSubmitting(false));
     };
 
+    const handleToggleGrade = (id: string) => {
+        setExpandedGradeIds((prevIds) =>
+            prevIds.includes(id) ? prevIds.filter((expandedId) => expandedId !== id) : [...prevIds, id]
+        );
+    };
+
     return (
         <div className="h-full flex flex-col items-center justify-center">
             <div className="w-full max-w-3xl mt-6">
@@ -192,9 +201,50 @@ const GradesTab = () => {
                 )}
 
                 {currentUserId === subject?.teacher.id && (
-                    <div>
-                        <h1 className="text-xl font-bold mb-2">Students grades</h1>
+                    <div className="py-2">
+                        <h1 className="text-lg font-bold py-2">Students grades</h1>
+                        <ul className="space-y-3">
+                            {classGrades.length > 0 ? (
+                                classGrades.map((grade, index) => {
+                                    const uniqueId = `${grade.name}-${index}`;
+                                    return (
+                                        <li key={uniqueId} className="border rounded shadow">
+                                            <div
+                                                onClick={() => handleToggleGrade(uniqueId)}
+                                                className="flex items-center justify-between p-2 cursor-pointer hover:bg-gray-100"
+                                            >
+                                                <span
+                                                    className={expandedGradeIds.includes(uniqueId) ? "font-bold" : ""}>
+                                                  {grade.name}
+                                                </span>
+                                                <IconSquareRoundedChevronDown
+                                                    size={24}
+                                                    className={`transition-transform ${expandedGradeIds.includes(uniqueId) ? "rotate-180" : ""}`}
+                                                />
+                                            </div>
 
+                                            {expandedGradeIds.includes(uniqueId) && (
+                                                <ul className="pl-8 pr-10">
+                                                    {grade.grades.map((studentGrade: IGrade) => (
+                                                        <li key={studentGrade.id}
+                                                            className="flex items-center border-t py-1.5">
+                                                            <div className="flex-1 flex items-center">
+                                                                <span>
+                                                                  {studentGrade.student.firstName} {studentGrade.student.lastName}
+                                                                </span>
+                                                            </div>
+                                                            <span>{studentGrade.grade ? studentGrade.grade : "—"}</span>
+                                                        </li>
+                                                    ))}
+                                                </ul>
+                                            )}
+                                        </li>
+                                    );
+                                })
+                            ) : (
+                                <h1 className="text-xl font-bold text-center">No grades available</h1>
+                            )}
+                        </ul>
                     </div>
                 )}
 
