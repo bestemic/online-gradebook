@@ -3,7 +3,7 @@ import useAxiosPrivate from "../../hooks/useAxiosPrivate.ts";
 import {useEffect, useState} from "react";
 import {ILesson} from "../../interfaces/lesson/LessonInterface.ts";
 import lessonsService from "../../services/lessons.ts";
-import Attendances from "../attendance/Attendances.tsx";
+import AttendancesTab from "../attendance/AttendancesTab.tsx";
 
 const LessonProfile = () => {
     const {id} = useParams();
@@ -39,7 +39,7 @@ const LessonProfile = () => {
                             </p>
                         </div>
 
-                        <Attendances/>
+                        <AttendancesTab/>
                     </>
                 ) : !error && (
                     <div>Loading...</div>

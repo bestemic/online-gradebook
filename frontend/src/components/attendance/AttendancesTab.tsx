@@ -11,7 +11,7 @@ import JwtInterface from "../../interfaces/helper/JwtInterface.ts";
 import {jwtDecode} from "jwt-decode";
 import useAuth from "../../hooks/useAuth.ts";
 
-const Attendances = () => {
+const AttendancesTab = () => {
     const {id} = useParams();
     const {auth} = useAuth();
     const {subject, schoolClass} = useSubject();
@@ -177,4 +177,4 @@ const Attendances = () => {
     );
 };
 
-export default Attendances;
+export default AttendancesTab;
