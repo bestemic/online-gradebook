@@ -5,7 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -17,8 +17,8 @@ public class GradeStudentDto {
     @Schema(description = "Name of the grade")
     private String name;
 
-    @Schema(description = "Date when grade was assigned")
-    private LocalDate assignedDate;
+    @Schema(description = "Time when grade was assigned")
+    private LocalDateTime assignedTime;
 
     @Schema(description = "Grade value", example = "4")
     private String grade;

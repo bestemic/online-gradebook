@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Setter
 @Getter
@@ -22,8 +22,8 @@ public class Grade {
     @Column
     private String grade;
 
-    @Column(name = "assigned_date", nullable = false)
-    private LocalDate assignedDate;
+    @Column(name = "assigned_time", nullable = false)
+    private LocalDateTime assignedTime;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "student_id", nullable = false)

@@ -35,7 +35,8 @@ const GradesTab = () => {
         if (subject && currentUserId === subject.teacher.id) {
             gradesService.getBySubjectId(axiosPrivate, subject.id)
                 .then((data: IGrades[]) => {
-                    setClassGrades(data);
+                    const sortedData = data.sort((a, b) => new Date(b.assignedTime).getTime() - new Date(a.assignedTime).getTime());
+                    setClassGrades(sortedData);
                     setError(null);
                 })
                 .catch(error => {
@@ -53,7 +54,8 @@ const GradesTab = () => {
         if (schoolClass && schoolClass.students.some(student => student.id === currentUserId) && subject) {
             gradesService.getBySubjectIdAndStudentId(axiosPrivate, subject.id, currentUserId)
                 .then((data: IGradeStudent[]) => {
-                    setStudentGrades(data);
+                    const sortedData = data.sort((a, b) => new Date(b.assignedTime).getTime() - new Date(a.assignedTime).getTime());
+                    setStudentGrades(sortedData);
                     setError(null);
                 })
                 .catch(error => {
@@ -67,7 +69,9 @@ const GradesTab = () => {
         }
     }, [axiosPrivate, currentUserId, schoolClass, subject]);
 
-    const handleAddGradeSection = () => {
+    const handleAddGradeSection = (event: React.FormEvent) => {
+        event.preventDefault();
+
         if (currentUserId === subject?.teacher.id && schoolClass && schoolClass.students) {
             const initialGrades = schoolClass.students.map((student) => ({
                 studentId: student.id,
@@ -110,7 +114,10 @@ const GradesTab = () => {
         setIsSubmitting(true);
 
         gradesService.create(axiosPrivate, gradeData)
-            .then(() => {
+            .then((data: IGrades) => {
+                const extendedGrades = [...classGrades, data];
+                const sortedGrades = extendedGrades.sort((a, b) => new Date(b.assignedTime).getTime() - new Date(a.assignedTime).getTime());
+                setClassGrades(sortedGrades);
                 setAddError(null);
                 setIsAddingGrade(false);
             })
@@ -213,10 +220,18 @@ const GradesTab = () => {
                                                 onClick={() => handleToggleGrade(uniqueId)}
                                                 className="flex items-center justify-between p-2 cursor-pointer hover:bg-gray-100"
                                             >
-                                                <span
-                                                    className={expandedGradeIds.includes(uniqueId) ? "font-bold" : ""}>
-                                                  {grade.name}
-                                                </span>
+                                                <div className="flex items-center space-x-5">
+                                                    <span
+                                                        className={expandedGradeIds.includes(uniqueId) ? "font-bold" : ""}>
+                                                        {grade.name}
+                                                    </span>
+                                                    <span className="text-sm text-gray-500">
+                                                        {new Date(grade.assignedTime).toLocaleString(undefined, {
+                                                            dateStyle: "short",
+                                                            timeStyle: "short"
+                                                        })}
+                                                    </span>
+                                                </div>
                                                 <IconSquareRoundedChevronDown
                                                     size={24}
                                                     className={`transition-transform ${expandedGradeIds.includes(uniqueId) ? "rotate-180" : ""}`}
@@ -258,8 +273,12 @@ const GradesTab = () => {
                                         className="flex items-center justify-between py-1 pr-2 border-b border-gray-300">
                                         <div>
                                             <span className="font-semibold">{grade.name}</span>
-                                            <span
-                                                className="block text-sm text-gray-500">{new Date(grade.assignedDate).toLocaleDateString()}</span>
+                                            <span className="block text-sm text-gray-500">
+                                                {new Date(grade.assignedTime).toLocaleString(undefined, {
+                                                    dateStyle: "short",
+                                                    timeStyle: "short"
+                                                })}
+                                            </span>
                                         </div>
                                         <div>
                                             <span className="text-lg">{grade.grade ? grade.grade : "—"}</span>

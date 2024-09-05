@@ -1,6 +1,6 @@
 export interface IGradeStudent {
     id: number;
     name: string;
-    assignedDate: string;
+    assignedTime: string;
     grade: string;
 }

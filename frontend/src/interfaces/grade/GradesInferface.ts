@@ -4,6 +4,6 @@ import {ISubject} from "../subject/SubjectInterface.ts";
 export interface IGrades {
     subject: ISubject;
     name: string;
-    assignedDate: string;
+    assignedTime: string;
     grades: IGrade[];
 }

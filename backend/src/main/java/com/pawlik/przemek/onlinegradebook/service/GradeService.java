@@ -13,7 +13,7 @@ import com.pawlik.przemek.onlinegradebook.model.User;
 import com.pawlik.przemek.onlinegradebook.repository.GradeRepository;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -71,7 +71,7 @@ public class GradeService {
             throw new IllegalStateException("Grade with name " + gradesAddDto.getName() + " already exists for subject with id " + subject.getId() + ".");
         }
 
-        LocalDate assignedDate = LocalDate.now();
+        LocalDateTime assignedTime = LocalDateTime.now();
 
         List<Grade> grades = new ArrayList<>(gradesAddDto.getGrades().stream()
                 .map(studentGrade -> {
@@ -79,7 +79,7 @@ public class GradeService {
                     Grade grade = new Grade();
                     grade.setSubject(subject);
                     grade.setName(gradesAddDto.getName());
-                    grade.setAssignedDate(assignedDate);
+                    grade.setAssignedTime(assignedTime);
                     grade.setStudent(student);
                     grade.setGrade(studentGrade.getGrade());
                     return grade;
@@ -91,7 +91,7 @@ public class GradeService {
                     Grade grade = new Grade();
                     grade.setSubject(subject);
                     grade.setName(gradesAddDto.getName());
-                    grade.setAssignedDate(assignedDate);
+                    grade.setAssignedTime(assignedTime);
                     grade.setStudent(student);
                     grade.setGrade(null);
                     return grade;
