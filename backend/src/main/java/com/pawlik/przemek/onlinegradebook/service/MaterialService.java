@@ -6,8 +6,10 @@ import com.pawlik.przemek.onlinegradebook.exception.NotFoundException;
 import com.pawlik.przemek.onlinegradebook.mapper.MaterialMapper;
 import com.pawlik.przemek.onlinegradebook.model.Material;
 import com.pawlik.przemek.onlinegradebook.model.Subject;
+import com.pawlik.przemek.onlinegradebook.model.User;
 import com.pawlik.przemek.onlinegradebook.repository.MaterialRepository;
 import com.pawlik.przemek.onlinegradebook.service.file.FileService;
+import com.pawlik.przemek.onlinegradebook.service.notification.NotificationService;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -23,12 +25,14 @@ public class MaterialService {
     private final MaterialMapper materialMapper;
     private final FileService fileService;
     private final SubjectService subjectService;
+    private final NotificationService notificationService;
 
-    public MaterialService(MaterialRepository materialRepository, MaterialMapper materialMapper, FileService fileService, SubjectService subjectService) {
+    public MaterialService(MaterialRepository materialRepository, MaterialMapper materialMapper, FileService fileService, SubjectService subjectService, NotificationService notificationService) {
         this.materialRepository = materialRepository;
         this.materialMapper = materialMapper;
         this.fileService = fileService;
         this.subjectService = subjectService;
+        this.notificationService = notificationService;
     }
 
     public MaterialDto createMaterial(MaterialAddDto materialAddDto, MultipartFile file) {
@@ -45,6 +49,12 @@ public class MaterialService {
         material.setSubject(subject);
 
         Material savedMaterial = materialRepository.save(material);
+
+        List<String> studentEmails = subject.getSchoolClass().getStudents().stream()
+                .map(User::getEmail)
+                .toList();
+        notificationService.send(studentEmails, "New material has been added to subject " + subject.getName() + ": " + material.getName());
+
         return materialMapper.materialToMaterialDto(savedMaterial);
     }
 
