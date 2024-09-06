@@ -1,5 +1,5 @@
 import useAuth from "../../hooks/useAuth.ts";
-import {useLocation, useNavigate} from "react-router-dom";
+import {useNavigate} from "react-router-dom";
 import userService from "../../services/users.ts";
 import {zodResolver} from "@hookform/resolvers/zod";
 import {SubmitHandler, useForm} from "react-hook-form";
@@ -17,8 +17,6 @@ type FormFields = z.infer<typeof schema>;
 const Login = () => {
     const {setAuth} = useAuth();
     const navigate = useNavigate();
-    const location = useLocation();
-    const from = location.state?.from?.pathname || "/";
 
     const {
         register,
@@ -38,9 +36,9 @@ const Login = () => {
                 const changed: boolean = decoded?.changed || false;
 
                 if (!changed) {
-                    navigate("/change-password", {replace: true, state: {from: from}});
+                    navigate("/change-password", {replace: true, state: {from: "/"}});
                 } else {
-                    navigate(from, {replace: true});
+                    navigate("/");
                 }
             })
             .catch(error => {
