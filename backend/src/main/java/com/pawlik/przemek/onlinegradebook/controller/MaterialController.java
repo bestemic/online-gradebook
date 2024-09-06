@@ -31,7 +31,7 @@ public class MaterialController {
         this.materialService = materialService;
     }
 
-    @Operation(summary = "Create a new material", description = "Endpoint to create a new material and upload a file associated with it.")
+    @Operation(summary = "Create a new material", description = "Endpoint to create a new material and upload a file associated with it. Max file size is 2MB.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Material created successfully",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = MaterialDto.class))
