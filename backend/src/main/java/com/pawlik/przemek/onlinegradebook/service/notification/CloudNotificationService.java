@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.cloud.pubsub.v1.Publisher;
 import com.google.protobuf.ByteString;
 import com.google.pubsub.v1.PubsubMessage;
+import com.google.pubsub.v1.TopicName;
 import com.pawlik.przemek.onlinegradebook.dto.notification.NotificationDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 @Service
 @Profile("production")
@@ -22,8 +24,10 @@ public class CloudNotificationService implements NotificationService {
     private final static Logger LOGGER = LoggerFactory.getLogger(LocalNotificationService.class);
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final String topicId;
+    private final String projectId;
 
-    public CloudNotificationService(@Value("${gcp.topic.id}") String topicId) {
+    public CloudNotificationService(@Value("${gcp.pubsub.project-id}") String projectId, @Value("${gcp.pubsub.topic-id}") String topicId) {
+        this.projectId = projectId;
         this.topicId = topicId;
     }
 
@@ -41,11 +45,12 @@ public class CloudNotificationService implements NotificationService {
         }
     }
 
-    private void publishMessage(String message) throws IOException {
+    private void publishMessage(String message) throws IOException, InterruptedException {
+        TopicName topicName = TopicName.of(projectId, topicId);
         Publisher publisher = null;
 
         try {
-            publisher = Publisher.newBuilder(topicId).build();
+            publisher = Publisher.newBuilder(topicName).build();
             ByteString data = ByteString.copyFromUtf8(message);
             PubsubMessage pubsubMessage = PubsubMessage.newBuilder()
                     .setData(data)
@@ -54,6 +59,7 @@ public class CloudNotificationService implements NotificationService {
         } finally {
             if (publisher != null) {
                 publisher.shutdown();
+                publisher.awaitTermination(1, TimeUnit.MINUTES);
             }
         }
     }
