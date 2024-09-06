@@ -2,7 +2,7 @@ import {SubmitHandler, useForm} from "react-hook-form";
 import {zodResolver} from "@hookform/resolvers/zod";
 import {z} from "zod";
 import {ROLES} from "../../constants/roles.ts";
-import {useEffect, useState} from "react";
+import React, {useEffect, useState} from "react";
 import userService from "../../services/users.ts";
 import roleService from "../../services/roles.ts";
 import {ICreateUser} from "../../interfaces/user/CreateUserInterface.ts";
@@ -181,19 +181,40 @@ const AddUser = () => {
                             {errors.phoneNumber && <p className="text-red-500 mt-1">{errors.phoneNumber.message}</p>}
                         </div>
                     </div>
-                    <div className="mb-4">
-                        <p className="block mb-1">Roles:</p>
-                        <input type='checkbox' id="roleIds" onChange={handleCheckboxChange} value={ROLES.Student}/>
-                        <label htmlFor="roleIds" className="ml-2 mr-4">Student</label>
 
-                        <input type='checkbox' id="roleIds" onChange={handleCheckboxChange} value={ROLES.Teacher}/>
-                        <label htmlFor="roleIds" className="ml-2 mr-4">Teacher</label>
+                    {roles.length > 0 && (
+                        <div className="mb-4">
+                            <p className="block mb-1">Roles:</p>
+                            <input
+                                type='checkbox'
+                                id="roleIds"
+                                onChange={handleCheckboxChange}
+                                value={ROLES.Student}
+                                checked={(getValues('roleIds') || []).includes(mapRoleNameToIndex(ROLES.Student))}
+                            />
+                            <label htmlFor="roleIds" className="ml-2 mr-4">Student</label>
 
-                        <input type='checkbox' id="roleIds" onChange={handleCheckboxChange} value={ROLES.Admin}/>
-                        <label htmlFor="roleIds" className="ml-2 mr-4">Admin</label>
+                            <input
+                                type='checkbox'
+                                id="roleIds"
+                                onChange={handleCheckboxChange}
+                                value={ROLES.Teacher}
+                                checked={(getValues('roleIds') || []).includes(mapRoleNameToIndex(ROLES.Teacher))}
+                            />
+                            <label htmlFor="roleIds" className="ml-2 mr-4">Teacher</label>
 
-                        {errors.roleIds && <p className="text-red-500 mt-1">{errors.roleIds.message}</p>}
-                    </div>
+                            <input
+                                type='checkbox'
+                                id="roleIds"
+                                onChange={handleCheckboxChange}
+                                value={ROLES.Admin}
+                                checked={(getValues('roleIds') || []).includes(mapRoleNameToIndex(ROLES.Admin))}
+                            />
+                            <label htmlFor="roleIds" className="ml-2 mr-4">Admin</label>
+
+                            {errors.roleIds && <p className="text-red-500 mt-1">{errors.roleIds.message}</p>}
+                        </div>
+                    )}
 
                     <button
                         className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-500 transition duration-300"
