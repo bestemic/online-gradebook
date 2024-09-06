@@ -105,7 +105,12 @@ const UsersTab = () => {
                 Cell: ({cell}) => {
                     const dateValue = cell.getValue<string>();
                     return dateValue ? new Date(dateValue).toLocaleDateString() : "";
-                }
+                },
+                filterFn: (row, id, filterValue) => {
+                    const rowValue = row.getValue<string>(id);
+                    const stringDate = rowValue ? new Date(rowValue).toLocaleDateString() : "";
+                    return stringDate.includes(filterValue);
+                },
             },
             {
                 accessorKey: "phoneNumber",
