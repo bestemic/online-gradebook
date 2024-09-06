@@ -91,6 +91,13 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/v1/attendances/lesson/{lessonId}/student/{studentId}").hasAnyRole("STUDENT")
                         .requestMatchers(HttpMethod.POST, "/api/v1/attendances").hasRole("TEACHER")
 
+                        .requestMatchers(HttpMethod.GET, "/api/v1/grades/subject/{subjectId}").hasAnyRole("TEACHER")
+                        .requestMatchers(HttpMethod.GET, "/api/v1/grades/subject/{subjectId}/student/{studentId}").hasAnyRole("STUDENT")
+                        .requestMatchers(HttpMethod.POST, "/api/v1/grades").hasRole("TEACHER")
+
+                        .requestMatchers(HttpMethod.GET, "/api/v1/materials/subject/{subjectId}", "/api/v1/materials/{materialId}/file").hasAnyRole("TEACHER", "STUDENT")
+                        .requestMatchers(HttpMethod.POST, "/api/v1/materials").hasRole("TEACHER")
+
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling(e -> {
