@@ -1,7 +1,7 @@
 import useAuth from "../../hooks/useAuth.ts";
 import useSubject from "../../hooks/useSubject.ts";
 import useAxiosPrivate from "../../hooks/useAxiosPrivate.ts";
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import JwtInterface from "../../interfaces/helper/JwtInterface.ts";
 import {jwtDecode} from "jwt-decode";
 import RequireRole from "../wrapper/RequireRole.tsx";
@@ -12,6 +12,7 @@ import {zodResolver} from "@hookform/resolvers/zod";
 import {ICreateMaterial} from "../../interfaces/material/CreateMaterialInterface.ts";
 import materialService from "../../services/materials.ts";
 import {IMaterial} from "../../interfaces/material/MaterialInterface.ts";
+import {IconDownload} from "@tabler/icons-react";
 
 const MaterialsTab = () => {
     const {auth} = useAuth();
@@ -20,6 +21,7 @@ const MaterialsTab = () => {
     const [isAddingMaterial, setIsAddingMaterial] = useState(false);
     const [materials, setMaterials] = useState<IMaterial[]>([]);
     const [fileName, setFileName] = useState<string | null>(null);
+    const [materialError, setMaterialError] = useState<string | null>(null);
 
     const decoded: JwtInterface | undefined = auth?.token ? jwtDecode(auth.token) : undefined;
     const currentUserId: number = decoded?.id || 0;
@@ -43,6 +45,20 @@ const MaterialsTab = () => {
         formState: {errors, isSubmitting}
     } = useForm<ICreateMaterial>({resolver: zodResolver(schema)});
 
+    useEffect(() => {
+        if (subject) {
+            materialService.getBySubjectId(axiosPrivate, subject.id)
+                .then((data: IMaterial[]) => {
+                    const sortedMaterials = data.sort((a, b) => new Date(b.publicationTime).getTime() - new Date(a.publicationTime).getTime());
+                    setMaterials(sortedMaterials);
+                    setMaterialError(null);
+                })
+                .catch(error => {
+                    setMaterialError(error.message);
+                });
+        }
+    }, [axiosPrivate, subject]);
+
     const handleAddMaterialSection = (event: React.FormEvent) => {
         event.preventDefault();
         reset();
@@ -53,7 +69,7 @@ const MaterialsTab = () => {
     const handleSubmitAdd: SubmitHandler<ICreateMaterial> = async (data) => {
         materialService.create(axiosPrivate, data)
             .then((data: IMaterial) => {
-                setMaterials([...materials, data]);
+                setMaterials([data, ...materials]);
                 reset()
                 setIsAddingMaterial(false);
             })
@@ -72,6 +88,16 @@ const MaterialsTab = () => {
             setValue('file', file);
             setFileName(file.name);
         }
+    };
+
+    const handleDownload = async (materialId: number) => {
+        materialService.downloadFile(axiosPrivate, materialId)
+            .then(() => {
+                setMaterialError(null);
+            })
+            .catch(error => {
+                setMaterialError(error.message);
+            })
     };
 
     return (
@@ -160,6 +186,33 @@ const MaterialsTab = () => {
                         )}
                     </RequireRole>
                 )}
+
+                <div className="mt-6">
+                    <h3 className="text-lg font-semibold mb-4">Materials</h3>
+                    {materialError && <p className="text-red-500">{materialError}</p>}
+                    {materials.length > 0 ? (
+                        <ul>
+                            {materials.map((material) => (
+                                <li key={material.id}
+                                    className="border border-gray-300 rounded px-4 py-1.5 mb-4 flex justify-between items-center">
+                                    <div>
+                                        <p className="font-medium">{material.name}</p>
+                                        <p className="text-sm text-gray-500">{new Date(material.publicationTime).toLocaleString()}</p>
+                                        <p className="text-sm text-gray-500">{material.description}</p>
+                                    </div>
+                                    <button
+                                        onClick={() => handleDownload(material.id)}
+                                        className="flex items-center bg-blue-500 text-white px-3 py-2 rounded hover:bg-blue-600 transition duration-300"
+                                    >
+                                        <IconDownload className="w-5 h-5"/>
+                                    </button>
+                                </li>
+                            ))}
+                        </ul>
+                    ) : (
+                        <p>No materials available.</p>
+                    )}
+                </div>
             </div>
         </div>
     );
