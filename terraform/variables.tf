@@ -1,9 +1,3 @@
-locals {
-  labels = {
-    "app-name" = var.app-name
-  }
-}
-
 variable "project_id" {
   type        = string
   description = "ID Google project"

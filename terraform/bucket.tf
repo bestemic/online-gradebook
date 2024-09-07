@@ -4,5 +4,6 @@ resource "google_storage_bucket" "materials-bucket" {
   location      = var.region
   force_destroy = false
 
+  labels                      = local.labels
   uniform_bucket_level_access = true
 }
