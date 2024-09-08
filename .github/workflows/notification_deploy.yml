@@ -19,6 +19,16 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'corretto'
+          java-version: '17'
+
+      - name: Build jar
+        working-directory: notification-server
+        run: mvn clean package
+
       - id: auth
         name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
@@ -29,24 +39,19 @@ jobs:
         run: |-
           gcloud auth configure-docker "${{ vars.GCP_REGION }}-docker.pkg.dev"
 
-#      - name: 'Build and Push Container'
+#      - name: Build and Push Container
 #        run: |-
-#          DOCKER_TAG="$${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.SERVICE }}:${{ github.sha }}"
-#          docker build --tag "${DOCKER_TAG}" .
+#          DOCKER_TAG="$${{ vars.GCP_REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.GAR_NAME }}:${{ github.sha }}"
+#          docker build --tag "${DOCKER_TAG}" notification-server
 #          docker push "${DOCKER_TAG}"
-#      - name: 'Deploy to Cloud Run'
 #
-#        # END - Docker auth and build
-#
-#        uses: 'google-github-actions/deploy-cloudrun@33553064113a37d688aa6937bacbdc481580be17' # google-github-actions/deploy-cloudrun@v2
+#      - name: Deploy to Cloud Run
+#        id: deploy
+#        uses: google-github-actions/deploy-cloudrun@v2
 #        with:
-#          service: '${{ env.SERVICE }}'
-#          region: '${{ env.REGION }}'
-#          # NOTE: If using a pre-built image, update the image name below:
+#          service: ${{ env.SERVICE }}
+#          region: ${{ vars.GCP_REGION }}
+#          image: ${{ env.GCP_REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.GAR_NAME }}:${{ github.sha }}
 #
-#          image: '${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.SERVICE }}:${{ github.sha }}'
-#      # If required, use the Cloud Run URL output in later steps
-#      - name: 'Show output'
-#        run: |2-
-#
-#          echo ${{ steps.deploy.outputs.url }}
+#      - name: Show output URL
+#        run: curl "${{ steps.deploy.outputs.url }}"
