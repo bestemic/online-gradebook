@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
 
 env:
-  SERVICE: "${{ vars.GCP_APP_NAME }}-api"
+  SERVICE: "${{ vars.GCP_APP_NAME }}-frontend"
   GAR_NAME: "${{ vars.GCP_APP_NAME }}-repository"
 
 jobs:
