@@ -15,13 +15,8 @@ resource "google_sql_database" "database" {
   instance = google_sql_database_instance.database-instance.name
 }
 
-resource "random_password" "db_password" {
-  length  = 16
-  special = true
-}
-
 resource "google_sql_user" "user" {
   name     = "gradebook_user"
   instance = google_sql_database_instance.database-instance.name
-  password = random_password.db_password.result
+  password = var.db_password
 }
