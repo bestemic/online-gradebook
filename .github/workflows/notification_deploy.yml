@@ -39,19 +39,16 @@ jobs:
         run: |-
           gcloud auth configure-docker "${{ vars.GCP_REGION }}-docker.pkg.dev"
 
-#      - name: Build and Push Container
-#        run: |-
-#          DOCKER_TAG="$${{ vars.GCP_REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.GAR_NAME }}:${{ github.sha }}"
-#          docker build --tag "${DOCKER_TAG}" notification-server
-#          docker push "${DOCKER_TAG}"
-#
-#      - name: Deploy to Cloud Run
-#        id: deploy
-#        uses: google-github-actions/deploy-cloudrun@v2
-#        with:
-#          service: ${{ env.SERVICE }}
-#          region: ${{ vars.GCP_REGION }}
-#          image: ${{ env.GCP_REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.GAR_NAME }}:${{ github.sha }}
-#
-#      - name: Show output URL
-#        run: curl "${{ steps.deploy.outputs.url }}"
+      - name: Build and Push Container
+        run: |-
+          DOCKER_TAG="$${{ vars.GCP_REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.GAR_NAME }}:${{ github.sha }}"
+          docker build --tag "${DOCKER_TAG}" notification-server
+          docker push "${DOCKER_TAG}"
+
+      - name: Deploy to Cloud Run
+        id: deploy
+        uses: google-github-actions/deploy-cloudrun@v2
+        with:
+          service: ${{ env.SERVICE }}
+          region: ${{ vars.GCP_REGION }}
+          image: ${{ env.GCP_REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.GAR_NAME }}:${{ github.sha }}
