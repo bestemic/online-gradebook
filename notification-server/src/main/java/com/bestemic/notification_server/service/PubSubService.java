@@ -32,6 +32,7 @@ public class PubSubService {
 
     @Scheduled(fixedRate = 300000)
     public void pollMessages() {
+        LOGGER.info("Polling messages from PubSub subscription: [{}]", subscriptionId);
         ProjectSubscriptionName subscriptionName = ProjectSubscriptionName.of(projectId, subscriptionId);
 
         MessageReceiver receiver =
