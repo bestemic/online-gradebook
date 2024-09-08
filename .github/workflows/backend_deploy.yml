@@ -57,3 +57,7 @@ jobs:
           --project ${{ vars.GCP_PROJECT }} \
           --format json \
           --update-env-vars DB_PASSWORD=${{ secrets.DB_PASSWORD }}
+
+      - name: Turn on Public Access
+        run: |-
+          gcloud functions add-iam-policy-binding ${{ env.SERVICE }} --member="allUsers" --role="roles/run.invoker"
