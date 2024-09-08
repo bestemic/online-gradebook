@@ -30,7 +30,7 @@ public class PubSubService {
     private final static Logger LOGGER = LoggerFactory.getLogger(PubSubService.class);
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    @Scheduled(cron = "*/5 * * * *")
+    @Scheduled(cron = "*/5 * * * * *")
     public void pollMessages() {
         LOGGER.info("Polling messages from PubSub subscription: [{}]", subscriptionId);
         ProjectSubscriptionName subscriptionName = ProjectSubscriptionName.of(projectId, subscriptionId);
