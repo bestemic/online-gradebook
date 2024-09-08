@@ -34,7 +34,7 @@ public class PubSubService {
     public void pollMessages() {
         LOGGER.info("Polling messages from PubSub subscription: [{}]", subscriptionId);
         ProjectSubscriptionName subscriptionName = ProjectSubscriptionName.of(projectId, subscriptionId);
-
+        LOGGER.info("Created subscription name: [{}]", subscriptionName);
         MessageReceiver receiver =
                 (PubsubMessage message, AckReplyConsumer consumer) -> {
                     ByteString data = message.getData();
@@ -47,12 +47,17 @@ public class PubSubService {
                     }
                 };
 
+        LOGGER.info("Creating receiver for subscription: [{}]", subscriptionName);
         Subscriber subscriber = null;
         try {
+            LOGGER.info("Starting subscriber for subscription: [{}]", subscriptionName);
             subscriber = Subscriber.newBuilder(subscriptionName, receiver).build();
+            LOGGER.info("Starting async");
             subscriber.startAsync().awaitRunning();
+            LOGGER.info("Waiting");
             subscriber.awaitTerminated(30, TimeUnit.SECONDS);
         } catch (TimeoutException timeoutException) {
+            LOGGER.error("Timeout exception occurred", timeoutException);
             subscriber.stopAsync();
         }
     }
