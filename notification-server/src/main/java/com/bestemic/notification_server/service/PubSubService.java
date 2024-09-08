@@ -34,6 +34,7 @@ public class PubSubService {
     public void pollMessages() {
         LOGGER.info("Polling messages from PubSub subscription: [{}]", subscriptionId);
         ProjectSubscriptionName subscriptionName = ProjectSubscriptionName.of(projectId, subscriptionId);
+        LOGGER.info("Connecting to PubSub subscription: [{}]", subscriptionName);
 
         MessageReceiver receiver =
                 (PubsubMessage message, AckReplyConsumer consumer) -> {
@@ -42,18 +43,25 @@ public class PubSubService {
                         NotificationDto notificationDto = objectMapper.readValue(data.toStringUtf8(), NotificationDto.class);
                         LOGGER.info("Received message: [{}] to [{}]", notificationDto.getMessage(), notificationDto.getEmailAddresses().toString());
                         consumer.ack();
+                        LOGGER.info("Acknowledged message");
                     } catch (JsonProcessingException e) {
                         LOGGER.error("Error processing message: {} with exception", data.toStringUtf8(), e);
                     }
                 };
 
         Subscriber subscriber = null;
+        LOGGER.info("Starting subscriber");
         try {
             subscriber = Subscriber.newBuilder(subscriptionName, receiver).build();
+            LOGGER.info("Subscriber started");
             subscriber.startAsync().awaitRunning();
+            LOGGER.info("Subscriber running");
             subscriber.awaitTerminated(30, TimeUnit.SECONDS);
+            LOGGER.info("Subscriber terminated");
         } catch (TimeoutException timeoutException) {
+            LOGGER.info("Subscriber timed out");
             subscriber.stopAsync();
+            LOGGER.info("Subscriber stopped");
         }
         LOGGER.info("Finished polling messages from PubSub subscription: [{}]", subscriptionId);
     }
