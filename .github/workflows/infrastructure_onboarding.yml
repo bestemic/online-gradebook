@@ -65,6 +65,8 @@ jobs:
         id: tf_output
         run: |
           echo "DB_PASSWORD=$(terraform output -raw db_password)" >> $GITHUB_ENV
+        env:
+          GITHUB_TOKEN: ${{ secrets.GOOGLE_CREDENTIALS }}
 
       - name: Update GitHub Secrets
         if: ${{ github.event.inputs.action == 'deploy' }}
@@ -72,7 +74,7 @@ jobs:
           echo ${{ env.DB_PASSWORD }}
           gh secret set DB_PASSWORD --body "${{ env.DB_PASSWORD }}"
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GOOGLE_CREDENTIALS }}
 
       - name: Terraform Plan Destroy
         if: ${{ github.event.inputs.action == 'destroy' }}
