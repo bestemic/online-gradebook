@@ -4,6 +4,7 @@ on:
   workflow_dispatch:
 
 env:
+  SERVICE: "${{ vars.GCP_APP_NAME }}-api"
   GAR_NAME: "${{ vars.GCP_APP_NAME }}-repository"
 
 jobs:
@@ -43,7 +44,7 @@ jobs:
 
       - name: Build and Push Container
         run: |-
-          DOCKER_TAG="${{ vars.GCP_REGION }}-docker.pkg.dev/${{ vars.GCP_PROJECT }}/${{ env.GAR_NAME }}/${{ vars.GCP_APP_NAME }}:${{ github.sha }}"
+          DOCKER_TAG="${{ vars.GCP_REGION }}-docker.pkg.dev/${{ vars.GCP_PROJECT }}/${{ env.GAR_NAME }}/${{ env.SERVICE }}:${{ github.sha }}"
           docker build --tag "${DOCKER_TAG}" frontend
           docker push "${DOCKER_TAG}"
 
@@ -51,7 +52,7 @@ jobs:
         id: deploy
         run: |-
           gcloud run deploy ${{ vars.GCP_APP_NAME }} \
-          --image ${{ vars.GCP_REGION }}-docker.pkg.dev/${{ vars.GCP_PROJECT }}/${{ env.GAR_NAME }}/${{ vars.GCP_APP_NAME }}:${{ github.sha }} \
+          --image ${{ vars.GCP_REGION }}-docker.pkg.dev/${{ vars.GCP_PROJECT }}/${{ env.GAR_NAME }}/${{ env.SERVICE }}:${{ github.sha }} \
           --quiet \
           --platform managed \
           --region ${{ vars.GCP_REGION }} \
