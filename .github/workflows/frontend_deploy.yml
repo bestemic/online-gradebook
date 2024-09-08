@@ -59,3 +59,7 @@ jobs:
           --region ${{ vars.GCP_REGION }} \
           --project ${{ vars.GCP_PROJECT }} \
           --format json
+
+      - name: Turn on Public Access
+        run: |-
+          gcloud services add-iam-policy-binding ${{ env.SERVICE }} --member="allUsers" --role="roles/run.invoker"

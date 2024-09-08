@@ -60,4 +60,4 @@ jobs:
 
       - name: Turn on Public Access
         run: |-
-          gcloud functions add-iam-policy-binding ${{ env.SERVICE }} --member="allUsers" --role="roles/run.invoker"
+          gcloud services add-iam-policy-binding ${{ env.SERVICE }} --member="allUsers" --role="roles/run.invoker"
