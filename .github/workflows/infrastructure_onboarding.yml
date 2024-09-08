@@ -60,6 +60,9 @@ jobs:
         env:
           GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
 
+      - name: Install GitHub CLI
+        run: sudo apt-get install gh -y
+
       - name: Get Terraform Output
         if: ${{ github.event.inputs.action == 'deploy' }}
         id: tf_output
