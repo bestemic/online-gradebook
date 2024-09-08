@@ -21,16 +21,16 @@ import java.util.concurrent.TimeoutException;
 @Service
 public class PubSubService {
 
-    @Value("${gcp.pubsub.project-id}")
-    private String projectId;
-
-    @Value("${gcp.pubsub.subscription-id}")
+    private final static Logger LOGGER = LoggerFactory.getLogger(PubSubService.class);
+    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final ProjectSubscriptionName subscriptionName;
     private String subscriptionId;
 
 
-    private final static Logger LOGGER = LoggerFactory.getLogger(PubSubService.class);
-    private final ObjectMapper objectMapper = new ObjectMapper();
-    private final ProjectSubscriptionName subscriptionName = ProjectSubscriptionName.of(projectId, subscriptionId);
+    public PubSubService(@Value("${gcp.pubsub.project-id}") String projectId, @Value("${gcp.pubsub.subscription-id}") String subscriptionId) {
+        this.subscriptionId = subscriptionId;
+        this.subscriptionName = ProjectSubscriptionName.of(projectId, subscriptionId);
+    }
 
     @Scheduled(initialDelay = 60, fixedDelay = 4 * 60, timeUnit = TimeUnit.SECONDS)
     public void pollMessages() {
