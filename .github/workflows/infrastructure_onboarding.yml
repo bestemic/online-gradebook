@@ -33,6 +33,8 @@ jobs:
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_wrapper: false
 
       - name: Setup terraform variables
         id: vars
@@ -65,7 +67,8 @@ jobs:
         if: ${{ github.event.inputs.action == 'deploy' }}
         id: tf_output
         run: |
-          echo ${{ steps.apply.outputs.db_password }}
+          output=$(terraform output test)
+          echo $output
         #          gh secret set DB_PASSWORD --body "$(terraform output -raw db_password)"
         env:
           GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
