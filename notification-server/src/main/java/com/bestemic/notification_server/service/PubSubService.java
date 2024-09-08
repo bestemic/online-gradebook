@@ -12,30 +12,30 @@ import com.google.pubsub.v1.PubsubMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 @Service
 public class PubSubService {
 
-    private final static Logger LOGGER = LoggerFactory.getLogger(PubSubService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(PubSubService.class);
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final ProjectSubscriptionName subscriptionName;
-    private String subscriptionId;
+    private Subscriber subscriber;
 
-
-    public PubSubService(@Value("${gcp.pubsub.project-id}") String projectId, @Value("${gcp.pubsub.subscription-id}") String subscriptionId) {
-        this.subscriptionId = subscriptionId;
+    public PubSubService(
+            @Value("${gcp.pubsub.project-id}") String projectId,
+            @Value("${gcp.pubsub.subscription-id}") String subscriptionId) {
         this.subscriptionName = ProjectSubscriptionName.of(projectId, subscriptionId);
     }
 
-    @Scheduled(initialDelay = 60, fixedDelay = 4 * 60, timeUnit = TimeUnit.SECONDS)
-    public void pollMessages() {
-        LOGGER.info("Polling messages from PubSub subscription: [{}]", subscriptionId);
-
+    @PostConstruct
+    public void start() {
+        LOGGER.info("Starting Pub/Sub subscriber...");
         MessageReceiver receiver =
                 (PubsubMessage message, AckReplyConsumer consumer) -> {
                     ByteString data = message.getData();
@@ -46,20 +46,22 @@ public class PubSubService {
                         LOGGER.error("Error processing message: {} with exception", data.toStringUtf8(), e);
                     }
                     consumer.ack();
-                    LOGGER.info("Acknowledged message");
                 };
 
-        Subscriber subscriber = null;
-        LOGGER.info("Starting subscriber");
+        subscriber = Subscriber.newBuilder(subscriptionName, receiver).build();
+        subscriber.startAsync().awaitRunning();
+        LOGGER.info("Subscriber running and awaiting messages...");
+    }
+
+    @PreDestroy
+    public void stop() {
         try {
-            subscriber = Subscriber.newBuilder(subscriptionName, receiver).build();
-            LOGGER.info("Subscriber started");
-            subscriber.startAsync().awaitRunning();
-            LOGGER.info("Subscriber running");
-            subscriber.awaitTerminated(30, TimeUnit.SECONDS);
-        } catch (TimeoutException timeoutException) {
-            subscriber.stopAsync();
+            if (subscriber != null) {
+                subscriber.stopAsync().awaitTerminated(30, TimeUnit.SECONDS);
+                LOGGER.info("Subscriber stopped");
+            }
+        } catch (TimeoutException e) {
+            LOGGER.info("Error stopping subscriber", e);
         }
-        LOGGER.info("Finished polling messages from PubSub subscription: [{}]", subscriptionId);
     }
 }
