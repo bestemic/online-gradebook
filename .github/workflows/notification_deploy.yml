@@ -41,7 +41,7 @@ jobs:
 
       - name: Build and Push Container
         run: |-
-          DOCKER_TAG="$${{ vars.GCP_REGION }}-docker.pkg.dev/${{ vars.GCP_PROJECT }}/${{ env.GAR_NAME }}:${{ github.sha }}"
+          DOCKER_TAG="${{ vars.GCP_REGION }}-docker.pkg.dev/${{ vars.GCP_PROJECT }}/${{ env.GAR_NAME }}:${{ github.sha }}"
           docker build --tag "${DOCKER_TAG}" notification-server
           docker push "${DOCKER_TAG}"
 
