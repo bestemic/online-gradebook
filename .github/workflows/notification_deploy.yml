@@ -27,7 +27,7 @@ jobs:
 
       - name: Docker Auth
         run: |-
-          gcloud auth configure-docker "${{ vars.REGION }}-docker.pkg.dev"
+          gcloud auth configure-docker "${{ vars.GCP_REGION }}-docker.pkg.dev"
 
 #      - name: 'Build and Push Container'
 #        run: |-
