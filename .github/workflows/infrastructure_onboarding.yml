@@ -67,7 +67,7 @@ jobs:
         if: ${{ github.event.inputs.action == 'deploy' }}
         id: tf_output
         run: |
-          output=$(terraform output test)
+          output=$(terraform output -raw db_password)
           echo $output
         #          gh secret set DB_PASSWORD --body "$(terraform output -raw db_password)"
         env:
