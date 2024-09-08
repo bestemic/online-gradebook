@@ -56,18 +56,17 @@ jobs:
 
       - name: Terraform Apply
         if: ${{ github.event.inputs.action == 'deploy' }}
+        id: apply
         run: terraform apply -auto-approve -input=false
         env:
           GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
-
-      - name: Install GitHub CLI
-        run: sudo apt-get install gh -y
 
       - name: Get Terraform Output
         if: ${{ github.event.inputs.action == 'deploy' }}
         id: tf_output
         run: |
-          gh secret set DB_PASSWORD --body "$(terraform output -raw db_password)"
+          echo steps.apply.outputs.db_password
+#          gh secret set DB_PASSWORD --body "$(terraform output -raw db_password)"
         env:
           GITHUB_TOKEN: ${{ secrets.GOOGLE_CREDENTIALS }}
 
