@@ -67,11 +67,18 @@ jobs:
         if: ${{ github.event.inputs.action == 'deploy' }}
         id: tf_output
         run: |
-          output=$(terraform output -raw db_password)
-          echo $output
-        #          gh secret set DB_PASSWORD --body "$(terraform output -raw db_password)"
+          terraform output -raw db_password > password.txt
         env:
           GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
+
+      - name: Update GitHub Secrets with Database Password
+        if: ${{ github.event.inputs.action == 'deploy' }}
+        run: |
+          PASSWORD=$(cat password.txt)
+          gh auth login --with-token <<< ${{ secrets.GITHUB_TOKEN }}
+          gh secret set DB_PASSWORD --body "$PASSWORD"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Terraform Plan Destroy
         if: ${{ github.event.inputs.action == 'destroy' }}
