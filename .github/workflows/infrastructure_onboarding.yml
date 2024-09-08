@@ -71,14 +71,15 @@ jobs:
         env:
           GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
 
+      - name: Authenticate GitHub CLI
+        run: echo ${{ secrets.GITHUB_TOKEN }} | gh auth login --with-token
+
       - name: Update GitHub Secrets with Database Password
         if: ${{ github.event.inputs.action == 'deploy' }}
         run: |
           PASSWORD=$(cat password.txt)
-          gh auth login --with-token <<< ${{ secrets.GITHUB_TOKEN }}
+          echo "Updating GitHub secret DB_PASSWORD..."
           gh secret set DB_PASSWORD --body "$PASSWORD"
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Terraform Plan Destroy
         if: ${{ github.event.inputs.action == 'destroy' }}
