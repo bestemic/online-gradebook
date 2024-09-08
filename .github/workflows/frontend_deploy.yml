@@ -53,9 +53,9 @@ jobs:
         run: |-
           gcloud run deploy ${{ vars.GCP_APP_NAME }} \
           --image ${{ vars.GCP_REGION }}-docker.pkg.dev/${{ vars.GCP_PROJECT }}/${{ env.GAR_NAME }}/${{ env.SERVICE }}:${{ github.sha }} \
+          --allow-unauthenticated \
           --quiet \
           --platform managed \
           --region ${{ vars.GCP_REGION }} \
           --project ${{ vars.GCP_PROJECT }} \
-          --format json \
-          --allow-unauthenticated
+          --format json
