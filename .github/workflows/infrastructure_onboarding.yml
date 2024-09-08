@@ -65,7 +65,7 @@ jobs:
         if: ${{ github.event.inputs.action == 'deploy' }}
         id: tf_output
         run: |
-          echo steps.apply.outputs.db_password
+          echo $steps.apply.outputs.db_password
 #          gh secret set DB_PASSWORD --body "$(terraform output -raw db_password)"
         env:
           GITHUB_TOKEN: ${{ secrets.GOOGLE_CREDENTIALS }}
