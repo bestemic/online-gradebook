@@ -30,7 +30,7 @@ public class PubSubService {
     private final static Logger LOGGER = LoggerFactory.getLogger(PubSubService.class);
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    @Scheduled(cron = "*/5 * * * * *")
+    @Scheduled(initialDelay = 1, fixedRate = 5, timeUnit = TimeUnit.MINUTES)
     public void pollMessages() {
         LOGGER.info("Polling messages from PubSub subscription: [{}]", subscriptionId);
         ProjectSubscriptionName subscriptionName = ProjectSubscriptionName.of(projectId, subscriptionId);
@@ -53,12 +53,8 @@ public class PubSubService {
             subscriber.startAsync().awaitRunning();
             subscriber.awaitTerminated(30, TimeUnit.SECONDS);
         } catch (TimeoutException timeoutException) {
-            LOGGER.info("No messages during this time period");
             subscriber.stopAsync();
-        } finally {
-            if (subscriber != null) {
-                subscriber.stopAsync().awaitTerminated();
-            }
         }
+        LOGGER.info("Finished polling messages from PubSub subscription: [{}]", subscriptionId);
     }
 }
