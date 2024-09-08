@@ -55,6 +55,10 @@ public class PubSubService {
         } catch (TimeoutException timeoutException) {
             LOGGER.info("No messages during this time period");
             subscriber.stopAsync();
+        } finally {
+            if (subscriber != null) {
+                subscriber.stopAsync().awaitTerminated();
+            }
         }
     }
 }
