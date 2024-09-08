@@ -27,14 +27,14 @@ public class PubSubService {
     @Value("${gcp.pubsub.subscription-id}")
     private String subscriptionId;
 
+
     private final static Logger LOGGER = LoggerFactory.getLogger(PubSubService.class);
     private final ObjectMapper objectMapper = new ObjectMapper();
+    private final ProjectSubscriptionName subscriptionName = ProjectSubscriptionName.of(projectId, subscriptionId);
 
-    @Scheduled(initialDelay = 1, fixedRate = 5, timeUnit = TimeUnit.MINUTES)
+    @Scheduled(initialDelay = 60, fixedDelay = 4 * 60, timeUnit = TimeUnit.SECONDS)
     public void pollMessages() {
         LOGGER.info("Polling messages from PubSub subscription: [{}]", subscriptionId);
-        ProjectSubscriptionName subscriptionName = ProjectSubscriptionName.of(projectId, subscriptionId);
-        LOGGER.info("Connecting to PubSub subscription: [{}]", subscriptionName);
 
         MessageReceiver receiver =
                 (PubsubMessage message, AckReplyConsumer consumer) -> {
@@ -42,11 +42,11 @@ public class PubSubService {
                     try {
                         NotificationDto notificationDto = objectMapper.readValue(data.toStringUtf8(), NotificationDto.class);
                         LOGGER.info("Received message: [{}] to [{}]", notificationDto.getMessage(), notificationDto.getEmailAddresses().toString());
-                        consumer.ack();
-                        LOGGER.info("Acknowledged message");
                     } catch (JsonProcessingException e) {
                         LOGGER.error("Error processing message: {} with exception", data.toStringUtf8(), e);
                     }
+                    consumer.ack();
+                    LOGGER.info("Acknowledged message");
                 };
 
         Subscriber subscriber = null;
@@ -57,11 +57,8 @@ public class PubSubService {
             subscriber.startAsync().awaitRunning();
             LOGGER.info("Subscriber running");
             subscriber.awaitTerminated(30, TimeUnit.SECONDS);
-            LOGGER.info("Subscriber terminated");
         } catch (TimeoutException timeoutException) {
-            LOGGER.info("Subscriber timed out");
             subscriber.stopAsync();
-            LOGGER.info("Subscriber stopped");
         }
         LOGGER.info("Finished polling messages from PubSub subscription: [{}]", subscriptionId);
     }
