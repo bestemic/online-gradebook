@@ -45,10 +45,11 @@ jobs:
           docker build --tag "${DOCKER_TAG}" backend
           docker push "${DOCKER_TAG}"
 
-#      - name: Deploy to Cloud Run Job
-#        id: deploy
-#        uses: google-github-actions/deploy-cloudrun@v2
-#        with:
-#          service: ${{ env.SERVICE }}
-#          region: ${{ vars.GCP_REGION }}
-#          image: ${{ vars.GCP_REGION }}-docker.pkg.dev/${{ vars.GCP_PROJECT }}/${{ env.GAR_NAME }}/${{ env.SERVICE }}:${{ github.sha }}
+      - name: Deploy to Cloud Run Job
+        id: deploy
+        uses: google-github-actions/deploy-cloudrun@v2
+        with:
+          service: ${{ env.SERVICE }}
+          region: ${{ vars.GCP_REGION }}
+          image: ${{ vars.GCP_REGION }}-docker.pkg.dev/${{ vars.GCP_PROJECT }}/${{ env.GAR_NAME }}/${{ env.SERVICE }}:${{ github.sha }}
+          allow-unauthenticated: true

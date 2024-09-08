@@ -4,6 +4,7 @@ import com.pawlik.przemek.onlinegradebook.config.filter.JWTTokenValidatorFilter;
 import com.pawlik.przemek.onlinegradebook.handler.CustomAccessDeniedHandler;
 import com.pawlik.przemek.onlinegradebook.handler.CustomAuthenticationEntryPoint;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -24,6 +25,9 @@ import java.util.List;
 
 @Configuration
 public class SecurityConfig {
+
+    @Value("${cors.allowedOriginPattern}")
+    private String allowedOriginPattern;
 
     private static final String[] WHITE_LIST_URL = {
             "/api/v1/users/login",
@@ -59,7 +63,7 @@ public class SecurityConfig {
         http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .cors(corsConfigurer -> corsConfigurer.configurationSource(request -> {
                     CorsConfiguration config = new CorsConfiguration();
-                    config.setAllowedOrigins(Collections.singletonList("http://localhost:5173"));
+                    config.setAllowedOriginPatterns(Collections.singletonList(allowedOriginPattern));
                     config.setAllowedMethods(Collections.singletonList("*"));
                     config.setAllowCredentials(true);
                     config.setAllowedHeaders(Collections.singletonList("*"));
