@@ -64,15 +64,7 @@ jobs:
         if: ${{ github.event.inputs.action == 'deploy' }}
         id: tf_output
         run: |
-          echo "DB_PASSWORD=$(terraform output -raw db_password)" >> $GITHUB_ENV
-        env:
-          GITHUB_TOKEN: ${{ secrets.GOOGLE_CREDENTIALS }}
-
-      - name: Update GitHub Secrets
-        if: ${{ github.event.inputs.action == 'deploy' }}
-        run: |
-          echo ${{ env.DB_PASSWORD }}
-          gh secret set DB_PASSWORD --body "${{ env.DB_PASSWORD }}"
+          gh secret set DB_PASSWORD --body "$(terraform output -raw db_password)"
         env:
           GITHUB_TOKEN: ${{ secrets.GOOGLE_CREDENTIALS }}
 
