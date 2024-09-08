@@ -1,0 +1,60 @@
+name: 'Frontend - Build and Deploy to GCP'
+
+on:
+  workflow_dispatch:
+
+env:
+  GAR_NAME: "${{ vars.GCP_APP_NAME }}-repository"
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '21.7.1'
+
+      - name: Install dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Build frontend
+        working-directory: frontend
+        run: npm run build
+
+      - id: auth
+        name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GOOGLE_CREDENTIALS }}
+
+      - name: Docker Auth
+        run: |-
+          gcloud auth configure-docker "${{ vars.GCP_REGION }}-docker.pkg.dev"
+
+      - name: Build and Push Container
+        run: |-
+          DOCKER_TAG="${{ vars.GCP_REGION }}-docker.pkg.dev/${{ vars.GCP_PROJECT }}/${{ env.GAR_NAME }}/${{ vars.GCP_APP_NAME }}:${{ github.sha }}"
+          docker build --tag "${DOCKER_TAG}" frontend
+          docker push "${DOCKER_TAG}"
+
+      - name: Deploy to Cloud Run Job
+        id: deploy
+        run: |-
+          gcloud run deploy ${{ vars.GCP_APP_NAME }} \
+          --image ${{ vars.GCP_REGION }}-docker.pkg.dev/${{ vars.GCP_PROJECT }}/${{ env.GAR_NAME }}/${{ vars.GCP_APP_NAME }}:${{ github.sha }} \
+          --quiet \
+          --platform managed \
+          --region ${{ vars.GCP_REGION }} \
+          --project ${{ vars.GCP_PROJECT }} \
+          --format json \
+          --allow-unauthenticated
