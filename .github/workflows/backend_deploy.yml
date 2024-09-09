@@ -77,9 +77,6 @@ jobs:
         if: ${{ github.event.inputs.add_user == 'true' }}
         run: echo "USER_BUILD_ARGS=--build-arg ADD_USER=true --build-arg FIRST_NAME=${{ github.event.inputs.first_name }} --build-arg LAST_NAME=${{ github.event.inputs.last_name }} --build-arg EMAIL=${{ github.event.inputs.email }} --build-arg PASSWORD=${{ github.event.inputs.password }} --build-arg ROLES=${{ github.event.inputs.roles }} --build-arg PHONE_NUMBER=${{ github.event.inputs.phone_number }} --build-arg BIRTH=${{ github.event.inputs.birth }}" >> $GITHUB_ENV
 
-      - name: Test
-        run: echo $USER_BUILD_ARGS
-
       - name: Build and Push Container
         run: |-
           DOCKER_TAG="${{ vars.GCP_REGION }}-docker.pkg.dev/${{ vars.GCP_PROJECT }}/${{ env.GAR_NAME }}/${{ env.SERVICE }}:${{ github.sha }}"
