@@ -54,5 +54,4 @@ jobs:
           --platform managed \
           --region ${{ vars.GCP_REGION }} \
           --project ${{ vars.GCP_PROJECT }} \
-          --format json \  
           --no-cpu-throttling
