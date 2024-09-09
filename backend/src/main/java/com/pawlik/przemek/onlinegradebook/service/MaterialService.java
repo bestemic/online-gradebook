@@ -9,6 +9,7 @@ import com.pawlik.przemek.onlinegradebook.model.Subject;
 import com.pawlik.przemek.onlinegradebook.model.User;
 import com.pawlik.przemek.onlinegradebook.repository.MaterialRepository;
 import com.pawlik.przemek.onlinegradebook.service.file.FileService;
+import com.pawlik.przemek.onlinegradebook.service.file.FileWrapper;
 import com.pawlik.przemek.onlinegradebook.service.notification.NotificationService;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
@@ -67,13 +68,13 @@ public class MaterialService {
                 .toList();
     }
 
-    public Resource getMaterialFile(Long materialId) {
+    public FileWrapper getMaterialFile(Long materialId) {
         Material material = materialRepository.findById(materialId).orElseThrow(() -> new NotFoundException("Material not found with id " + materialId));
         Resource file = fileService.getFile(material.getFilePath());
 
         if (file == null) {
             throw new NotFoundException("Not found file associated to material with id " + materialId);
         }
-        return file;
+        return new FileWrapper(file, material.getName());
     }
 }

@@ -5,6 +5,7 @@ import com.pawlik.przemek.onlinegradebook.dto.error.ValidationErrorDto;
 import com.pawlik.przemek.onlinegradebook.dto.material.MaterialAddDto;
 import com.pawlik.przemek.onlinegradebook.dto.material.MaterialDto;
 import com.pawlik.przemek.onlinegradebook.service.MaterialService;
+import com.pawlik.przemek.onlinegradebook.service.file.FileWrapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -22,6 +23,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -107,18 +109,18 @@ public class MaterialController {
     })
     @GetMapping("{materialId}/file")
     public ResponseEntity<Resource> getMaterialFile(@PathVariable Long materialId) {
-        Resource file = materialService.getMaterialFile(materialId);
+        FileWrapper wrapper = materialService.getMaterialFile(materialId);
 
         String contentType;
         try {
-            contentType = Files.probeContentType(Paths.get(file.getURI()));
+            contentType = Files.probeContentType(Paths.get(wrapper.resource().getURI()));
         } catch (IOException ex) {
             contentType = MediaType.APPLICATION_OCTET_STREAM_VALUE;
         }
 
         HttpHeaders headers = new HttpHeaders();
         headers.add(HttpHeaders.CONTENT_TYPE, MediaType.parseMediaType(contentType).toString());
-        headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + file.getFilename());
-        return ResponseEntity.ok().headers(headers).body(file);
+        headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + wrapper.fileName());
+        return ResponseEntity.ok().headers(headers).body(wrapper.resource());
     }
 }

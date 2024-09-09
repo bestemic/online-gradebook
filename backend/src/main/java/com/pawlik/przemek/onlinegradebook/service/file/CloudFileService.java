@@ -13,6 +13,9 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.UUID;
 
 @Service
 @Profile("production")
@@ -29,17 +32,18 @@ public class CloudFileService implements FileService {
 
     @Override
     public String uploadFile(MultipartFile file, String directory) {
-        String fileName = directory + "/" + file.getOriginalFilename();
+        String fileName = UUID.randomUUID() + "_" + file.getOriginalFilename();
+        String targetFile = directory + "/" + fileName;
 
         try {
-            BlobId blobId = BlobId.of(bucketName, fileName);
+            BlobId blobId = BlobId.of(bucketName, targetFile);
             BlobInfo blobInfo = BlobInfo.newBuilder(blobId).build();
             storage.create(blobInfo, file.getBytes());
         } catch (IOException e) {
             LOGGER.error("Error sending file to cloud storage", e);
             throw new RuntimeException("Could not store the file. Please try again!");
         }
-        return fileName;
+        return targetFile;
     }
 
     @Override

@@ -31,23 +31,17 @@ public class Initializer implements CommandLineRunner {
     }
 
     private void initUser() {
-        LOGGER.info("Initializing user");
         String createUser = System.getenv("INIT_USER");
-        String firstName = System.getenv("FIRST_NAME");
-        String lastName = System.getenv("LAST_NAME");
-        String email = System.getenv("EMAIL");
-        String password = System.getenv("PASSWORD");
-        String phoneNumber = System.getenv("PHONE_NUMBER");
-        String roles = System.getenv("ROLES");
-
-        String birthString = System.getenv("BIRTH");
-        LocalDate birth = birthString != null && !birthString.isEmpty() ? LocalDate.parse(birthString) : null;
-
-        LOGGER.info("Create user: " + createUser);
-
-        System.getenv().forEach((key, value) -> LOGGER.info(key + ": " + value));
-
         if (createUser != null && createUser.equals("true")) {
+            String firstName = System.getenv("FIRST_NAME");
+            String lastName = System.getenv("LAST_NAME");
+            String email = System.getenv("EMAIL");
+            String password = System.getenv("PASSWORD");
+            String phoneNumber = System.getenv("PHONE_NUMBER");
+            String roles = System.getenv("ROLES");
+            String birthString = System.getenv("BIRTH");
+            LocalDate birth = birthString != null && !birthString.isEmpty() ? LocalDate.parse(birthString) : null;
+
             if (firstName == null || lastName == null || email == null || password == null || roles == null) {
                 LOGGER.error("Missing required user data (firstName, lastName, email, password, roles)");
                 exit(1);

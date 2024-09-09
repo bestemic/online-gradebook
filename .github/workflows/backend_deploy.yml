@@ -98,7 +98,8 @@ jobs:
           --update-env-vars PASSWORD=${{ github.event.inputs.password }} \
           --update-env-vars PHONE_NUMBER=${{ github.event.inputs.phone_number }} \
           --update-env-vars BIRTH=${{ github.event.inputs.birth }} \
-          --update-env-vars ROLES=${{ github.event.inputs.roles }}
+          --update-env-vars ROLES=${{ github.event.inputs.roles }} \
+          --user-output-enabled=false
 
       - name: Turn on Public Access
         run: |-
