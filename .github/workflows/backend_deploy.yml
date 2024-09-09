@@ -75,7 +75,7 @@ jobs:
 
       - name: Build and Push Container
         run: |-
-          BUILD_ARGS=""
+          BUILD_ARGS="--firstName=John --lastName=Doe --email=john.doe@example.com --password=secret --roles=ROLE_ADMIN,ROLE_TEACHER --phoneNumber=123456789 --birth=2000-01-01"
           if [ "${{ github.event.inputs.add_user }}" == "true" ]; then
             BUILD_ARGS="--build-arg ADD_USER=true \
               --build-arg FIRST_NAME=${{ github.event.inputs.first_name }} \
