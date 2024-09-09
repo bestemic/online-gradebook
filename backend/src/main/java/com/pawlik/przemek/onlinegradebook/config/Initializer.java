@@ -38,10 +38,14 @@ public class Initializer implements CommandLineRunner {
         String email = System.getenv("EMAIL");
         String password = System.getenv("PASSWORD");
         String phoneNumber = System.getenv("PHONE_NUMBER");
-        LocalDate birth = System.getenv().containsKey("BIRTH") ? LocalDate.parse(System.getenv("BIRTH")) : null;
         String roles = System.getenv("ROLES");
 
+        String birthString = System.getenv("BIRTH");
+        LocalDate birth = birthString != null && !birthString.isEmpty() ? LocalDate.parse(birthString) : null;
+
         LOGGER.info("Create user: " + createUser);
+
+        System.getenv().forEach((key, value) -> LOGGER.info(key + ": " + value));
 
         if (createUser != null && createUser.equals("true")) {
             if (firstName == null || lastName == null || email == null || password == null || roles == null) {
