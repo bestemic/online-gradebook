@@ -80,7 +80,7 @@ jobs:
       - name: Build and Push Container
         run: |-
           DOCKER_TAG="${{ vars.GCP_REGION }}-docker.pkg.dev/${{ vars.GCP_PROJECT }}/${{ env.GAR_NAME }}/${{ env.SERVICE }}:${{ github.sha }}"
-          docker build $USER_BUILD_ARGS --tag "${DOCKER_TAG}" backend
+          docker build ${USER_BUILD_ARGS} --tag "${DOCKER_TAG}" backend
           docker push "${DOCKER_TAG}"
 
       - name: Deploy to Cloud Run Job
