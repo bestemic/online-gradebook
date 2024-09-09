@@ -12,4 +12,4 @@ if [ "$ADD_USER" == "true" ]; then
   APP_ARGS+=" --roles=${ROLES}"
 fi
 
-exec java -jar /app.jar --spring.profiles.active=${SPRING_PROFILES_ACTIVE} ${APP_ARGS}
+exec java -jar app.jar --spring.profiles.active=${SPRING_PROFILES_ACTIVE} ${APP_ARGS}
