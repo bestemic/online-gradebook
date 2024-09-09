@@ -8,6 +8,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
+import java.util.Arrays;
 
 import static java.lang.System.exit;
 
@@ -56,6 +57,8 @@ public class Initializer implements CommandLineRunner {
                 birth = LocalDate.parse(arg.substring("--birth=".length()));
             }
         }
+
+        LOGGER.info(Arrays.toString(args));
 
         if (roles != null) {
             if (firstName == null || lastName == null || email == null || password == null) {
