@@ -8,7 +8,6 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
-import java.util.Arrays;
 
 import static java.lang.System.exit;
 
@@ -28,40 +27,21 @@ public class Initializer implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
         roleService.initRoles();
-        parseArgsAndInitUser(args);
+        initUser();
     }
 
-    private void parseArgsAndInitUser(String... args) {
-        String firstName = null;
-        String lastName = null;
-        String email = null;
-        String password = null;
-        String phoneNumber = null;
-        LocalDate birth = null;
-        String roles = null;
+    private void initUser() {
+        String createUser = System.getenv("INIT_USER");
+        String firstName = System.getenv("FIRST_NAME");
+        String lastName = System.getenv("LAST_NAME");
+        String email = System.getenv("EMAIL");
+        String password = System.getenv("PASSWORD");
+        String phoneNumber = System.getenv("PHONE_NUMBER");
+        LocalDate birth = System.getenv().containsKey("BIRTH") ? LocalDate.parse(System.getenv("BIRTH")) : null;
+        String roles = System.getenv("ROLES");
 
-        for (String arg : args) {
-            if (arg.startsWith("--firstName=")) {
-                firstName = arg.substring("--firstName=".length());
-            } else if (arg.startsWith("--lastName=")) {
-                lastName = arg.substring("--lastName=".length());
-            } else if (arg.startsWith("--email=")) {
-                email = arg.substring("--email=".length());
-            } else if (arg.startsWith("--password=")) {
-                password = arg.substring("--password=".length());
-            } else if (arg.startsWith("--roles=")) {
-                roles = arg.substring("--roles=".length());
-            } else if (arg.startsWith("--phoneNumber=")) {
-                phoneNumber = arg.substring("--phoneNumber=".length());
-            } else if (arg.startsWith("--birth=")) {
-                birth = LocalDate.parse(arg.substring("--birth=".length()));
-            }
-        }
-
-        LOGGER.info(Arrays.toString(args));
-
-        if (roles != null) {
-            if (firstName == null || lastName == null || email == null || password == null) {
+        if (createUser != null && createUser.equals("true")) {
+            if (firstName == null || lastName == null || email == null || password == null || roles == null) {
                 LOGGER.error("Missing required user data (firstName, lastName, email, password, roles)");
                 exit(1);
             }
