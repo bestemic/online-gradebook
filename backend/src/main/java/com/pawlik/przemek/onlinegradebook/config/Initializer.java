@@ -57,16 +57,18 @@ public class Initializer implements CommandLineRunner {
             }
         }
 
-        if (firstName == null || lastName == null || email == null || password == null || roles == null) {
-            LOGGER.error("Missing required user data (firstName, lastName, email, password, roles)");
-            exit(1);
-        }
+        if (roles != null) {
+            if (firstName == null || lastName == null || email == null || password == null) {
+                LOGGER.error("Missing required user data (firstName, lastName, email, password, roles)");
+                exit(1);
+            }
 
-        try {
-            userService.initUser(firstName, lastName, email, password, phoneNumber, birth, roles);
-        } catch (Exception e) {
-            LOGGER.error("Error while initializing user: " + e.getMessage());
-            exit(1);
+            try {
+                userService.initUser(firstName, lastName, email, password, phoneNumber, birth, roles);
+            } catch (Exception e) {
+                LOGGER.error("Error while initializing user: " + e.getMessage());
+                exit(1);
+            }
         }
     }
 }

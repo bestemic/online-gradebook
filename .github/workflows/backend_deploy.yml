@@ -2,6 +2,40 @@ name: 'API - Build and Deploy to GCP'
 
 on:
   workflow_dispatch:
+    inputs:
+      add_user:
+        description: 'Add a new user (default: false)'
+        required: true
+        default: 'false'
+        type: boolean
+      first_name:
+        description: 'First name of the user'
+        required: false
+        type: string
+      last_name:
+        description: 'Last name of the user'
+        required: false
+        type: string
+      email:
+        description: 'Email of the user'
+        required: false
+        type: string
+      password:
+        description: 'Password of the user'
+        required: false
+        type: string
+      phone_number:
+        description: 'Phone number of the user'
+        required: false
+        type: string
+      birth:
+        description: 'Birthdate of the user (YYYY-MM-DD)'
+        required: false
+        type: string
+      roles:
+        description: 'Roles for the user (comma-separated)'
+        required: false
+        type: string
 
 env:
   SERVICE: "${{ vars.GCP_APP_NAME }}-api"
@@ -41,8 +75,19 @@ jobs:
 
       - name: Build and Push Container
         run: |-
+          BUILD_ARGS=""
+          if [ "${{ github.event.inputs.add_user }}" == "true" ]; then
+            BUILD_ARGS="--build-arg ADD_USER=true \
+              --build-arg FIRST_NAME=${{ github.event.inputs.first_name }} \
+              --build-arg LAST_NAME=${{ github.event.inputs.last_name }} \
+              --build-arg EMAIL=${{ github.event.inputs.email }} \
+              --build-arg PASSWORD=${{ github.event.inputs.password }} \
+              --build-arg ROLES=${{ github.event.inputs.roles }} \
+              --build-arg PHONE_NUMBER=${{ github.event.inputs.phone_number }} \
+              --build-arg BIRTH=${{ github.event.inputs.birth }}"
+          fi
           DOCKER_TAG="${{ vars.GCP_REGION }}-docker.pkg.dev/${{ vars.GCP_PROJECT }}/${{ env.GAR_NAME }}/${{ env.SERVICE }}:${{ github.sha }}"
-          docker build --tag "${DOCKER_TAG}" backend
+          docker build $BUILD_ARGS --tag "${DOCKER_TAG}" backend
           docker push "${DOCKER_TAG}"
 
       - name: Deploy to Cloud Run Job
