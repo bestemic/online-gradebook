@@ -73,6 +73,13 @@ jobs:
         run: |-
           gcloud auth configure-docker "${{ vars.GCP_REGION }}-docker.pkg.dev"
 
+      - name: Set user args
+        if: ${{ github.event.inputs.add_user == 'true' }}
+        run: echo "USER_BUILD_ARGS=--build-arg ADD_USER=true --build-arg FIRST_NAME=${{ github.event.inputs.first_name }} --build-arg LAST_NAME=${{ github.event.inputs.last_name }} --build-arg EMAIL=${{ github.event.inputs.email }} --build-arg PASSWORD=${{ github.event.inputs.password }} --build-arg ROLES=${{ github.event.inputs.roles }} --build-arg PHONE_NUMBER=${{ github.event.inputs.phone_number }} --build-arg BIRTH=${{ github.event.inputs.birth }}" >> $GITHUB_ENV
+
+      - name: Test
+        run: echo $GITHUB_SHA_SHORT
+
       - name: Build and Push Container
         run: |-
           BUILD_ARGS="--firstName=John --lastName=Doe --email=john.doe@example.com --password=secret --roles=ROLE_ADMIN,ROLE_TEACHER --phoneNumber=123456789 --birth=2000-01-01"
