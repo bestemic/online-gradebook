@@ -75,6 +75,8 @@ public class MaterialService {
         if (file == null) {
             throw new NotFoundException("Not found file associated to material with id " + materialId);
         }
-        return new FileWrapper(file, material.getName());
+        String[] splittedFileName = material.getFilePath().split("/");
+        String fileName = splittedFileName[splittedFileName.length - 1];
+        return new FileWrapper(file, fileName);
     }
 }
