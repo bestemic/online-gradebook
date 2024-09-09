@@ -27,6 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -205,5 +206,47 @@ public class UserService {
             return currentUser != null && (currentUser.getId().equals(userId) || authentication.getAuthorities().stream().anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_ADMIN")));
         }
         return false;
+    }
+
+    @Transactional
+    public void initUser(String firstName, String lastName, String email, String password, String phoneNumber, LocalDate birth, String roles) throws Exception {
+        if (userRepository.findByEmail(email).isPresent()) {
+            throw new Exception("User with provided email already exists");
+        }
+
+        Set<Role> userRoles = validateInitialRoles(roles);
+
+        User user = new User();
+        user.setFirstName(firstName);
+        user.setLastName(lastName);
+        user.setEmail(email);
+        user.setPassword(passwordEncoder.encode(password));
+        user.setPhoneNumber(phoneNumber);
+        user.setBirth(birth);
+        user.setRoles(userRoles);
+
+        boolean isStudent = userRoles.stream().anyMatch(role -> role.getName().equals("ROLE_STUDENT"));
+        if (isStudent && user.getBirth() == null) {
+            throw new Exception("Date of birth is required for students");
+        }
+
+        boolean isOtherRole = userRoles.stream().anyMatch(role -> !role.getName().equals("ROLE_STUDENT"));
+        if (isOtherRole && user.getPhoneNumber() == null) {
+            throw new Exception("Phone number is required for admin and teacher");
+        }
+
+        userRepository.save(user);
+    }
+
+    private Set<Role> validateInitialRoles(String rolesString) throws Exception {
+        String[] rolesArray = rolesString.split(",");
+        Set<Role> roles = new HashSet<>();
+        for (String roleName : rolesArray) {
+            roleName = roleName.trim().toUpperCase();
+            String finalRoleName = roleName;
+            Role role = roleRepository.findByName(roleName).orElseThrow(() -> new Exception("Role not found: " + finalRoleName));
+            roles.add(role);
+        }
+        return roles;
     }
 }
