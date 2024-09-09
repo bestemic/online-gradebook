@@ -3,6 +3,7 @@
 APP_ARGS=""
 
 if [ "$ADD_USER" == "true" ]; then
+  echo "Adding user..."
   APP_ARGS+=" --firstName=${FIRST_NAME}"
   APP_ARGS+=" --lastName=${LAST_NAME}"
   APP_ARGS+=" --email=${EMAIL}"
