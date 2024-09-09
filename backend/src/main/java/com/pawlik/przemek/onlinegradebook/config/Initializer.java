@@ -31,6 +31,7 @@ public class Initializer implements CommandLineRunner {
     }
 
     private void initUser() {
+        LOGGER.info("Initializing user");
         String createUser = System.getenv("INIT_USER");
         String firstName = System.getenv("FIRST_NAME");
         String lastName = System.getenv("LAST_NAME");
@@ -39,6 +40,8 @@ public class Initializer implements CommandLineRunner {
         String phoneNumber = System.getenv("PHONE_NUMBER");
         LocalDate birth = System.getenv().containsKey("BIRTH") ? LocalDate.parse(System.getenv("BIRTH")) : null;
         String roles = System.getenv("ROLES");
+
+        LOGGER.info("Create user: " + createUser);
 
         if (createUser != null && createUser.equals("true")) {
             if (firstName == null || lastName == null || email == null || password == null || roles == null) {
