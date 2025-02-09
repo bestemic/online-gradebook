@@ -10,7 +10,7 @@
     </parent>
     <groupId>com.bestemic</groupId>
     <artifactId>online-gradebook</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>1.0.0</version>
     <name>online-gradebook</name>
     <description>Online-gradebook backend.</description>
     <properties>
