@@ -7,8 +7,7 @@ import com.google.protobuf.ByteString;
 import com.google.pubsub.v1.PubsubMessage;
 import com.google.pubsub.v1.TopicName;
 import com.pawlik.przemek.onlinegradebook.dto.notification.NotificationDto;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
@@ -17,11 +16,11 @@ import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+@Slf4j
 @Service
 @Profile("production")
 public class CloudNotificationService implements NotificationService {
 
-    private final static Logger LOGGER = LoggerFactory.getLogger(LocalNotificationService.class);
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final String topicId;
     private final String projectId;
@@ -39,9 +38,9 @@ public class CloudNotificationService implements NotificationService {
             String json = objectMapper.writeValueAsString(notificationDto);
             publishMessage(json);
         } catch (JsonProcessingException e) {
-            LOGGER.error("Error converting notification to JSON: " + e.getMessage());
+            log.error("Error converting notification to JSON: {}", e.getMessage());
         } catch (Exception e) {
-            LOGGER.error("Error sending notification to PubSub: " + e.getMessage());
+            log.error("Error sending notification to PubSub: {}", e.getMessage());
         }
     }
 

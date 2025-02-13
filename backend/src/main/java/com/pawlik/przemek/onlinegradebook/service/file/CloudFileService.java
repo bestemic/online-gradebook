@@ -1,8 +1,7 @@
 package com.pawlik.przemek.onlinegradebook.service.file;
 
 import com.google.cloud.storage.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.io.InputStreamResource;
@@ -13,15 +12,13 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.UUID;
 
+@Slf4j
 @Service
 @Profile("production")
 public class CloudFileService implements FileService {
 
-    private final static Logger LOGGER = LoggerFactory.getLogger(CloudFileService.class);
     private final Storage storage;
     private final String bucketName;
 
@@ -40,7 +37,7 @@ public class CloudFileService implements FileService {
             BlobInfo blobInfo = BlobInfo.newBuilder(blobId).build();
             storage.create(blobInfo, file.getBytes());
         } catch (IOException e) {
-            LOGGER.error("Error sending file to cloud storage", e);
+            log.error("Error sending file to cloud storage", e);
             throw new RuntimeException("Could not store the file. Please try again!");
         }
         return targetFile;
@@ -56,7 +53,7 @@ public class CloudFileService implements FileService {
             InputStream inputStream = new ByteArrayInputStream(blob.getContent());
             return new InputStreamResource(inputStream);
         } catch (Exception e) {
-            LOGGER.error("Error retrieving file from cloud storage", e);
+            log.error("Error retrieving file from cloud storage", e);
             throw new RuntimeException("Could not retrieve the file. Please try again!");
         }
     }

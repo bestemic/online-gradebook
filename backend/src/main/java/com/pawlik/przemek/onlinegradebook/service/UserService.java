@@ -16,8 +16,7 @@ import com.pawlik.przemek.onlinegradebook.utils.CustomPasswordGenerator;
 import com.pawlik.przemek.onlinegradebook.utils.RoleUtils;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -34,10 +33,10 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
+@Slf4j
 @Service
 public class UserService {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(UserService.class);
     private final AuthenticationManager authenticationManager;
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
@@ -214,7 +213,7 @@ public class UserService {
     @Transactional
     public void initUser(String firstName, String lastName, String email, String password, String phoneNumber, LocalDate birth, String roles) throws Exception {
         if (userRepository.findByEmail(email).isPresent()) {
-            LOGGER.info("User with provided email already exists");
+            log.info("User with provided email already exists");
             return;
         }
 

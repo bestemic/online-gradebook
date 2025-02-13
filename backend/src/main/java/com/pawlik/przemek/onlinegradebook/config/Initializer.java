@@ -2,8 +2,7 @@ package com.pawlik.przemek.onlinegradebook.config;
 
 import com.pawlik.przemek.onlinegradebook.service.RoleService;
 import com.pawlik.przemek.onlinegradebook.service.UserService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
@@ -11,10 +10,9 @@ import java.time.LocalDate;
 
 import static java.lang.System.exit;
 
+@Slf4j
 @Component
 public class Initializer implements CommandLineRunner {
-
-    private final static Logger LOGGER = LoggerFactory.getLogger(Initializer.class);
 
     private final UserService userService;
     private final RoleService roleService;
@@ -43,14 +41,14 @@ public class Initializer implements CommandLineRunner {
             LocalDate birth = birthString != null && !birthString.isEmpty() ? LocalDate.parse(birthString) : null;
 
             if (firstName == null || lastName == null || email == null || password == null || roles == null) {
-                LOGGER.error("Missing required user data (firstName, lastName, email, password, roles)");
+                log.error("Missing required user data (firstName, lastName, email, password, roles)");
                 exit(1);
             }
 
             try {
                 userService.initUser(firstName, lastName, email, password, phoneNumber, birth, roles);
             } catch (Exception e) {
-                LOGGER.error("Error while initializing user: " + e.getMessage());
+                log.error("Error while initializing user: {}", e.getMessage());
                 exit(1);
             }
         }
