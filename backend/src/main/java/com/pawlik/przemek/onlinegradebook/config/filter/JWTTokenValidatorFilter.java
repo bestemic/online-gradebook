@@ -9,6 +9,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.AllArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
@@ -20,13 +21,10 @@ import javax.crypto.SecretKey;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
+@AllArgsConstructor
 public class JWTTokenValidatorFilter extends OncePerRequestFilter {
 
     private final HandlerExceptionResolver exceptionResolver;
-
-    public JWTTokenValidatorFilter(HandlerExceptionResolver exceptionResolver) {
-        this.exceptionResolver = exceptionResolver;
-    }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {

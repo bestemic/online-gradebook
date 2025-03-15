@@ -3,6 +3,7 @@ package com.pawlik.przemek.onlinegradebook.config;
 import com.pawlik.przemek.onlinegradebook.config.filter.JWTTokenValidatorFilter;
 import com.pawlik.przemek.onlinegradebook.handler.CustomAccessDeniedHandler;
 import com.pawlik.przemek.onlinegradebook.handler.CustomAuthenticationEntryPoint;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -24,6 +25,7 @@ import java.util.Collections;
 import java.util.List;
 
 @Configuration
+@AllArgsConstructor
 public class SecurityConfig {
 
     @Value("${cors.allowedOriginPattern}")
@@ -37,11 +39,8 @@ public class SecurityConfig {
             "/v3/api-docs/**"
     };
 
+    @Qualifier("handlerExceptionResolver")
     private final HandlerExceptionResolver exceptionResolver;
-
-    public SecurityConfig(@Qualifier("handlerExceptionResolver") HandlerExceptionResolver exceptionResolver) {
-        this.exceptionResolver = exceptionResolver;
-    }
 
     @Bean
     public JWTTokenValidatorFilter jwtTokenValidatorFilter() {
@@ -54,12 +53,12 @@ public class SecurityConfig {
     }
 
     @Bean
-    PasswordEncoder passwordEncoder() {
+    public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
     @Bean
-    SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
         http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .cors(corsConfigurer -> corsConfigurer.configurationSource(request -> {
                     CorsConfiguration config = new CorsConfiguration();
@@ -72,7 +71,7 @@ public class SecurityConfig {
                     return config;
                 })).csrf(AbstractHttpConfigurer::disable)
                 .addFilterBefore(jwtTokenValidatorFilter(), UsernamePasswordAuthenticationFilter.class)
-                .authorizeHttpRequests((request) -> request
+                .authorizeHttpRequests(request -> request
                         .requestMatchers(WHITE_LIST_URL).permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/roles").hasRole("ADMIN")
 

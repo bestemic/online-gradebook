@@ -14,6 +14,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,13 +24,10 @@ import java.util.List;
 @RestController
 @RequestMapping(path = "/api/v1/lessons")
 @Tag(name = "Lessons API", description = "Endpoints for managing lessons")
+@AllArgsConstructor
 public class LessonController {
 
     private final LessonService lessonService;
-
-    public LessonController(LessonService lessonService) {
-        this.lessonService = lessonService;
-    }
 
     @Operation(summary = "Create lesson", description = "Endpoint for lesson creation. Only users with role Teacher can access this endpoint.")
     @ApiResponses(value = {

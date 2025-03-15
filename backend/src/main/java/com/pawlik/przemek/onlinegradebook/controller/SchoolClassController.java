@@ -13,6 +13,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,13 +23,10 @@ import java.util.List;
 @RestController
 @RequestMapping(path = "/api/v1/classes")
 @Tag(name = "Classes API", description = "Endpoints for managing classes")
+@AllArgsConstructor
 public class SchoolClassController {
 
     private final SchoolClassService schoolClassService;
-
-    public SchoolClassController(SchoolClassService schoolClassService) {
-        this.schoolClassService = schoolClassService;
-    }
 
     @Operation(summary = "Class creation", description = "Endpoint for class creation. Only users with role Admin can access this endpoint.")
     @ApiResponses(value = {

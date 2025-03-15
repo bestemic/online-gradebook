@@ -11,6 +11,7 @@ import com.pawlik.przemek.onlinegradebook.model.Grade;
 import com.pawlik.przemek.onlinegradebook.model.Subject;
 import com.pawlik.przemek.onlinegradebook.model.User;
 import com.pawlik.przemek.onlinegradebook.repository.GradeRepository;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -22,19 +23,13 @@ import java.util.stream.Collectors;
 
 
 @Service
+@AllArgsConstructor
 public class GradeService {
 
     private final GradeRepository gradeRepository;
     private final GradeMapper gradeMapper;
     private final SubjectService subjectService;
     private final UserService userService;
-
-    public GradeService(GradeRepository gradeRepository, GradeMapper gradeMapper, SubjectService subjectService, UserService userService) {
-        this.gradeRepository = gradeRepository;
-        this.gradeMapper = gradeMapper;
-        this.subjectService = subjectService;
-        this.userService = userService;
-    }
 
     public GradesDto create(GradesAddDto gradesAddDto) {
         Subject subject = subjectService.getSubjectObjectById(gradesAddDto.getSubjectId());

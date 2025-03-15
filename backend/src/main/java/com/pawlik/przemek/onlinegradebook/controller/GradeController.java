@@ -14,6 +14,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,13 +24,10 @@ import java.util.List;
 @RestController
 @RequestMapping(path = "/api/v1/grades")
 @Tag(name = "Grades API", description = "Endpoints for managing grades")
+@AllArgsConstructor
 public class GradeController {
 
     private final GradeService gradeService;
-
-    public GradeController(GradeService gradeService) {
-        this.gradeService = gradeService;
-    }
 
     @Operation(summary = "Grades creation", description = "Endpoint for grades creation. Only users with role Teacher can access this endpoint.")
     @ApiResponses(value = {

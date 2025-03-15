@@ -6,6 +6,7 @@ import com.pawlik.przemek.onlinegradebook.exception.InvalidPasswordException;
 import com.pawlik.przemek.onlinegradebook.model.Role;
 import com.pawlik.przemek.onlinegradebook.model.User;
 import com.pawlik.przemek.onlinegradebook.repository.UserRepository;
+import lombok.AllArgsConstructor;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -19,15 +20,11 @@ import java.util.List;
 import java.util.Set;
 
 @Component
+@AllArgsConstructor
 public class OnlineGradebookAuthenticationProvider implements AuthenticationProvider {
 
     private final PasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
-
-    public OnlineGradebookAuthenticationProvider(PasswordEncoder passwordEncoder, UserRepository userRepository) {
-        this.passwordEncoder = passwordEncoder;
-        this.userRepository = userRepository;
-    }
 
     @Override
     public Authentication authenticate(Authentication authentication) {

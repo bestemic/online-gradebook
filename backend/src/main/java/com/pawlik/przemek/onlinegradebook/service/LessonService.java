@@ -7,6 +7,7 @@ import com.pawlik.przemek.onlinegradebook.mapper.LessonMapper;
 import com.pawlik.przemek.onlinegradebook.model.Lesson;
 import com.pawlik.przemek.onlinegradebook.model.Subject;
 import com.pawlik.przemek.onlinegradebook.repository.LessonRepository;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,17 +16,12 @@ import java.util.stream.Collectors;
 
 
 @Service
+@AllArgsConstructor
 public class LessonService {
 
     private final LessonRepository lessonRepository;
     private final LessonMapper lessonMapper;
     private final SubjectService subjectService;
-
-    public LessonService(LessonRepository lessonRepository, LessonMapper lessonMapper, SubjectService subjectService) {
-        this.lessonRepository = lessonRepository;
-        this.lessonMapper = lessonMapper;
-        this.subjectService = subjectService;
-    }
 
     @Transactional
     public LessonDto createLesson(LessonAddDto lessonAddDto) {
