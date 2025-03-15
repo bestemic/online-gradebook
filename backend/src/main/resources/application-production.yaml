@@ -1,0 +1,34 @@
+spring:
+  cloud:
+    gcp:
+      core:
+        enabled: true
+      sql:
+        enabled: true
+        database-name: gradebook
+        instance-connection-name: master-thesis-434515:europe-central2:online-gradebook-database-instance
+
+  datasource:
+    username: gradebook_user
+    password: ${DB_PASSWORD}
+
+  jpa:
+    show-sql: false
+    hibernate:
+      ddl-auto: update
+
+  servlet:
+    multipart:
+      max-file-size: 2MB
+
+database: mysql
+
+cors:
+  allowedOriginPattern: https://online-gradebook-*.europe-central2.run.app
+
+gcp:
+  bucket:
+    name: online-gradebook-materials
+  pubsub:
+    project-id: master-thesis-434515
+    topic-id: online-gradebook-notification
