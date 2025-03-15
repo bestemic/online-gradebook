@@ -11,6 +11,7 @@ import com.pawlik.przemek.onlinegradebook.model.Attendance;
 import com.pawlik.przemek.onlinegradebook.model.Lesson;
 import com.pawlik.przemek.onlinegradebook.model.User;
 import com.pawlik.przemek.onlinegradebook.repository.AttendanceRepository;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -18,19 +19,13 @@ import java.util.stream.Collectors;
 
 
 @Service
+@AllArgsConstructor
 public class AttendanceService {
 
     private final AttendanceRepository attendanceRepository;
     private final AttendanceMapper attendanceMapper;
     private final UserService userService;
     private final LessonService lessonService;
-
-    public AttendanceService(AttendanceRepository attendanceRepository, AttendanceMapper attendanceMapper, UserService userService, LessonService lessonService) {
-        this.attendanceRepository = attendanceRepository;
-        this.attendanceMapper = attendanceMapper;
-        this.userService = userService;
-        this.lessonService = lessonService;
-    }
 
     public AttendancesLessonDto create(AttendancesAddDto attendancesAddDto) {
         Lesson lesson = lessonService.getLessonObjectById(attendancesAddDto.getLessonId());

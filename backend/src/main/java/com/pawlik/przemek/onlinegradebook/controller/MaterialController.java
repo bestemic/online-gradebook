@@ -15,6 +15,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import lombok.AllArgsConstructor;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -23,7 +24,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -32,13 +32,10 @@ import java.util.List;
 @RestController
 @RequestMapping(path = "/api/v1/materials")
 @Tag(name = "Materials API", description = "Endpoints for managing materials")
+@AllArgsConstructor
 public class MaterialController {
 
     private final MaterialService materialService;
-
-    public MaterialController(MaterialService materialService) {
-        this.materialService = materialService;
-    }
 
     @Operation(summary = "Create a new material", description = "Endpoint to create a new material and upload a file associated with it. Max file size is 2MB.")
     @ApiResponses(value = {

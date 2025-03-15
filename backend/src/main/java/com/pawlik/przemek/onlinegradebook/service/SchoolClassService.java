@@ -8,6 +8,7 @@ import com.pawlik.przemek.onlinegradebook.mapper.SchoolClassMapper;
 import com.pawlik.przemek.onlinegradebook.model.SchoolClass;
 import com.pawlik.przemek.onlinegradebook.model.User;
 import com.pawlik.przemek.onlinegradebook.repository.SchoolClassRepository;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,17 +17,12 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@AllArgsConstructor
 public class SchoolClassService {
 
     private final SchoolClassRepository schoolClassRepository;
     private final UserService userService;
     private final SchoolClassMapper schoolClassMapper;
-
-    public SchoolClassService(SchoolClassRepository schoolClassRepository, UserService userService, SchoolClassMapper schoolClassMapper) {
-        this.schoolClassRepository = schoolClassRepository;
-        this.userService = userService;
-        this.schoolClassMapper = schoolClassMapper;
-    }
 
     @Transactional
     public SchoolClassDto createClass(SchoolClassAddDto schoolClassAddDto) {

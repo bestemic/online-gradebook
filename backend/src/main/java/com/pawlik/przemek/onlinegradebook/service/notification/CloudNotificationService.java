@@ -7,6 +7,7 @@ import com.google.protobuf.ByteString;
 import com.google.pubsub.v1.PubsubMessage;
 import com.google.pubsub.v1.TopicName;
 import com.pawlik.przemek.onlinegradebook.dto.notification.NotificationDto;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
@@ -16,19 +17,17 @@ import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-@Slf4j
 @Service
 @Profile("production")
+@AllArgsConstructor
+@Slf4j
 public class CloudNotificationService implements NotificationService {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
+    @Value("${gcp.pubsub.project-id}")
     private final String topicId;
+    @Value("${gcp.pubsub.topic-id}")
     private final String projectId;
-
-    public CloudNotificationService(@Value("${gcp.pubsub.project-id}") String projectId, @Value("${gcp.pubsub.topic-id}") String topicId) {
-        this.projectId = projectId;
-        this.topicId = topicId;
-    }
 
     @Override
     public void send(List<String> emailAddresses, String message) {

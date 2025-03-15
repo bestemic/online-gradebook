@@ -18,8 +18,8 @@ import javax.annotation.PreDestroy;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-@Slf4j
 @Service
+@Slf4j
 public class PubSubService {
 
     private final ObjectMapper objectMapper = new ObjectMapper();

@@ -1,10 +1,10 @@
 package com.pawlik.przemek.onlinegradebook.service;
 
-import com.pawlik.przemek.onlinegradebook.model.User;
 import com.itextpdf.text.*;
 import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
+import com.pawlik.przemek.onlinegradebook.model.User;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayOutputStream;

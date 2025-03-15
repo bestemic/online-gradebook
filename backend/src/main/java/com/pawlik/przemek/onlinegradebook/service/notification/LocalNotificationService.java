@@ -9,9 +9,9 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-@Slf4j
 @Service
 @Profile("!production")
+@Slf4j
 public class LocalNotificationService implements NotificationService {
 
     private final ObjectMapper objectMapper = new ObjectMapper();

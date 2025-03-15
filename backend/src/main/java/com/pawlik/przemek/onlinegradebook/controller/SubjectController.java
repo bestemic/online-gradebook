@@ -14,6 +14,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,13 +24,10 @@ import java.util.List;
 @RestController
 @RequestMapping(path = "/api/v1/subjects")
 @Tag(name = "Subjects API", description = "Endpoints for managing subjects")
+@AllArgsConstructor
 public class SubjectController {
 
     private final SubjectService subjectService;
-
-    public SubjectController(SubjectService subjectService) {
-        this.subjectService = subjectService;
-    }
 
     @Operation(summary = "Subject creation", description = "Endpoint for subject creation. Only users with role Admin can access this endpoint.")
     @ApiResponses(value = {
@@ -74,7 +72,7 @@ public class SubjectController {
         List<SubjectDto> subjects = subjectService.getAllSubjects(classId, teacherId);
         return ResponseEntity.ok().body(subjects);
     }
-    
+
     @Operation(summary = "Get subject by ID", description = "Endpoint for retrieving a subject by its ID.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Subject retrieved successfully",

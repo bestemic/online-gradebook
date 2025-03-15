@@ -11,6 +11,7 @@ import com.pawlik.przemek.onlinegradebook.repository.MaterialRepository;
 import com.pawlik.przemek.onlinegradebook.service.file.FileService;
 import com.pawlik.przemek.onlinegradebook.service.file.FileWrapper;
 import com.pawlik.przemek.onlinegradebook.service.notification.NotificationService;
+import lombok.AllArgsConstructor;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -20,6 +21,7 @@ import java.util.List;
 
 
 @Service
+@AllArgsConstructor
 public class MaterialService {
 
     private final MaterialRepository materialRepository;
@@ -27,14 +29,6 @@ public class MaterialService {
     private final FileService fileService;
     private final SubjectService subjectService;
     private final NotificationService notificationService;
-
-    public MaterialService(MaterialRepository materialRepository, MaterialMapper materialMapper, FileService fileService, SubjectService subjectService, NotificationService notificationService) {
-        this.materialRepository = materialRepository;
-        this.materialMapper = materialMapper;
-        this.fileService = fileService;
-        this.subjectService = subjectService;
-        this.notificationService = notificationService;
-    }
 
     public MaterialDto createMaterial(MaterialAddDto materialAddDto, MultipartFile file) {
         Subject subject = subjectService.getSubjectObjectById(materialAddDto.getSubjectId());

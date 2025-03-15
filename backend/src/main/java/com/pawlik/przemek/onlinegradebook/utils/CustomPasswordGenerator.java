@@ -1,10 +1,13 @@
 package com.pawlik.przemek.onlinegradebook.utils;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import org.passay.CharacterData;
 import org.passay.CharacterRule;
 import org.passay.EnglishCharacterData;
 import org.passay.PasswordGenerator;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class CustomPasswordGenerator {
 
     public static String generatePassword() {

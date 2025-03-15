@@ -1,6 +1,7 @@
 package com.pawlik.przemek.onlinegradebook.service.file;
 
 import com.google.cloud.storage.*;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
@@ -14,18 +15,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.UUID;
 
-@Slf4j
 @Service
 @Profile("production")
+@AllArgsConstructor
+@Slf4j
 public class CloudFileService implements FileService {
 
-    private final Storage storage;
+    private final Storage storage = StorageOptions.getDefaultInstance().getService();
+    @Value("${gcp.bucket.name}")
     private final String bucketName;
-
-    public CloudFileService(@Value("${gcp.bucket.name}") String bucketName) {
-        this.bucketName = bucketName;
-        this.storage = StorageOptions.getDefaultInstance().getService();
-    }
 
     @Override
     public String uploadFile(MultipartFile file, String directory) {

@@ -9,6 +9,7 @@ import com.pawlik.przemek.onlinegradebook.model.SchoolClass;
 import com.pawlik.przemek.onlinegradebook.model.Subject;
 import com.pawlik.przemek.onlinegradebook.model.User;
 import com.pawlik.przemek.onlinegradebook.repository.SubjectRepository;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,19 +17,13 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@AllArgsConstructor
 public class SubjectService {
 
     private final SubjectRepository subjectRepository;
     private final SubjectMapper subjectMapper;
     private final SchoolClassService schoolClassService;
     private final UserService userService;
-
-    public SubjectService(SubjectRepository subjectRepository, SubjectMapper subjectMapper, SchoolClassService schoolClassService, UserService userService) {
-        this.subjectRepository = subjectRepository;
-        this.subjectMapper = subjectMapper;
-        this.schoolClassService = schoolClassService;
-        this.userService = userService;
-    }
 
     @Transactional
     public SubjectDto createSubject(SubjectAddDto subjectAddDto) {
