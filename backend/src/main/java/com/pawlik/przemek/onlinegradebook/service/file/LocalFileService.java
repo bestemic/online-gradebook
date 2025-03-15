@@ -17,7 +17,7 @@ import java.util.UUID;
 @Profile("!production")
 public class LocalFileService implements FileService {
 
-    private final static String BASE_UPLOAD_DIR = "uploads/";
+    private static final String BASE_UPLOAD_DIR = "uploads/";
 
     @Override
     public String uploadFile(MultipartFile file, String directory) {
