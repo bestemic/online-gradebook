@@ -3,7 +3,7 @@ package com.pawlik.przemek.onlinegradebook.controller;
 import com.pawlik.przemek.onlinegradebook.dto.error.ErrorResponseDto;
 import com.pawlik.przemek.onlinegradebook.dto.error.ValidationErrorDto;
 import com.pawlik.przemek.onlinegradebook.dto.lesson.LessonAddDto;
-import com.pawlik.przemek.onlinegradebook.dto.lesson.LessonDto;
+import com.pawlik.przemek.onlinegradebook.dto.lesson.GetLessonDto;
 import com.pawlik.przemek.onlinegradebook.service.LessonService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -32,7 +32,7 @@ public class LessonController {
     @Operation(summary = "Create lesson", description = "Endpoint for lesson creation. Only users with role Teacher can access this endpoint.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Lesson created successfully",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = LessonDto.class))
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = GetLessonDto.class))
             ),
             @ApiResponse(responseCode = "400", description = "Bad request",
                     content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = ValidationErrorDto.class)))
@@ -48,15 +48,15 @@ public class LessonController {
             )
     })
     @PostMapping
-    public ResponseEntity<LessonDto> createLesson(@Valid @RequestBody LessonAddDto lessonAddDto) {
-        LessonDto lessonDto = lessonService.createLesson(lessonAddDto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(lessonDto);
+    public ResponseEntity<GetLessonDto> createLesson(@Valid @RequestBody LessonAddDto lessonAddDto) {
+        GetLessonDto getLessonDto = lessonService.createLesson(lessonAddDto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(getLessonDto);
     }
 
     @Operation(summary = "Get all lessons", description = "Endpoint for retrieving the list of lessons. When params are not specified all lessons are returned.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Lessons retrieved successfully",
-                    content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = LessonDto.class)))
+                    content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = GetLessonDto.class)))
             ),
             @ApiResponse(responseCode = "401", description = "Unauthorized - User not logged in",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponseDto.class))
@@ -66,16 +66,16 @@ public class LessonController {
             )
     })
     @GetMapping
-    public ResponseEntity<List<LessonDto>> getAllLessons(
+    public ResponseEntity<List<GetLessonDto>> getAllLessons(
             @Parameter(name = "subjectId", description = "Subject id", example = "5") @RequestParam(required = false) Long subjectId) {
-        List<LessonDto> lessons = lessonService.getAllLessons(subjectId);
+        List<GetLessonDto> lessons = lessonService.getAllLessons(subjectId);
         return ResponseEntity.ok().body(lessons);
     }
 
     @Operation(summary = "Get lesson by ID", description = "Endpoint for retrieving a lesson by ID.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Lesson retrieved successfully",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = LessonDto.class))
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = GetLessonDto.class))
             ),
             @ApiResponse(responseCode = "401", description = "Unauthorized - User not logged in",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponseDto.class))
@@ -88,8 +88,8 @@ public class LessonController {
             )
     })
     @GetMapping("/{lessonId}")
-    public ResponseEntity<LessonDto> getLessonById(@PathVariable Long lessonId) {
-        LessonDto lessonDto = lessonService.getLessonById(lessonId);
-        return ResponseEntity.ok().body(lessonDto);
+    public ResponseEntity<GetLessonDto> getLessonById(@PathVariable Long lessonId) {
+        GetLessonDto getLessonDto = lessonService.getLessonById(lessonId);
+        return ResponseEntity.ok().body(getLessonDto);
     }
 }
