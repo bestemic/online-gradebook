@@ -7,6 +7,7 @@ import com.pawlik.przemek.onlinegradebook.dto.error.ErrorResponseDto;
 import com.pawlik.przemek.onlinegradebook.dto.error.ValidationErrorDto;
 import com.pawlik.przemek.onlinegradebook.service.AttendanceService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -76,7 +77,10 @@ public class AttendanceController {
             )
     })
     @GetMapping("/lesson/{lessonId}")
-    public ResponseEntity<GetLessonAttendancesDto> getLessonAttendances(@PathVariable Long lessonId) {
+    public ResponseEntity<GetLessonAttendancesDto> getLessonAttendances(
+            @Parameter(description = "The unique ID of the lesson", example = "1")
+            @PathVariable Long lessonId
+    ) {
         var response = attendanceService.getLessonAttendances(lessonId);
         return ResponseEntity.ok().body(response);
     }
@@ -100,7 +104,13 @@ public class AttendanceController {
             )
     })
     @GetMapping("/lesson/{lessonId}/student/{studentId}")
-    public ResponseEntity<GetAttendanceDto> getAttendance(@PathVariable Long lessonId, @PathVariable Long studentId) {
+    public ResponseEntity<GetAttendanceDto> getAttendance(
+            @Parameter(description = "The unique ID of the lesson", example = "1")
+            @PathVariable Long lessonId,
+
+            @Parameter(description = "The unique ID of the student", example = "1234")
+            @PathVariable Long studentId
+    ) {
         var response = attendanceService.getAttendance(lessonId, studentId);
         return ResponseEntity.ok().body(response);
     }
