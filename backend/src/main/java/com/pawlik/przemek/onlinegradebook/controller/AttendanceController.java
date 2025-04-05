@@ -1,12 +1,13 @@
 package com.pawlik.przemek.onlinegradebook.controller;
 
-import com.pawlik.przemek.onlinegradebook.dto.attendance.AttendanceDto;
-import com.pawlik.przemek.onlinegradebook.dto.attendance.AttendancesAddDto;
-import com.pawlik.przemek.onlinegradebook.dto.attendance.AttendancesLessonDto;
+import com.pawlik.przemek.onlinegradebook.dto.attendance.AddLessonAttendancesDto;
+import com.pawlik.przemek.onlinegradebook.dto.attendance.GetAttendanceDto;
+import com.pawlik.przemek.onlinegradebook.dto.attendance.GetLessonAttendancesDto;
 import com.pawlik.przemek.onlinegradebook.dto.error.ErrorResponseDto;
 import com.pawlik.przemek.onlinegradebook.dto.error.ValidationErrorDto;
 import com.pawlik.przemek.onlinegradebook.service.AttendanceService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -20,19 +21,22 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping(path = "/api/v1/attendances")
-@Tag(name = "Attendances API", description = "Endpoints for managing attendances")
+@RequestMapping("/api/v1/attendances")
+@Tag(name = "Attendances API", description = "Endpoints for managing student attendances")
 @AllArgsConstructor
 public class AttendanceController {
 
     private final AttendanceService attendanceService;
 
-    @Operation(summary = "Attendances creation", description = "Endpoint for attendances creation. Only users with role Teacher can access this endpoint.")
+    @Operation(
+            summary = "Create attendances for a lesson",
+            description = "Registers attendance records for students in a specific lesson. Only users with the role TEACHER can access this endpoint."
+    )
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "Attendances created successfully",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = AttendancesLessonDto.class))
+            @ApiResponse(responseCode = "201", description = "Attendances successfully created",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = GetLessonAttendancesDto.class))
             ),
-            @ApiResponse(responseCode = "400", description = "Bad request",
+            @ApiResponse(responseCode = "400", description = "Invalid request data",
                     content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = ValidationErrorDto.class)))
             ),
             @ApiResponse(responseCode = "401", description = "Unauthorized - User not logged in",
@@ -41,23 +45,26 @@ public class AttendanceController {
             @ApiResponse(responseCode = "403", description = "Forbidden - Insufficient privileges",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponseDto.class))
             ),
-            @ApiResponse(responseCode = "404", description = "Not Found - Lesson not found",
+            @ApiResponse(responseCode = "404", description = "Lesson not found",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponseDto.class))
             ),
-            @ApiResponse(responseCode = "409", description = "Conflict - Attendance already assigned to student",
+            @ApiResponse(responseCode = "409", description = "Conflict - Attendance already recorded for one or more students",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponseDto.class))
             )
     })
     @PostMapping
-    public ResponseEntity<AttendancesLessonDto> create(@Valid @RequestBody AttendancesAddDto attendancesAddDto) {
-        AttendancesLessonDto attendancesLessonDto = attendanceService.create(attendancesAddDto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(attendancesLessonDto);
+    public ResponseEntity<GetLessonAttendancesDto> addLessonAttendances(@Valid @RequestBody AddLessonAttendancesDto addLessonAttendancesDto) {
+        var response = attendanceService.addLessonAttendances(addLessonAttendancesDto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    @Operation(summary = "Get attendances on lesson", description = "Endpoint for retrieving the list of attendances on lesson.")
+    @Operation(
+            summary = "Retrieve attendances for a lesson",
+            description = "Fetches the attendance records for a specified lesson."
+    )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Attendances retrieved successfully",
-                    content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = AttendancesLessonDto.class)))
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = GetLessonAttendancesDto.class))
             ),
             @ApiResponse(responseCode = "401", description = "Unauthorized - User not logged in",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponseDto.class))
@@ -65,20 +72,26 @@ public class AttendanceController {
             @ApiResponse(responseCode = "403", description = "Forbidden - Insufficient privileges",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponseDto.class))
             ),
-            @ApiResponse(responseCode = "404", description = "Not Found - Lesson not found",
+            @ApiResponse(responseCode = "404", description = "Lesson not found",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponseDto.class))
             )
     })
-    @GetMapping("lesson/{lessonId}")
-    public ResponseEntity<AttendancesLessonDto> getAttendancesOnLesson(@PathVariable Long lessonId) {
-        AttendancesLessonDto attendancesLessonDto = attendanceService.getAttendancesOnLesson(lessonId);
-        return ResponseEntity.ok().body(attendancesLessonDto);
+    @GetMapping("/lesson/{lessonId}")
+    public ResponseEntity<GetLessonAttendancesDto> getLessonAttendances(
+            @Parameter(description = "The unique ID of the lesson", example = "1")
+            @PathVariable Long lessonId
+    ) {
+        var response = attendanceService.getLessonAttendances(lessonId);
+        return ResponseEntity.ok().body(response);
     }
 
-    @Operation(summary = "Get student attendance on lesson", description = "Endpoint for retrieving attendance of student on lesson.")
+    @Operation(
+            summary = "Retrieve a student's attendance for a lesson",
+            description = "Fetches the attendance record of a specific student in a given lesson."
+    )
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Attendance retrieved successfully",
-                    content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = AttendanceDto.class)))
+            @ApiResponse(responseCode = "200", description = "Attendance record retrieved successfully",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = GetAttendanceDto.class))
             ),
             @ApiResponse(responseCode = "401", description = "Unauthorized - User not logged in",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponseDto.class))
@@ -86,13 +99,19 @@ public class AttendanceController {
             @ApiResponse(responseCode = "403", description = "Forbidden - Insufficient privileges",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponseDto.class))
             ),
-            @ApiResponse(responseCode = "404", description = "Not Found - Lesson, student or attendance not found",
+            @ApiResponse(responseCode = "404", description = "Lesson, student, or attendance record not found",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponseDto.class))
             )
     })
-    @GetMapping("lesson/{lessonId}/student/{studentId}")
-    public ResponseEntity<AttendanceDto> getStudentAttendanceOnLesson(@PathVariable Long lessonId, @PathVariable Long studentId) {
-        AttendanceDto attendance = attendanceService.getStudentAttendanceOnLesson(lessonId, studentId);
-        return ResponseEntity.ok().body(attendance);
+    @GetMapping("/lesson/{lessonId}/student/{studentId}")
+    public ResponseEntity<GetAttendanceDto> getAttendance(
+            @Parameter(description = "The unique ID of the lesson", example = "1")
+            @PathVariable Long lessonId,
+
+            @Parameter(description = "The unique ID of the student", example = "1234")
+            @PathVariable Long studentId
+    ) {
+        var response = attendanceService.getAttendance(lessonId, studentId);
+        return ResponseEntity.ok().body(response);
     }
 }

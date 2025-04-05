@@ -1,9 +1,9 @@
 package com.pawlik.przemek.onlinegradebook.service;
 
-import com.pawlik.przemek.onlinegradebook.dto.attendance.AttendanceAddDto;
-import com.pawlik.przemek.onlinegradebook.dto.attendance.AttendanceDto;
-import com.pawlik.przemek.onlinegradebook.dto.attendance.AttendancesAddDto;
-import com.pawlik.przemek.onlinegradebook.dto.attendance.AttendancesLessonDto;
+import com.pawlik.przemek.onlinegradebook.dto.attendance.AddAttendanceDto;
+import com.pawlik.przemek.onlinegradebook.dto.attendance.AddLessonAttendancesDto;
+import com.pawlik.przemek.onlinegradebook.dto.attendance.GetAttendanceDto;
+import com.pawlik.przemek.onlinegradebook.dto.attendance.GetLessonAttendancesDto;
 import com.pawlik.przemek.onlinegradebook.exception.CustomValidationException;
 import com.pawlik.przemek.onlinegradebook.exception.NotFoundException;
 import com.pawlik.przemek.onlinegradebook.mapper.AttendanceMapper;
@@ -15,7 +15,6 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 
 @Service
@@ -27,17 +26,17 @@ public class AttendanceService {
     private final UserService userService;
     private final LessonService lessonService;
 
-    public AttendancesLessonDto create(AttendancesAddDto attendancesAddDto) {
-        Lesson lesson = lessonService.getLessonObjectById(attendancesAddDto.getLessonId());
+    public GetLessonAttendancesDto addLessonAttendances(AddLessonAttendancesDto addLessonAttendancesDto) {
+        Lesson lesson = lessonService.getLessonObjectById(addLessonAttendancesDto.lessonId());
 
         int numberOfStudentsInClass = lesson.getSubject().getSchoolClass().getStudents().size();
-        if (attendancesAddDto.getAttendances().size() != numberOfStudentsInClass) {
+        if (addLessonAttendancesDto.attendances().size() != numberOfStudentsInClass) {
             throw new CustomValidationException("attendances", "Number of attendances does not match the number of students in the class.");
         }
 
-        List<Long> studentIds = attendancesAddDto.getAttendances().stream()
-                .map(AttendanceAddDto::getStudentId)
-                .collect(Collectors.toList());
+        List<Long> studentIds = addLessonAttendancesDto.attendances().stream()
+                .map(AddAttendanceDto::studentId)
+                .toList();
 
         List<User> students;
         try {
@@ -52,47 +51,47 @@ public class AttendanceService {
             }
         }
 
-        for (AttendanceAddDto attendanceAddDto : attendancesAddDto.getAttendances()) {
-            if (attendanceRepository.existsByStudentIdAndLessonId(attendanceAddDto.getStudentId(), attendancesAddDto.getLessonId())) {
-                throw new IllegalStateException("Attendance record already exists for student with id " + attendanceAddDto.getStudentId() + " in lesson " + attendancesAddDto.getLessonId() + ".");
+        for (AddAttendanceDto addAttendanceDto : addLessonAttendancesDto.attendances()) {
+            if (attendanceRepository.existsByStudentIdAndLessonId(addAttendanceDto.studentId(), addLessonAttendancesDto.lessonId())) {
+                throw new IllegalStateException("Attendance record already exists for student with id " + addAttendanceDto.studentId() + " in lesson " + addLessonAttendancesDto.lessonId() + ".");
             }
         }
 
-        List<Attendance> attendances = attendancesAddDto.getAttendances().stream()
+        List<Attendance> attendances = addLessonAttendancesDto.attendances().stream()
                 .map(studentAttendance -> {
-                    User student = students.stream().filter(s -> s.getId().equals(studentAttendance.getStudentId())).findFirst().get();
+                    User student = students.stream().filter(s -> s.getId().equals(studentAttendance.studentId())).findFirst().get();
                     Attendance attendance = new Attendance();
                     attendance.setLesson(lesson);
                     attendance.setStudent(student);
-                    attendance.setPresent(studentAttendance.getPresent());
+                    attendance.setPresent(studentAttendance.present());
                     return attendance;
                 })
-                .collect(Collectors.toList());
+                .toList();
 
         attendanceRepository.saveAll(attendances);
 
-        AttendancesLessonDto result = attendanceMapper.attendanceToAttendancesLessonDto(attendances.get(0));
-        result.setAttendances(attendances.stream()
+        GetLessonAttendancesDto result = attendanceMapper.attendanceToAttendancesLessonDto(attendances.getFirst());
+        result.attendances().addAll(attendances.stream()
                 .map(attendanceMapper::attendanceToAttendanceDto)
-                .collect(Collectors.toList()));
+                .toList());
         return result;
     }
 
-    public AttendancesLessonDto getAttendancesOnLesson(Long lessonId) {
+    public GetLessonAttendancesDto getLessonAttendances(Long lessonId) {
         lessonService.getLessonObjectById(lessonId);
         List<Attendance> attendances = attendanceRepository.findAllByLessonId(lessonId);
 
         if (attendances.isEmpty()) {
             throw new NotFoundException(("Attendance not found for lesson with id " + lessonId + "."));
         }
-        AttendancesLessonDto result = attendanceMapper.attendanceToAttendancesLessonDto(attendances.get(0));
-        result.setAttendances(attendances.stream()
+        GetLessonAttendancesDto result = attendanceMapper.attendanceToAttendancesLessonDto(attendances.getFirst());
+        result.attendances().addAll(attendances.stream()
                 .map(attendanceMapper::attendanceToAttendanceDto)
-                .collect(Collectors.toList()));
+                .toList());
         return result;
     }
 
-    public AttendanceDto getStudentAttendanceOnLesson(Long lessonId, Long studentId) {
+    public GetAttendanceDto getAttendance(Long lessonId, Long studentId) {
         lessonService.getLessonObjectById(lessonId);
         userService.getUserObjectById(studentId);
 

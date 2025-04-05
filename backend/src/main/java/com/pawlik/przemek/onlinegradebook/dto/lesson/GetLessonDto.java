@@ -10,7 +10,7 @@ import java.time.LocalDate;
 @Getter
 @Setter
 @AllArgsConstructor
-public class LessonDto {
+public class GetLessonDto {
 
     @Schema(description = "Unique identifier of the lesson", example = "1")
     private Long id;
