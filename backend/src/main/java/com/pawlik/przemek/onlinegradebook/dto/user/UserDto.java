@@ -1,6 +1,6 @@
 package com.pawlik.przemek.onlinegradebook.dto.user;
 
-import com.pawlik.przemek.onlinegradebook.dto.role.RoleDto;
+import com.pawlik.przemek.onlinegradebook.dto.role.GetRoleDto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -36,5 +36,5 @@ public class UserDto {
     private Long classId;
 
     @Schema(description = "Roles assigned to the user")
-    private Set<RoleDto> roles;
+    private Set<GetRoleDto> roles;
 }
