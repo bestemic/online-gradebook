@@ -14,7 +14,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -53,22 +52,22 @@ public class SubjectService {
             return subjectRepository.findBySchoolClassIdAndTeacherId(classId, teacherId)
                     .stream()
                     .map(subjectMapper::subjectToSubjectDto)
-                    .collect(Collectors.toList());
+                    .toList();
         } else if (classId != null) {
             return subjectRepository.findBySchoolClassId(classId)
                     .stream()
                     .map(subjectMapper::subjectToSubjectDto)
-                    .collect(Collectors.toList());
+                    .toList();
         } else if (teacherId != null) {
             return subjectRepository.findByTeacherId(teacherId)
                     .stream()
                     .map(subjectMapper::subjectToSubjectDto)
-                    .collect(Collectors.toList());
+                    .toList();
         }
 
         return ((List<Subject>) subjectRepository.findAll()).stream()
                 .map(subjectMapper::subjectToSubjectDto)
-                .collect(Collectors.toList());
+                .toList();
     }
 
 

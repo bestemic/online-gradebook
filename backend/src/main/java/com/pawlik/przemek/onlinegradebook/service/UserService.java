@@ -154,12 +154,12 @@ public class UserService {
             return userRepository.findByRolesName(roleName)
                     .stream()
                     .map(userMapper::userToUserDto)
-                    .collect(Collectors.toList());
+                    .toList();
         } else {
             return ((List<User>) userRepository.findAll())
                     .stream()
                     .map(userMapper::userToUserDto)
-                    .collect(Collectors.toList());
+                    .toList();
         }
     }
 

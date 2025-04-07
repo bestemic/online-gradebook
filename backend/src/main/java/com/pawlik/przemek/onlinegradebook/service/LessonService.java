@@ -1,7 +1,7 @@
 package com.pawlik.przemek.onlinegradebook.service;
 
-import com.pawlik.przemek.onlinegradebook.dto.lesson.LessonAddDto;
 import com.pawlik.przemek.onlinegradebook.dto.lesson.GetLessonDto;
+import com.pawlik.przemek.onlinegradebook.dto.lesson.LessonAddDto;
 import com.pawlik.przemek.onlinegradebook.exception.NotFoundException;
 import com.pawlik.przemek.onlinegradebook.mapper.LessonMapper;
 import com.pawlik.przemek.onlinegradebook.model.Lesson;
@@ -12,7 +12,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 
 @Service
@@ -46,11 +45,11 @@ public class LessonService {
         if (subjectId != null) {
             return lessonRepository.findBySubjectId(subjectId).stream()
                     .map(lessonMapper::lessonToLessonDto)
-                    .collect(Collectors.toList());
+                    .toList();
         }
 
         return ((List<Lesson>) lessonRepository.findAll()).stream()
                 .map(lessonMapper::lessonToLessonDto)
-                .collect(Collectors.toList());
+                .toList();
     }
 }
