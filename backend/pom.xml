@@ -31,6 +31,18 @@
         <mapstruct.version>1.6.3</mapstruct.version>
         <lombok.version>1.18.36</lombok.version>
         <maven.compiler.plugin.version>3.13.0</maven.compiler.plugin.version>
+
+        <!--    Sonar properties    -->
+        <sonar.projectName>Online Gradebook Backend</sonar.projectName>
+        <sonar.projectDescription>A REST API for Online Gradebook application</sonar.projectDescription>
+        <sonar.projectTags>java,backend,api,rest,spring-boot</sonar.projectTags>
+        <sonar.links.homepage>https://github.com/bestemic/online-gradebook</sonar.links.homepage>
+        <sonar.projectKey>online-gradebook-backend</sonar.projectKey>
+        <sonar.organization>bestemic</sonar.organization>
+        <sonar.host.url>https://sonarcloud.io</sonar.host.url>
+        <sonar.coverage.jacoco.xmlReportPaths>target/jacoco-report/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
+        <sonar.sources>src/main/java</sonar.sources>
+        <sonar.tests>src/test/java</sonar.tests>
     </properties>
 
     <dependencies>
