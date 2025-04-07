@@ -6,7 +6,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class CustomValidationException extends RuntimeException {
-    private String field;
+    private final String field;
 
     public CustomValidationException(String field, String message) {
         super(message);
