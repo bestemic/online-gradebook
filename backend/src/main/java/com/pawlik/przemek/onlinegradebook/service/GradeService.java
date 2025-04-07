@@ -119,10 +119,10 @@ public class GradeService {
                     GradesDto result = gradeMapper.gradeToGradesDto(groupedGrades.get(0));
                     result.setGrades(groupedGrades.stream()
                             .map(gradeMapper::gradeToGradeDto)
-                            .collect(Collectors.toList()));
+                            .toList());
                     return result;
                 })
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public List<GradeStudentDto> getGradesBySubjectAndStudent(Long subjectId, Long studentId) {
@@ -136,6 +136,6 @@ public class GradeService {
 
         return grades.stream()
                 .map(gradeMapper::gradeToGradeStudentDto)
-                .collect(Collectors.toList());
+                .toList();
     }
 }

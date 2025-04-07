@@ -49,7 +49,7 @@ public class SchoolClassService {
     public List<SchoolClassDto> getAllClasses() {
         return ((List<SchoolClass>) schoolClassRepository.findAll()).stream()
                 .map(schoolClassMapper::schoolClassToSchoolClassDto)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public SchoolClassDto getClassById(Long classId) {

@@ -41,7 +41,7 @@ public class GlobalErrorHandler {
                 .entrySet()
                 .stream()
                 .map(entry -> new ValidationErrorDto(entry.getKey(), entry.getValue()))
-                .collect(Collectors.toList());
+                .toList();
 
         return ResponseEntity.status(BAD_REQUEST).body(errors);
     }
