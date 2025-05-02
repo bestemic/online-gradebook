@@ -47,4 +47,3 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           mvn verify sonar:sonar
-          mvn package
