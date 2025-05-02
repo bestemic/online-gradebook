@@ -16,29 +16,9 @@ env:
   MAVEN_CACHE: 'maven'
 
 jobs:
-  compile:
-    name: Compile
+  build-and-test:
+    name: Build and Test Backend
     runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Set up JDK
-        uses: actions/setup-java@v4
-        with:
-          distribution: ${{ env.JDK_DISTRIBUTION }}
-          java-version: ${{ env.JAVA_VERSION }}
-          cache: ${{ env.MAVEN_CACHE }}
-
-      - name: Compile Backend Project
-        working-directory: ${{ env.WORKING_DIRECTORY }}
-        run: mvn compile
-
-  test:
-    name: Run Tests and Coverage
-    runs-on: ubuntu-latest
-    needs: compile
 
     steps:
       - name: Checkout repository
@@ -60,28 +40,11 @@ jobs:
           key: ${{ runner.os }}-sonar-${{ github.ref_name }}
           restore-keys: ${{ runner.os }}-sonar-${{ github.ref_name }}
 
-      - name: Run Tests and Analyze with SonarCloud
+      - name: Compile, Test, Analyze and Package
         working-directory: ${{ env.WORKING_DIRECTORY }}
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: mvn verify sonar:sonar
-
-  build:
-    name: Build Backend Artifact
-    runs-on: ubuntu-latest
-    needs: test
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Set up JDK
-        uses: actions/setup-java@v4
-        with:
-          distribution: ${{ env.JDK_DISTRIBUTION }}
-          java-version: ${{ env.JAVA_VERSION }}
-          cache: ${{ env.MAVEN_CACHE }}
-
-      - name: Build Backend Project
-        working-directory: ${{ env.WORKING_DIRECTORY }}
-        run: mvn package
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          mvn verify sonar:sonar
+          mvn package
