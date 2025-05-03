@@ -33,7 +33,7 @@ public class SubjectService {
         }
 
         SchoolClass schoolClass = schoolClassService.getClassObjectById(subjectAddDto.getClassId());
-        User teacher = userService.getUserObjectById(subjectAddDto.getTeacherId());
+        User teacher = userService.getUserEntityById(subjectAddDto.getTeacherId());
 
         if (teacher.getRoles().stream().noneMatch(role -> role.getName().equals("ROLE_TEACHER"))) {
             throw new CustomValidationException("teacherId", "Only users with role Teacher can teach subject");

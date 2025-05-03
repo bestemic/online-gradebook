@@ -127,7 +127,7 @@ public class GradeService {
 
     public List<GradeStudentDto> getGradesBySubjectAndStudent(Long subjectId, Long studentId) {
         subjectService.getSubjectObjectById(subjectId);
-        userService.getUserObjectById(studentId);
+        userService.getUserEntityById(studentId);
 
         List<Grade> grades = gradeRepository.findBySubjectIdAndStudentId(subjectId, studentId);
         if (grades.isEmpty()) {

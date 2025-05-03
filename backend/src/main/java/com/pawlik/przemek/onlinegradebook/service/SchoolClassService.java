@@ -63,7 +63,7 @@ public class SchoolClassService {
 
     public void removeStudentFromClass(Long classId, Long userId) {
         SchoolClass schoolClass = schoolClassRepository.findById(classId).orElseThrow(() -> new NotFoundException("Class not found with ID: " + classId));
-        User student = userService.getUserObjectById(userId);
+        User student = userService.getUserEntityById(userId);
 
         if (!schoolClass.getStudents().contains(student)) {
             throw new IllegalStateException("User is not assigned to this class");
@@ -76,7 +76,7 @@ public class SchoolClassService {
 
     public void addStudentToClass(Long classId, Long userId) {
         SchoolClass schoolClass = schoolClassRepository.findById(classId).orElseThrow(() -> new NotFoundException("Class not found with ID: " + classId));
-        User student = userService.getUserObjectById(userId);
+        User student = userService.getUserEntityById(userId);
 
         boolean isStudent = student.getRoles().stream().anyMatch(role -> role.getName().equals("ROLE_STUDENT"));
         if (!isStudent) {

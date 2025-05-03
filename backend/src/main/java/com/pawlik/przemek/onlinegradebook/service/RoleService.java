@@ -1,6 +1,5 @@
 package com.pawlik.przemek.onlinegradebook.service;
 
-import com.pawlik.przemek.onlinegradebook.dto.role.GetRoleDto;
 import com.pawlik.przemek.onlinegradebook.dto.role.GetRolesDto;
 import com.pawlik.przemek.onlinegradebook.mapper.RoleMapper;
 import com.pawlik.przemek.onlinegradebook.model.Role;
@@ -9,16 +8,16 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
-import java.util.List;
 
 @Service
 @AllArgsConstructor
 public class RoleService {
+
     private final RoleRepository roleRepository;
     private final RoleMapper roleMapper;
 
     public GetRolesDto getAllRoles() {
-        List<GetRoleDto> roles = roleRepository.findAll().stream()
+        var roles = roleRepository.findAll().stream()
                 .map(roleMapper::roleToRoleDto)
                 .toList();
 

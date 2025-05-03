@@ -25,6 +25,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -41,11 +42,17 @@ public class UserController {
     )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Authentication successful",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = GetTokenDto.class))),
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = GetTokenDto.class))
+            ),
             @ApiResponse(responseCode = "400", description = "Invalid request data",
-                    content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = ValidationErrorDto.class)))),
+                    content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = ValidationErrorDto.class)))
+            ),
             @ApiResponse(responseCode = "401", description = "Unauthorized - Invalid credentials",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponseDto.class)))
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponseDto.class))
+            ),
+            @ApiResponse(responseCode = "404", description = "User not found",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponseDto.class))
+            )
     })
     @PostMapping("/login")
     public ResponseEntity<GetTokenDto> loginUser(@Valid @RequestBody LoginUserDto loginUserDto) {
@@ -214,9 +221,10 @@ public class UserController {
     @GetMapping("/{userId}")
     public ResponseEntity<GetUserDto> getUserById(
             @Parameter(description = "Unique identifier of the user", required = true)
-            @PathVariable Long userId
+            @PathVariable Long userId,
+            Authentication authentication
     ) {
-        var user = userService.getUserById(userId);
+        var user = userService.getUserById(userId, authentication);
         return ResponseEntity.ok().body(user);
     }
 }

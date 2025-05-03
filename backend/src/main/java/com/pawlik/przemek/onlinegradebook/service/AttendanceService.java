@@ -93,7 +93,7 @@ public class AttendanceService {
 
     public GetAttendanceDto getAttendance(Long lessonId, Long studentId) {
         lessonService.getLessonObjectById(lessonId);
-        userService.getUserObjectById(studentId);
+        userService.getUserEntityById(studentId);
 
         Attendance attendance = attendanceRepository.findByStudentIdAndLessonId(studentId, lessonId)
                 .orElseThrow(() -> new NotFoundException("Attendance not found for user with id " + studentId + " on lesson with id " + lessonId + "."));
