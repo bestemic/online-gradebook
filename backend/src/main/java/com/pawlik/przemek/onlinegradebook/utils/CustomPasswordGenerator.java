@@ -1,30 +1,22 @@
 package com.pawlik.przemek.onlinegradebook.utils;
 
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
-import org.passay.CharacterData;
+import lombok.AllArgsConstructor;
 import org.passay.CharacterRule;
-import org.passay.EnglishCharacterData;
 import org.passay.PasswordGenerator;
+import org.springframework.stereotype.Component;
 
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
+import java.util.List;
+
+@Component
+@AllArgsConstructor
 public class CustomPasswordGenerator {
 
-    public static String generatePassword() {
-        PasswordGenerator generator = new PasswordGenerator();
+    private static final int DEFAULT_PASSWORD_LENGTH = 10;
 
-        CharacterData lowerCaseChars = EnglishCharacterData.LowerCase;
-        CharacterRule lowerCaseRule = new CharacterRule(lowerCaseChars);
-        lowerCaseRule.setNumberOfCharacters(2);
+    private final PasswordGenerator generator;
+    private final List<CharacterRule> rules;
 
-        CharacterData upperCaseChars = EnglishCharacterData.UpperCase;
-        CharacterRule upperCaseRule = new CharacterRule(upperCaseChars);
-        upperCaseRule.setNumberOfCharacters(2);
-
-        CharacterData digitChars = EnglishCharacterData.Digit;
-        CharacterRule digitRule = new CharacterRule(digitChars);
-        digitRule.setNumberOfCharacters(2);
-
-        return generator.generatePassword(10, lowerCaseRule, upperCaseRule, digitRule);
+    public String generatePassword() {
+        return generator.generatePassword(DEFAULT_PASSWORD_LENGTH, rules);
     }
 }
