@@ -1,6 +1,6 @@
 package com.pawlik.przemek.onlinegradebook.dto.attendance;
 
-import com.pawlik.przemek.onlinegradebook.dto.user.UserBasicDto;
+import com.pawlik.przemek.onlinegradebook.dto.user.GetUserBasicDto;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 public record GetAttendanceDto(
@@ -8,7 +8,7 @@ public record GetAttendanceDto(
         Long id,
 
         @Schema(description = "The student for whom attendance is being recorded")
-        UserBasicDto student,
+        GetUserBasicDto student,
 
         @Schema(description = "The student's attendance status (true if present, false if absent)", example = "true")
         Boolean present

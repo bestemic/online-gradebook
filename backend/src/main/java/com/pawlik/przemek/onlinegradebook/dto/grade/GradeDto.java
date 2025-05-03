@@ -1,6 +1,6 @@
 package com.pawlik.przemek.onlinegradebook.dto.grade;
 
-import com.pawlik.przemek.onlinegradebook.dto.user.UserBasicDto;
+import com.pawlik.przemek.onlinegradebook.dto.user.GetUserBasicDto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -14,7 +14,7 @@ public class GradeDto {
     private Long id;
 
     @Schema(description = "Student whose grade is being recorded")
-    private UserBasicDto student;
+    private GetUserBasicDto student;
 
     @Schema(description = "Grade value", example = "4")
     private String grade;

@@ -1,6 +1,6 @@
 package com.pawlik.przemek.onlinegradebook.dto.school_class;
 
-import com.pawlik.przemek.onlinegradebook.dto.user.UserBasicDto;
+import com.pawlik.przemek.onlinegradebook.dto.user.GetUserBasicDto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -23,5 +23,5 @@ public class SchoolClassDto {
     private String classroom;
 
     @Schema(description = "Students assigned to the class")
-    private List<UserBasicDto> students;
+    private List<GetUserBasicDto> students;
 }

@@ -1,7 +1,7 @@
 package com.pawlik.przemek.onlinegradebook.dto.subject;
 
 import com.pawlik.przemek.onlinegradebook.dto.school_class.SchoolClassBasicDto;
-import com.pawlik.przemek.onlinegradebook.dto.user.UserBasicDto;
+import com.pawlik.przemek.onlinegradebook.dto.user.GetUserBasicDto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -22,6 +22,6 @@ public class SubjectDto {
     private SchoolClassBasicDto schoolClass;
 
     @Schema(description = "Teacher assigned to the subject")
-    private UserBasicDto teacher;
+    private GetUserBasicDto teacher;
 }
 
