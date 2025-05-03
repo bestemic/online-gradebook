@@ -23,7 +23,10 @@ public class RoleController {
 
     private final RoleService roleService;
 
-    @Operation(summary = "Retrieve all available roles", description = "Fetches a list of all user roles, which define the access levels and permissions within the system. Roles typically follow the naming convention 'ROLE_*'.")
+    @Operation(
+            summary = "Retrieve all available roles",
+            description = "Fetches a list of all user roles, which define the access levels and permissions within the system. Roles typically follow the naming convention 'ROLE_*'."
+    )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Roles fetched successfully",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = GetRolesDto.class))
