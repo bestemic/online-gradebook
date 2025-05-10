@@ -1,7 +1,9 @@
 package com.pawlik.przemek.onlinegradebook.unit.service;
 
 import com.pawlik.przemek.onlinegradebook.constants.SecurityConstants;
+import com.pawlik.przemek.onlinegradebook.dto.user.AddUserDto;
 import com.pawlik.przemek.onlinegradebook.dto.user.LoginUserDto;
+import com.pawlik.przemek.onlinegradebook.exception.CustomValidationException;
 import com.pawlik.przemek.onlinegradebook.exception.NotFoundException;
 import com.pawlik.przemek.onlinegradebook.mapper.UserMapper;
 import com.pawlik.przemek.onlinegradebook.model.Role;
@@ -27,6 +29,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -34,6 +37,7 @@ import java.util.Set;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.contains;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -275,6 +279,280 @@ class UserServiceTest {
         assertThat(claims.get("changed", Boolean.class), is(false));
     }
 
+    @Test
+    @DisplayName("should add user and generate password")
+    void addUser_shouldSaveUserAndGeneratePassword() {
+        // given
+        var dto = new AddUserDto("Jane", "Doe", "new@example.com", "123456789", LocalDate.of(2000, 1, 1), List.of(1L));
+        var user = User.builder()
+                .firstName(dto.firstName())
+                .lastName(dto.lastName())
+                .email(dto.email())
+                .phoneNumber(dto.phoneNumber())
+                .birth(dto.birth())
+                .build();
+        var password = "password123";
+        var role = Role.builder().id(1L).name("ROLE_ADMIN").build();
+
+        when(userRepository.findByEmail(dto.email())).thenReturn(Optional.empty());
+        when(userMapper.userAddDtoToUser(dto)).thenReturn(user);
+        when(roleRepository.findAllById(dto.roleIds())).thenReturn(List.of(role));
+        when(customPasswordGenerator.generatePassword()).thenReturn(password);
+        when(passwordEncoder.encode(password)).thenReturn("encodedPassword");
+
+        // when
+        var passwordDto = userService.addUser(dto);
+
+        // then
+        assertNotNull(passwordDto);
+        assertThat(passwordDto.password(), is(password));
+
+        verify(userRepository).save(argThat(savedUser -> {
+            assertThat(savedUser.getFirstName(), is(dto.firstName()));
+            assertThat(savedUser.getLastName(), is(dto.lastName()));
+            assertThat(savedUser.getEmail(), is(dto.email()));
+            assertThat(savedUser.getPhoneNumber(), is(dto.phoneNumber()));
+            assertThat(savedUser.getBirth(), is(dto.birth()));
+            assertThat(savedUser.getPassword(), is("encodedPassword"));
+            assertThat(savedUser.getRoles().size(), is(1));
+            assertThat(savedUser.getRoles(), contains(role));
+            assertThat(savedUser.getPasswordChanged(), is(false));
+            return true;
+        }));
+        verify(userRepository).findByEmail(dto.email());
+        verify(userMapper).userAddDtoToUser(dto);
+        verify(roleRepository).findAllById(dto.roleIds());
+        verify(customPasswordGenerator).generatePassword();
+        verify(passwordEncoder).encode(password);
+        verifyNoMoreInteractions(userRepository, roleRepository, userMapper, customPasswordGenerator, passwordEncoder);
+        verifyNoInteractions(authenticationManager, pdfService);
+    }
+
+    @Test
+    @DisplayName("should throw CustomValidationException when adding user with duplicate email")
+    void addUser_shouldThrowCustomValidationException_whenEmailAlreadyExists() {
+        // given
+        var dto = new AddUserDto("John", "Doe", "test@example.com", null, null, List.of());
+
+        when(userRepository.findByEmail(dto.email())).thenReturn(Optional.of(new User()));
+
+        // when
+        var exception = assertThrows(CustomValidationException.class, () -> userService.addUser(dto));
+
+        // then
+        assertThat(exception.getField(), is("email"));
+        assertThat(exception.getMessage(), is("User with provided email already exists"));
+
+        verify(userRepository).findByEmail(dto.email());
+        verifyNoMoreInteractions(userRepository);
+        verifyNoInteractions(authenticationManager, roleRepository, userMapper, customPasswordGenerator, passwordEncoder, pdfService);
+    }
+
+    @Test
+    @DisplayName("should throw CustomValidationException when adding user with invalid roles")
+    void addUser_shouldThrowCustomValidationException_whenInvalidRolesProvided() {
+        // given
+        var dto = new AddUserDto("John", "Doe", "test@example.com", null, null, List.of(999L));
+        var user = User.builder().email(dto.email()).build();
+
+        when(userRepository.findByEmail(dto.email())).thenReturn(Optional.empty());
+        when(userMapper.userAddDtoToUser(dto)).thenReturn(user);
+        when(roleRepository.findAllById(dto.roleIds())).thenReturn(List.of());
+
+        // when
+        var exception = assertThrows(CustomValidationException.class, () -> userService.addUser(dto));
+
+        // then
+        assertThat(exception.getField(), is("roleIds"));
+        assertThat(exception.getMessage(), is("One or more roles do not exist"));
+
+        verify(userRepository).findByEmail(dto.email());
+        verify(userMapper).userAddDtoToUser(dto);
+        verify(roleRepository).findAllById(dto.roleIds());
+        verifyNoMoreInteractions(userRepository, roleRepository, userMapper);
+        verifyNoInteractions(authenticationManager, customPasswordGenerator, passwordEncoder, pdfService);
+    }
+
+    @Test
+    @DisplayName("should add user with role student and validate required field")
+    void addUser_shouldAddStudentAndValidateFields() {
+        // given
+        var dto = new AddUserDto("Student", "Example", "student@example.com", null, LocalDate.of(2010, 5, 15), List.of(2L));
+        var user = User.builder()
+                .firstName(dto.firstName())
+                .lastName(dto.lastName())
+                .email(dto.email())
+                .birth(dto.birth())
+                .build();
+        var password = "studentPassword";
+        var role = Role.builder().id(2L).name("ROLE_STUDENT").build();
+
+        when(userRepository.findByEmail(dto.email())).thenReturn(Optional.empty());
+        when(userMapper.userAddDtoToUser(dto)).thenReturn(user);
+        when(roleRepository.findAllById(dto.roleIds())).thenReturn(List.of(role));
+        when(customPasswordGenerator.generatePassword()).thenReturn(password);
+        when(passwordEncoder.encode(password)).thenReturn("encodedPassword");
+
+        // when
+        var passwordDto = userService.addUser(dto);
+
+        // then
+        assertNotNull(passwordDto);
+        assertThat(passwordDto.password(), is(password));
+
+        verify(userRepository).save(argThat(savedUser -> {
+            assertThat(savedUser.getRoles().size(), is(1));
+            assertThat(savedUser.getRoles(), contains(role));
+            assertThat(savedUser.getBirth(), is(dto.birth()));
+            return true;
+        }));
+        verify(userRepository).findByEmail(dto.email());
+        verify(userMapper).userAddDtoToUser(dto);
+        verify(roleRepository).findAllById(dto.roleIds());
+        verify(customPasswordGenerator).generatePassword();
+        verify(passwordEncoder).encode(password);
+        verifyNoMoreInteractions(userRepository, roleRepository, userMapper, customPasswordGenerator, passwordEncoder);
+        verifyNoInteractions(authenticationManager, pdfService);
+    }
+
+    @Test
+    @DisplayName("should add user with role admin or teacher and validate required fields")
+    void addUser_shouldAddAdminOrTeacherAndValidateFields() {
+        // given
+        var dto = new AddUserDto("Teacher", "Example", "teacher@example.com", "123456789", null, List.of(3L));
+        var user = User.builder()
+                .firstName(dto.firstName())
+                .lastName(dto.lastName())
+                .email(dto.email())
+                .phoneNumber(dto.phoneNumber())
+                .build();
+        var password = "teacherPassword";
+        var role = Role.builder().id(3L).name("ROLE_TEACHER").build();
+
+        when(userRepository.findByEmail(dto.email())).thenReturn(Optional.empty());
+        when(userMapper.userAddDtoToUser(dto)).thenReturn(user);
+        when(roleRepository.findAllById(dto.roleIds())).thenReturn(List.of(role));
+        when(customPasswordGenerator.generatePassword()).thenReturn(password);
+        when(passwordEncoder.encode(password)).thenReturn("encodedPassword");
+
+        // when
+        var passwordDto = userService.addUser(dto);
+
+        // then
+        assertNotNull(passwordDto);
+        assertThat(passwordDto.password(), is(password));
+
+        verify(userRepository).save(argThat(savedUser -> {
+            assertThat(savedUser.getRoles().size(), is(1));
+            assertThat(savedUser.getRoles(), contains(role));
+            assertThat(savedUser.getPhoneNumber(), is(dto.phoneNumber()));
+            return true;
+        }));
+        verify(userRepository).findByEmail(dto.email());
+        verify(userMapper).userAddDtoToUser(dto);
+        verify(roleRepository).findAllById(dto.roleIds());
+        verify(customPasswordGenerator).generatePassword();
+        verify(passwordEncoder).encode(password);
+        verifyNoMoreInteractions(userRepository, roleRepository, userMapper, customPasswordGenerator, passwordEncoder);
+        verifyNoInteractions(authenticationManager, pdfService);
+    }
+
+    @Test
+    @DisplayName("should throw CustomValidationException when student birth date is missing")
+    void addUser_shouldThrowCustomValidationException_whenStudentBirthDateMissing() {
+        // given
+        var dto = new AddUserDto("Student", "Example", "student@example.com", null, null, List.of(2L));
+        var user = User.builder().email(dto.email()).build();
+        var role = Role.builder().id(2L).name("ROLE_STUDENT").build();
+
+        when(userRepository.findByEmail(dto.email())).thenReturn(Optional.empty());
+        when(userMapper.userAddDtoToUser(dto)).thenReturn(user);
+        when(roleRepository.findAllById(dto.roleIds())).thenReturn(List.of(role));
+
+        // when
+        var exception = assertThrows(CustomValidationException.class, () -> userService.addUser(dto));
+
+        // then
+        assertThat(exception.getField(), is("birth"));
+        assertThat(exception.getMessage(), is("Date of birth is required for students"));
+
+        verify(userRepository).findByEmail(dto.email());
+        verify(userMapper).userAddDtoToUser(dto);
+        verify(roleRepository).findAllById(dto.roleIds());
+        verifyNoMoreInteractions(userRepository, roleRepository, userMapper);
+        verifyNoInteractions(authenticationManager, customPasswordGenerator, passwordEncoder, pdfService);
+    }
+
+    @Test
+    @DisplayName("should throw CustomValidationException when admin or teacher phone number is missing")
+    void addUser_shouldThrowException_whenAdminOrTeacherPhoneNumberMissing() {
+        // given
+        var dto = new AddUserDto("Admin", "Example", "admin@example.com", null, null, List.of(1L));
+        var user = User.builder().email(dto.email()).build();
+        var role = Role.builder().id(1L).name("ROLE_ADMIN").build();
+
+        when(userRepository.findByEmail(dto.email())).thenReturn(Optional.empty());
+        when(userMapper.userAddDtoToUser(dto)).thenReturn(user);
+        when(roleRepository.findAllById(dto.roleIds())).thenReturn(List.of(role));
+
+        // when
+        var exception = assertThrows(CustomValidationException.class, () -> userService.addUser(dto));
+
+        // then
+        assertThat(exception.getField(), is("phoneNumber"));
+        assertThat(exception.getMessage(), is("Phone number is required for admin or teacher"));
+
+        verify(userRepository).findByEmail(dto.email());
+        verify(userMapper).userAddDtoToUser(dto);
+        verify(roleRepository).findAllById(dto.roleIds());
+        verifyNoMoreInteractions(userRepository, roleRepository, userMapper);
+        verifyNoInteractions(authenticationManager, customPasswordGenerator, passwordEncoder, pdfService);
+    }
+
+    @Test
+    @DisplayName("should throw CustomValidationException when user is both teacher and student")
+    void addUser_shouldThrowException_whenUserIsTeacherAndStudent() {
+        // given
+        var dto = new AddUserDto("MultiRole", "Example", "multi@example.com", "123456789", LocalDate.of(2010, 5, 15), List.of(2L, 3L));
+        var user = User.builder()
+                .firstName(dto.firstName())
+                .lastName(dto.lastName())
+                .email(dto.email())
+                .phoneNumber(dto.phoneNumber())
+                .birth(dto.birth())
+                .build();
+        var password = "multiRolePassword";
+        var studentRole = Role.builder().id(2L).name("ROLE_STUDENT").build();
+        var teacherRole = Role.builder().id(3L).name("ROLE_TEACHER").build();
+
+        when(userRepository.findByEmail(dto.email())).thenReturn(Optional.empty());
+        when(userMapper.userAddDtoToUser(dto)).thenReturn(user);
+        when(roleRepository.findAllById(dto.roleIds())).thenReturn(List.of(studentRole, teacherRole));
+        when(customPasswordGenerator.generatePassword()).thenReturn(password);
+        when(passwordEncoder.encode(password)).thenReturn("encodedPassword");
+
+        // when
+        var passwordDto = userService.addUser(dto);
+
+        // then
+        assertNotNull(passwordDto);
+        assertThat(passwordDto.password(), is(password));
+
+        verify(userRepository).save(argThat(savedUser -> {
+            assertThat(savedUser.getPhoneNumber(), is(dto.phoneNumber()));
+            assertThat(savedUser.getBirth(), is(dto.birth()));
+            assertThat(savedUser.getRoles().size(), is(2));
+            assertThat(savedUser.getRoles(), containsInAnyOrder(studentRole, teacherRole));
+            return true;
+        }));
+        verify(userRepository).findByEmail(dto.email());
+        verify(userMapper).userAddDtoToUser(dto);
+        verify(roleRepository).findAllById(dto.roleIds());
+        verify(customPasswordGenerator).generatePassword();
+        verify(passwordEncoder).encode(password);
+        verifyNoMoreInteractions(userRepository, roleRepository, userMapper, customPasswordGenerator, passwordEncoder);
+        verifyNoInteractions(authenticationManager, pdfService);
+    }
 
     private Claims parseToken(String jwt) {
         return Jwts.parser()

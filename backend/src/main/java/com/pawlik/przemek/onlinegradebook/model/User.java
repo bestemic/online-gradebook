@@ -36,6 +36,7 @@ public class User {
 
     private LocalDate birth;
 
+    @Builder.Default
     @Column(name = "password_changed", columnDefinition = "boolean default false")
     private Boolean passwordChanged = false;
 
