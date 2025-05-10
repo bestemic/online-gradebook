@@ -315,7 +315,7 @@ class UserServiceTest {
             assertThat(savedUser.getPhoneNumber(), is(dto.phoneNumber()));
             assertThat(savedUser.getBirth(), is(dto.birth()));
             assertThat(savedUser.getPassword(), is("encodedPassword"));
-            assertThat(savedUser.getRoles().size(), is(1));
+            assertThat(savedUser.getRoles(), hasSize(1));
             assertThat(savedUser.getRoles(), contains(role));
             assertThat(savedUser.getPasswordChanged(), is(false));
             return true;
@@ -402,7 +402,7 @@ class UserServiceTest {
         assertThat(passwordDto.password(), is(password));
 
         verify(userRepository).save(argThat(savedUser -> {
-            assertThat(savedUser.getRoles().size(), is(1));
+            assertThat(savedUser.getRoles(), hasSize(1));
             assertThat(savedUser.getRoles(), contains(role));
             assertThat(savedUser.getBirth(), is(dto.birth()));
             return true;
@@ -444,7 +444,7 @@ class UserServiceTest {
         assertThat(passwordDto.password(), is(password));
 
         verify(userRepository).save(argThat(savedUser -> {
-            assertThat(savedUser.getRoles().size(), is(1));
+            assertThat(savedUser.getRoles(), hasSize(1));
             assertThat(savedUser.getRoles(), contains(role));
             assertThat(savedUser.getPhoneNumber(), is(dto.phoneNumber()));
             return true;
@@ -542,7 +542,7 @@ class UserServiceTest {
         verify(userRepository).save(argThat(savedUser -> {
             assertThat(savedUser.getPhoneNumber(), is(dto.phoneNumber()));
             assertThat(savedUser.getBirth(), is(dto.birth()));
-            assertThat(savedUser.getRoles().size(), is(2));
+            assertThat(savedUser.getRoles(), hasSize(2));
             assertThat(savedUser.getRoles(), containsInAnyOrder(studentRole, teacherRole));
             return true;
         }));
@@ -625,6 +625,167 @@ class UserServiceTest {
         verify(userRepository).findById(userId);
         verifyNoMoreInteractions(userRepository);
         verifyNoInteractions(authenticationManager, pdfService, customPasswordGenerator, roleRepository, userMapper, passwordEncoder);
+    }
+
+    @Test
+    @DisplayName("should successfully reset password and set passwordChanged to false")
+    void resetPassword_shouldResetPasswordAndSetFlagToFalse() {
+        // given
+        var userId = 1L;
+        var user = User.builder().id(userId).password("oldEncodedPassword").passwordChanged(true).build();
+        var newPassword = "newGeneratedPassword";
+
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(customPasswordGenerator.generatePassword()).thenReturn(newPassword);
+        when(passwordEncoder.encode(newPassword)).thenReturn("encodedNewPassword");
+
+        // when
+        var passwordDto = userService.resetPassword(userId);
+
+        // then
+        assertNotNull(passwordDto);
+        assertThat(passwordDto.password(), is(newPassword));
+
+        verify(userRepository).findById(userId);
+        verify(customPasswordGenerator).generatePassword();
+        verify(passwordEncoder).encode(newPassword);
+        verify(userRepository).save(argThat(savedUser -> {
+            assertThat(savedUser.getPassword(), is("encodedNewPassword"));
+            assertThat(savedUser.getPasswordChanged(), is(false));
+            return true;
+        }));
+        verifyNoMoreInteractions(userRepository, customPasswordGenerator, passwordEncoder);
+        verifyNoInteractions(authenticationManager, pdfService, roleRepository, userMapper);
+    }
+
+    @Test
+    @DisplayName("should throw NotFoundException when user does not exist")
+    void resetPassword_shouldThrowException_whenUserDoesNotExist() {
+        // given
+        var userId = 1L;
+
+        when(userRepository.findById(userId)).thenReturn(Optional.empty());
+
+        // when
+        var exception = assertThrows(NotFoundException.class, () -> userService.resetPassword(userId));
+
+        // then
+        assertThat(exception.getMessage(), is("User not found with ID: " + userId));
+
+        verify(userRepository).findById(userId);
+        verifyNoMoreInteractions(userRepository);
+        verifyNoInteractions(customPasswordGenerator, passwordEncoder, authenticationManager, pdfService, roleRepository, userMapper);
+    }
+
+    @Test
+    @DisplayName("should handle reset password when user already has passwordChanged set to false")
+    void resetPassword_shouldHandleAlreadyFalsePasswordChangedFlag() {
+        // given
+        var userId = 1L;
+        var user = User.builder().id(userId).password("oldEncodedPassword").passwordChanged(false).build();
+        var newPassword = "newGeneratedPassword";
+
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(customPasswordGenerator.generatePassword()).thenReturn(newPassword);
+        when(passwordEncoder.encode(newPassword)).thenReturn("encodedNewPassword");
+
+        // when
+        var passwordDto = userService.resetPassword(userId);
+
+        // then
+        assertNotNull(passwordDto);
+        assertThat(passwordDto.password(), is(newPassword));
+
+        verify(userRepository).findById(userId);
+        verify(customPasswordGenerator).generatePassword();
+        verify(passwordEncoder).encode(newPassword);
+        verify(userRepository).save(argThat(savedUser -> {
+            assertThat(savedUser.getPassword(), is("encodedNewPassword"));
+            assertThat(savedUser.getPasswordChanged(), is(false));
+            return true;
+        }));
+        verifyNoMoreInteractions(userRepository, customPasswordGenerator, passwordEncoder);
+        verifyNoInteractions(authenticationManager, pdfService, roleRepository, userMapper);
+    }
+
+    @Test
+    @DisplayName("should throw NotFoundException when one user is not found")
+    void resetPasswords_shouldThrowException_whenOneUserNotFound() {
+        // given
+        var userIds = List.of(1L, 2L, 3L);
+        var user1 = User.builder().id(1L).build();
+        var user2 = User.builder().id(2L).build();
+
+        when(userRepository.findAllById(userIds)).thenReturn(List.of(user1, user2));
+
+        // when
+        var exception = assertThrows(NotFoundException.class, () -> userService.resetPasswords(userIds));
+
+        // then
+        assertThat(exception.getMessage(), is("One or more users not found"));
+
+        verify(userRepository).findAllById(userIds);
+        verifyNoMoreInteractions(userRepository);
+        verifyNoInteractions(authenticationManager, pdfService, roleRepository, userMapper, customPasswordGenerator, passwordEncoder);
+    }
+
+    @Test
+    @DisplayName("should throw NotFoundException when all users are not found")
+    void resetPasswords_shouldThrowException_whenAllUsersNotFound() {
+        // given
+        var userIds = List.of(1L, 2L, 3L);
+
+        when(userRepository.findAllById(userIds)).thenReturn(List.of());
+
+        // when
+        var exception = assertThrows(NotFoundException.class, () -> userService.resetPasswords(userIds));
+
+        // then
+        assertThat(exception.getMessage(), is("One or more users not found"));
+
+        verify(userRepository).findAllById(userIds);
+        verifyNoMoreInteractions(userRepository);
+        verifyNoInteractions(authenticationManager, pdfService, roleRepository, userMapper, customPasswordGenerator, passwordEncoder);
+    }
+
+    @Test
+    @DisplayName("should reset passwords for multiple users successfully")
+    void resetPasswords_shouldResetPasswordsForMultipleUsers() {
+        // given
+        var userIds = List.of(1L, 2L);
+        var user1 = User.builder().id(1L).password("oldPassword1").passwordChanged(true).build();
+        var user2 = User.builder().id(2L).password("oldPassword2").passwordChanged(true).build();
+        var newPassword1 = "newPassword1";
+        var newPassword2 = "newPassword2";
+
+        when(userRepository.findAllById(userIds)).thenReturn(List.of(user1, user2));
+        when(customPasswordGenerator.generatePassword()).thenReturn(newPassword1, newPassword2);
+        when(passwordEncoder.encode(newPassword1)).thenReturn("encodedNewPassword1");
+        when(passwordEncoder.encode(newPassword2)).thenReturn("encodedNewPassword2");
+        when(pdfService.generateFileWithPasswords(any())).thenReturn(new byte[0]);
+
+        // when
+        var pdfBytes = userService.resetPasswords(userIds);
+
+        // then
+        assertNotNull(pdfBytes);
+
+        verify(userRepository).findAllById(userIds);
+        verify(customPasswordGenerator, times(2)).generatePassword();
+        verify(passwordEncoder).encode(newPassword1);
+        verify(passwordEncoder).encode(newPassword2);
+        verify(userRepository).saveAll(argThat((List<User> users) -> {
+            assertThat(users, hasSize(2));
+            assertThat(users, containsInAnyOrder(user1, user2));
+            assertThat(users.get(0).getPassword(), is("encodedNewPassword1"));
+            assertThat(users.get(0).getPasswordChanged(), is(false));
+            assertThat(users.get(1).getPassword(), is("encodedNewPassword2"));
+            assertThat(users.get(1).getPasswordChanged(), is(false));
+            return true;
+        }));
+        verify(pdfService).generateFileWithPasswords(anyMap());
+        verifyNoMoreInteractions(userRepository, customPasswordGenerator, passwordEncoder, pdfService);
+        verifyNoInteractions(authenticationManager, roleRepository, userMapper);
     }
 
     private Claims parseToken(String jwt) {
