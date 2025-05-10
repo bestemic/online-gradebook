@@ -1,6 +1,7 @@
 package com.pawlik.przemek.onlinegradebook.unit.service;
 
 import com.pawlik.przemek.onlinegradebook.constants.SecurityConstants;
+import com.pawlik.przemek.onlinegradebook.dto.password.ChangePasswordDto;
 import com.pawlik.przemek.onlinegradebook.dto.user.AddUserDto;
 import com.pawlik.przemek.onlinegradebook.dto.user.LoginUserDto;
 import com.pawlik.przemek.onlinegradebook.exception.CustomValidationException;
@@ -552,6 +553,78 @@ class UserServiceTest {
         verify(passwordEncoder).encode(password);
         verifyNoMoreInteractions(userRepository, roleRepository, userMapper, customPasswordGenerator, passwordEncoder);
         verifyNoInteractions(authenticationManager, pdfService);
+    }
+
+    @Test
+    @DisplayName("should throw CustomValidationException when current password is incorrect")
+    void changePassword_shouldThrowException_whenCurrentPasswordIsIncorrect() {
+        // given
+        var userId = 1L;
+        var changePasswordDto = new ChangePasswordDto("wrongPassword", "newPassword");
+        var user = User.builder().id(userId).password("encodedCorrectPassword").build();
+
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(passwordEncoder.matches(changePasswordDto.currentPassword(), user.getPassword())).thenReturn(false);
+
+        // when
+        var exception = assertThrows(CustomValidationException.class, () -> userService.changePassword(userId, changePasswordDto));
+
+        // then
+        assertThat(exception.getField(), is("currentPassword"));
+        assertThat(exception.getMessage(), is("Current password doesn't match"));
+
+        verify(userRepository).findById(userId);
+        verify(passwordEncoder).matches(changePasswordDto.currentPassword(), user.getPassword());
+        verifyNoMoreInteractions(userRepository, passwordEncoder);
+        verifyNoInteractions(authenticationManager, pdfService, customPasswordGenerator, roleRepository, userMapper);
+    }
+
+    @Test
+    @DisplayName("should successfully change password when current password is correct")
+    void changePassword_shouldChangePassword_whenCurrentPasswordIsCorrect() {
+        // given
+        var userId = 1L;
+        var changePasswordDto = new ChangePasswordDto("correctPassword", "newPassword");
+        var user = User.builder().id(userId).password("encodedCorrectPassword").build();
+
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(passwordEncoder.matches(changePasswordDto.currentPassword(), user.getPassword())).thenReturn(true);
+        when(passwordEncoder.encode(changePasswordDto.newPassword())).thenReturn("encodedNewPassword");
+
+        // when
+        userService.changePassword(userId, changePasswordDto);
+
+        // then
+        verify(userRepository).findById(userId);
+        verify(passwordEncoder).matches(changePasswordDto.currentPassword(), "encodedCorrectPassword");
+        verify(passwordEncoder).encode(changePasswordDto.newPassword());
+        verify(userRepository).save(argThat(savedUser -> {
+            assertThat(savedUser.getPassword(), is("encodedNewPassword"));
+            assertThat(savedUser.getPasswordChanged(), is(true));
+            return true;
+        }));
+        verifyNoMoreInteractions(userRepository, passwordEncoder);
+        verifyNoInteractions(authenticationManager, pdfService, customPasswordGenerator, roleRepository, userMapper);
+    }
+
+    @Test
+    @DisplayName("should throw NotFoundException when user does not exist")
+    void changePassword_shouldThrowException_whenUserDoesNotExist() {
+        // given
+        var userId = 1L;
+        var changePasswordDto = new ChangePasswordDto("currentPassword", "newPassword");
+
+        when(userRepository.findById(userId)).thenReturn(Optional.empty());
+
+        // when
+        var exception = assertThrows(NotFoundException.class, () -> userService.changePassword(userId, changePasswordDto));
+
+        // then
+        assertThat(exception.getMessage(), is("User not found with ID: " + userId));
+
+        verify(userRepository).findById(userId);
+        verifyNoMoreInteractions(userRepository);
+        verifyNoInteractions(authenticationManager, pdfService, customPasswordGenerator, roleRepository, userMapper, passwordEncoder);
     }
 
     private Claims parseToken(String jwt) {
