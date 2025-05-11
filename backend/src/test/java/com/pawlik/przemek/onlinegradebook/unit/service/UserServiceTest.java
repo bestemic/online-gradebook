@@ -1014,6 +1014,185 @@ class UserServiceTest {
         verifyNoInteractions(userMapper, authenticationManager, roleRepository, customPasswordGenerator, passwordEncoder, pdfService);
     }
 
+    @Test
+    @DisplayName("should return all students when all IDs are valid")
+    void getAllStudentsWithIds_shouldReturnAllStudents_whenAllIdsAreValid() {
+        // given
+        var student1 = User.builder().id(1L).roles(Set.of(Role.builder().name("ROLE_STUDENT").build())).build();
+        var student2 = User.builder().id(2L).roles(Set.of(Role.builder().name("ROLE_STUDENT").build())).build();
+        var studentIds = List.of(1L, 2L);
+
+        when(userRepository.findAllById(studentIds)).thenReturn(List.of(student1, student2));
+
+        // when
+        var result = userService.getAllStudentsWithIds(studentIds);
+
+        // then
+        assertNotNull(result);
+        assertThat(result, hasSize(2));
+        assertThat(result, containsInAnyOrder(student1, student2));
+
+        verify(userRepository).findAllById(studentIds);
+        verifyNoMoreInteractions(userRepository);
+        verifyNoInteractions(authenticationManager, roleRepository, customPasswordGenerator, passwordEncoder, pdfService, userMapper);
+    }
+
+    @Test
+    @DisplayName("should return empty list when input list is empty")
+    void getAllStudentsWithIds_shouldReturnEmptyList_whenInputListIsEmpty() {
+        // given
+        List<Long> studentIds = List.of();
+
+        when(userRepository.findAllById(studentIds)).thenReturn(List.of());
+
+        // when
+        var result = userService.getAllStudentsWithIds(studentIds);
+
+        // then
+        assertNotNull(result);
+        assertThat(result, is(empty()));
+
+        verify(userRepository).findAllById(studentIds);
+        verifyNoMoreInteractions(userRepository);
+        verifyNoInteractions(authenticationManager, roleRepository, customPasswordGenerator, passwordEncoder, pdfService, userMapper);
+    }
+
+    @Test
+    @DisplayName("should throw NotFoundException when some students do not exist")
+    void getAllStudentsWithIds_shouldThrowException_whenSomeStudentsDoNotExist() {
+        // given
+        var student1 = User.builder().id(1L).roles(Set.of(Role.builder().name("ROLE_STUDENT").build())).build();
+        var studentIds = List.of(1L, 2L);
+
+        when(userRepository.findAllById(studentIds)).thenReturn(List.of(student1));
+
+        // when
+        var exception = assertThrows(NotFoundException.class, () -> userService.getAllStudentsWithIds(studentIds));
+
+        // then
+        assertThat(exception.getMessage(), is("Some students do not exist"));
+
+        verify(userRepository).findAllById(studentIds);
+        verifyNoMoreInteractions(userRepository);
+        verifyNoInteractions(authenticationManager, roleRepository, customPasswordGenerator, passwordEncoder, pdfService, userMapper);
+    }
+
+    @Test
+    @DisplayName("should throw IllegalStateException when user ID is not a student")
+    void getAllStudentsWithIds_shouldThrowException_whenUserIdIsNotStudent() {
+        // given
+        var nonStudent = User.builder().id(1L).roles(Set.of(Role.builder().name("ROLE_TEACHER").build())).build();
+        var studentIds = List.of(1L);
+
+        when(userRepository.findAllById(studentIds)).thenReturn(List.of(nonStudent));
+
+        // when
+        var exception = assertThrows(IllegalStateException.class, () -> userService.getAllStudentsWithIds(studentIds));
+
+        // then
+        assertThat(exception.getMessage(), is("User with ID: 1 is not a student"));
+
+        verify(userRepository).findAllById(studentIds);
+        verifyNoMoreInteractions(userRepository);
+        verifyNoInteractions(authenticationManager, roleRepository, customPasswordGenerator, passwordEncoder, pdfService, userMapper);
+    }
+
+    @Test
+    @DisplayName("should successfully initialize a new user")
+    void initUser_shouldInitializeNewUser() {
+        // given
+        var email = "newuser@example.com";
+        var roles = "ROLE_ADMIN,ROLE_TEACHER";
+        var roleAdmin = Role.builder().id(1L).name("ROLE_ADMIN").build();
+        var roleTeacher = Role.builder().id(2L).name("ROLE_TEACHER").build();
+
+        when(userRepository.findByEmail(email)).thenReturn(Optional.empty());
+        when(roleRepository.findByName("ROLE_ADMIN")).thenReturn(Optional.of(roleAdmin));
+        when(roleRepository.findByName("ROLE_TEACHER")).thenReturn(Optional.of(roleTeacher));
+        when(passwordEncoder.encode("password123")).thenReturn("encodedPassword");
+
+        // when
+        userService.initUser("John", "Doe", email, "password123", "123456789", LocalDate.of(1990, 1, 1), roles);
+
+        // then
+        verify(userRepository).findByEmail(email);
+        verify(roleRepository).findByName("ROLE_ADMIN");
+        verify(roleRepository).findByName("ROLE_TEACHER");
+        verify(passwordEncoder).encode("password123");
+        verify(userRepository).save(argThat(savedUser -> {
+            assertThat(savedUser.getEmail(), is(email));
+            assertThat(savedUser.getRoles(), containsInAnyOrder(roleAdmin, roleTeacher));
+            assertThat(savedUser.getFirstName(), is("John"));
+            assertThat(savedUser.getLastName(), is("Doe"));
+            assertThat(savedUser.getPhoneNumber(), is("123456789"));
+            assertThat(savedUser.getBirth(), is(LocalDate.of(1990, 1, 1)));
+            assertThat(savedUser.getPassword(), is("encodedPassword"));
+            assertThat(savedUser.getPasswordChanged(), is(false));
+            return true;
+        }));
+        verifyNoMoreInteractions(userRepository, roleRepository, passwordEncoder);
+        verifyNoInteractions(authenticationManager, customPasswordGenerator, pdfService, userMapper);
+    }
+
+    @Test
+    @DisplayName("should not initialize user when email already exists")
+    void initUser_shouldNotInitializeUser_whenEmailAlreadyExists() {
+        // given
+        var email = "existinguser@example.com";
+        when(userRepository.findByEmail(email)).thenReturn(Optional.of(new User()));
+
+        // when
+        userService.initUser("Jane", "Doe", email, "password123", "123456789", LocalDate.of(1990, 1, 1), "ROLE_ADMIN");
+
+        // then
+        verify(userRepository).findByEmail(email);
+        verifyNoMoreInteractions(userRepository);
+        verifyNoInteractions(roleRepository, passwordEncoder, authenticationManager, customPasswordGenerator, pdfService, userMapper);
+    }
+
+    @Test
+    @DisplayName("should throw NotFoundException when roles do not exist")
+    void initUser_shouldThrowException_whenRolesDoNotExist() {
+        // given
+        var email = "newuser@example.com";
+        var roles = "ROLE_UNKNOWN";
+        when(userRepository.findByEmail(email)).thenReturn(Optional.empty());
+        when(roleRepository.findByName("ROLE_UNKNOWN")).thenReturn(Optional.empty());
+
+        // when
+        var exception = assertThrows(NotFoundException.class, () -> userService.initUser("John", "Doe", email, "password123", "123456789", null, roles));
+
+        // then
+        assertThat(exception.getMessage(), is("Role not found: ROLE_UNKNOWN"));
+        verify(userRepository).findByEmail(email);
+        verify(roleRepository).findByName("ROLE_UNKNOWN");
+        verifyNoMoreInteractions(userRepository, roleRepository);
+        verifyNoInteractions(passwordEncoder, authenticationManager, customPasswordGenerator, pdfService, userMapper);
+    }
+
+    @Test
+    @DisplayName("should throw CustomValidationException when required fields are missing")
+    void initUser_shouldThrowException_whenRequiredFieldsAreMissing() {
+        // given
+        var email = "newuser@example.com";
+        var birth = LocalDate.of(1990, 1, 1);
+        var roles = "ROLE_ADMIN";
+        var roleAdmin = Role.builder().id(1L).name("ROLE_ADMIN").build();
+
+        when(userRepository.findByEmail(email)).thenReturn(Optional.empty());
+        when(roleRepository.findByName("ROLE_ADMIN")).thenReturn(Optional.of(roleAdmin));
+
+        // when
+        var exception = assertThrows(CustomValidationException.class, () -> userService.initUser("John", "Doe", email, null, null, birth, roles));
+
+        // then
+        assertThat(exception.getField(), is("phoneNumber"));
+        assertThat(exception.getMessage(), is("Phone number is required for admin or teacher"));
+        verify(userRepository).findByEmail(email);
+        verify(roleRepository).findByName("ROLE_ADMIN");
+        verifyNoMoreInteractions(userRepository, roleRepository);
+    }
+
     private Claims parseToken(String jwt) {
         return Jwts.parser()
                 .verifyWith(Keys.hmacShaKeyFor(SecurityConstants.JWT_KEY.getBytes(StandardCharsets.UTF_8)))
