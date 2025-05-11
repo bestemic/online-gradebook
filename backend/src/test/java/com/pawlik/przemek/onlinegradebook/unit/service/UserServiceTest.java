@@ -3,6 +3,7 @@ package com.pawlik.przemek.onlinegradebook.unit.service;
 import com.pawlik.przemek.onlinegradebook.constants.SecurityConstants;
 import com.pawlik.przemek.onlinegradebook.dto.password.ChangePasswordDto;
 import com.pawlik.przemek.onlinegradebook.dto.user.AddUserDto;
+import com.pawlik.przemek.onlinegradebook.dto.user.GetUserDto;
 import com.pawlik.przemek.onlinegradebook.dto.user.LoginUserDto;
 import com.pawlik.przemek.onlinegradebook.exception.CustomValidationException;
 import com.pawlik.przemek.onlinegradebook.exception.NotFoundException;
@@ -24,6 +25,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -786,6 +788,230 @@ class UserServiceTest {
         verify(pdfService).generateFileWithPasswords(anyMap());
         verifyNoMoreInteractions(userRepository, customPasswordGenerator, passwordEncoder, pdfService);
         verifyNoInteractions(authenticationManager, roleRepository, userMapper);
+    }
+
+    @Test
+    @DisplayName("should return all users when no role is specified")
+    void getUsersByRole_shouldReturnAllUsers_whenNoRoleSpecified() {
+        // given
+        var firstUser = User.builder().id(1L).email("user1@example.com").build();
+        var secondUser = User.builder().id(2L).email("user2@example.com").build();
+        var users = List.of(firstUser, secondUser);
+
+        when(userRepository.findAll()).thenReturn(users);
+        when(userMapper.userToUserDto(any(User.class))).thenAnswer(invocation -> {
+            var user = invocation.getArgument(0, User.class);
+            return new GetUserDto(user.getId(), null, null, user.getEmail(), null, null, null, null);
+        });
+
+        // when
+        var result = userService.getUsersByRole(null);
+
+        // then
+        assertNotNull(result);
+        assertThat(result.users(), hasSize(2));
+        assertThat(result.users().stream().map(GetUserDto::email).toList(), containsInAnyOrder("user1@example.com", "user2@example.com"));
+
+        verify(userRepository).findAll();
+        verify(userMapper, times(2)).userToUserDto(any(User.class));
+        verifyNoMoreInteractions(userRepository, userMapper);
+        verifyNoInteractions(authenticationManager, roleRepository, customPasswordGenerator, passwordEncoder, pdfService);
+    }
+
+    @Test
+    @DisplayName("should return all users when empty role specified")
+    void getUsersByRole_shouldReturnAllUsers_whenEmptyRoleSpecified() {
+        // given
+        var firstUser = User.builder().id(1L).email("user1@example.com").build();
+        var secondUser = User.builder().id(2L).email("user2@example.com").build();
+        var users = List.of(firstUser, secondUser);
+
+        when(userRepository.findAll()).thenReturn(users);
+        when(userMapper.userToUserDto(any(User.class))).thenAnswer(invocation -> {
+            var user = invocation.getArgument(0, User.class);
+            return new GetUserDto(user.getId(), null, null, user.getEmail(), null, null, null, null);
+        });
+
+        // when
+        var result = userService.getUsersByRole("");
+
+        // then
+        assertNotNull(result);
+        assertThat(result.users(), hasSize(2));
+        assertThat(result.users().stream().map(GetUserDto::email).toList(), containsInAnyOrder("user1@example.com", "user2@example.com"));
+
+        verify(userRepository).findAll();
+        verify(userMapper, times(2)).userToUserDto(any(User.class));
+        verifyNoMoreInteractions(userRepository, userMapper);
+        verifyNoInteractions(authenticationManager, roleRepository, customPasswordGenerator, passwordEncoder, pdfService);
+    }
+
+    @Test
+    @DisplayName("should return users with specific role")
+    void getUsersByRole_shouldReturnUsersWithSpecificRole() {
+        // given
+        var roleName = "ROLE_ADMIN";
+        var firstUser = User.builder().id(1L).email("admin1@example.com").build();
+        var secondUser = User.builder().id(2L).email("admin2@example.com").build();
+        var users = List.of(firstUser, secondUser);
+
+        when(userRepository.findByRolesName(roleName)).thenReturn(users);
+        when(userMapper.userToUserDto(any(User.class))).thenAnswer(invocation -> {
+            var user = invocation.getArgument(0, User.class);
+            return new GetUserDto(user.getId(), null, null, user.getEmail(), null, null, null, null);
+        });
+
+        // when
+        var result = userService.getUsersByRole(roleName);
+
+        // then
+        assertNotNull(result);
+        assertThat(result.users(), hasSize(2));
+        assertThat(result.users().stream().map(GetUserDto::email).toList(), containsInAnyOrder("admin1@example.com", "admin2@example.com"));
+
+        verify(userRepository).findByRolesName(roleName);
+        verify(userMapper, times(2)).userToUserDto(any(User.class));
+        verifyNoMoreInteractions(userRepository, userMapper);
+        verifyNoInteractions(authenticationManager, roleRepository, customPasswordGenerator, passwordEncoder, pdfService);
+    }
+
+    @Test
+    @DisplayName("should return empty list when no users are found for specific role")
+    void getUsersByRole_shouldReturnEmptyList_whenNoUsersFoundForRole() {
+        // given
+        var roleName = "ROLE_TEACHER";
+
+        when(userRepository.findByRolesName(roleName)).thenReturn(List.of());
+
+        // when
+        var result = userService.getUsersByRole(roleName);
+
+        // then
+        assertNotNull(result);
+        assertThat(result.users(), is(empty()));
+
+        verify(userRepository).findByRolesName(roleName);
+        verifyNoMoreInteractions(userRepository);
+        verifyNoInteractions(userMapper, authenticationManager, roleRepository, customPasswordGenerator, passwordEncoder, pdfService);
+    }
+
+    @Test
+    @DisplayName("should return user details when user is same person")
+    void getUserById_shouldReturnUser_whenUserIsSamePerson() {
+        // given
+        var userId = 1L;
+        var user = User.builder().id(userId).email("user@example.com").build();
+        var authentication = new TestingAuthenticationToken("user@example.com", null, List.of(new SimpleGrantedAuthority("ROLE_USER")));
+
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(userRepository.findByEmail(authentication.getName())).thenReturn(Optional.of(user));
+        when(userMapper.userToUserDto(user)).thenReturn(new GetUserDto(user.getId(), null, null, user.getEmail(), null, null, null, null));
+
+        // when
+        var result = userService.getUserById(userId, authentication);
+
+        // then
+        assertNotNull(result);
+        assertThat(result.id(), is(userId));
+        assertThat(result.email(), is("user@example.com"));
+
+        verify(userRepository).findById(userId);
+        verify(userRepository).findByEmail(authentication.getName());
+        verify(userMapper).userToUserDto(user);
+        verifyNoMoreInteractions(userRepository, userMapper);
+        verifyNoInteractions(authenticationManager, roleRepository, customPasswordGenerator, passwordEncoder, pdfService);
+    }
+
+    @Test
+    @DisplayName("should allow admin to access any user")
+    void getUserById_shouldAllowAdminAccessToAnyUser() {
+        // given
+        var userId = 1L;
+        var user = User.builder().id(userId).email("user@example.com").build();
+        var adminUser = User.builder().id(2L).email("admin@example.com").build();
+        var authentication = new TestingAuthenticationToken("admin@example.com", null, List.of(new SimpleGrantedAuthority("ROLE_ADMIN")));
+
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(userRepository.findByEmail(authentication.getName())).thenReturn(Optional.of(adminUser));
+        when(userMapper.userToUserDto(user)).thenReturn(new GetUserDto(user.getId(), null, null, user.getEmail(), null, null, null, null));
+
+        // when
+        var result = userService.getUserById(userId, authentication);
+
+        // then
+        assertNotNull(result);
+        assertThat(result.id(), is(userId));
+        assertThat(result.email(), is("user@example.com"));
+
+        verify(userRepository).findById(userId);
+        verify(userRepository).findByEmail(authentication.getName());
+        verify(userMapper).userToUserDto(user);
+        verifyNoMoreInteractions(userRepository, userMapper);
+        verifyNoInteractions(authenticationManager, roleRepository, customPasswordGenerator, passwordEncoder, pdfService);
+    }
+
+    @Test
+    @DisplayName("should throw NotFoundException when admin search for not existing user")
+    void getUserById_shouldThrowNotFoundException_whenAdminSearchNotExistingUser() {
+        // given
+        var userId = 1L;
+        var adminUser = User.builder().id(2L).email("admin@example.com").build();
+        var authentication = new TestingAuthenticationToken("admin@example.com", null, List.of(new SimpleGrantedAuthority("ROLE_ADMIN")));
+
+        when(userRepository.findById(userId)).thenReturn(Optional.empty());
+        when(userRepository.findByEmail(authentication.getName())).thenReturn(Optional.of(adminUser));
+
+        // when
+        var exception = assertThrows(NotFoundException.class, () -> userService.getUserById(userId, authentication));
+
+        // then
+        assertThat(exception.getMessage(), is("User not found with ID: " + userId));
+
+        verify(userRepository).findById(userId);
+        verify(userRepository).findByEmail(authentication.getName());
+        verifyNoMoreInteractions(userRepository);
+        verifyNoInteractions(userMapper, authenticationManager, roleRepository, customPasswordGenerator, passwordEncoder, pdfService);
+    }
+
+    @Test
+    @DisplayName("should throw AccessDeniedException when access to user is denied")
+    void getUserById_shouldThrowAccessDeniedException_whenAccessDenied() {
+        // given
+        var userId = 1L;
+        var otherUser = User.builder().id(2L).email("otheruser@example.com").build();
+        var authentication = new TestingAuthenticationToken("otheruser@example.com", null, List.of(new SimpleGrantedAuthority("ROLE_USER")));
+
+        when(userRepository.findByEmail(authentication.getName())).thenReturn(Optional.of(otherUser));
+
+        // when
+        var exception = assertThrows(AccessDeniedException.class, () -> userService.getUserById(userId, authentication));
+
+        // then
+        assertThat(exception.getMessage(), is("You do not have permission to access this user"));
+
+        verify(userRepository).findByEmail(authentication.getName());
+        verifyNoMoreInteractions(userRepository);
+        verifyNoInteractions(userMapper, authenticationManager, roleRepository, customPasswordGenerator, passwordEncoder, pdfService);
+    }
+
+    @Test
+    @DisplayName("should throw AccessDeniedException when requester not exists")
+    void getUserById_shouldThrowAccessDeniedException_whenRequesterNotExists() {
+        // given
+        var userId = 1L;
+        var authentication = new TestingAuthenticationToken("none.existing@example.com", null, List.of(new SimpleGrantedAuthority("ROLE_USER")));
+
+        when(userRepository.findByEmail(authentication.getName())).thenReturn(Optional.empty());
+
+        // when
+        var exception = assertThrows(AccessDeniedException.class, () -> userService.getUserById(userId, authentication));
+
+        // then
+        assertThat(exception.getMessage(), is("You do not have permission to access this user"));
+
+        verify(userRepository).findByEmail(authentication.getName());
+        verifyNoMoreInteractions(userRepository);
+        verifyNoInteractions(userMapper, authenticationManager, roleRepository, customPasswordGenerator, passwordEncoder, pdfService);
     }
 
     private Claims parseToken(String jwt) {
